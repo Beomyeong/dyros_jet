@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/devel
+
+Name: imu_3dm_gx4
+Description: Description of imu_3dm_gx4
+Version: 0.0.5
+Cflags: -I/home/beom/catkin_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime geometry_msgs sensor_msgs

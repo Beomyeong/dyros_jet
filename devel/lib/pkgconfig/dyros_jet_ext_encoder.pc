@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/devel
+
+Name: dyros_jet_ext_encoder
+Description: Description of dyros_jet_ext_encoder
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: dyros_jet_msgs geometry_msgs roscpp sensor_msgs std_msgs realtime_tools

@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/install
+
+Name: dyros_jet_msgs
+Description: Description of dyros_jet_msgs
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime std_msgs geometry_msgs sensor_msgs

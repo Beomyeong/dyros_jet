@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/install
+
+Name: dyros_jet_haptic
+Description: Description of dyros_jet_haptic
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: dyros_jet_msgs

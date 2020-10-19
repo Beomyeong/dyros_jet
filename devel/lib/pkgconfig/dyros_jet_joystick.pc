@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/devel
+
+Name: dyros_jet_joystick
+Description: Description of dyros_jet_joystick
+Version: 0.0.0
+Cflags: -I/home/beom/catkin_ws/src/dyros_jet/dyros_jet_joystick/include
+Libs: -L${prefix}/lib 
+Requires: joy roscpp dyros_jet_msgs

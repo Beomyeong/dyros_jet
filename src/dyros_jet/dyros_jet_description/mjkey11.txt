@@ -1,0 +1,20 @@
+MuJoCo Pro Trial license activation key, number 140999, type 6.
+
+Issued to Beomyeong Park <on2lord@snu.ac.kr>.
+
+Expires November 30, 2019.
+
+This file activates MuJoCo Pro on a single computer with id:
+LINUX_s2D16S171_SG2DTA0087k4a7i828S2Bn019324
+
+Do not modify this file. Its entire content, including the
+plain text section, is used by the activation manager.
+
+fb861bc3c494a9788c439e15a31644e586673f80c117ba74e176de477a42e1cf
+17190179c1fa49b48eb0a7ec4b8d42dbc896810fc63b79ed6a7069b9c6b9e00b
+e8f6024ba1405190861c6a8736c513f88b7110fe644e788af065bf846e5b2f79
+82570bfa2eb6f7c8133e6fe88952243ebd3b30e8f5d78ed2c25c58005a9d856e
+3cceb6b69ec611983f91ee1b6ea67f1b012ae0499219e7f71deeb237463d7b76
+8ea4b199f46e9a61eae0fc95bed752c7a0a2109acd330927999da8ce354d357b
+f6c4f06af6a0e1e686d822bb17cf90d3fc5a6ec766456980251eac19e5c37d02
+59fcf7308919c142c5a0ac208bf3de407b09b0db99ad209ec3eb4ce6b8e52ee0

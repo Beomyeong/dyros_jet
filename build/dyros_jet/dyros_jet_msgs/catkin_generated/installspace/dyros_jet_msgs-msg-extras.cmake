@@ -1,0 +1,2 @@
+set(dyros_jet_msgs_MESSAGE_FILES "msg/JointSet.msg;msg/JointState.msg;msg/JointCommand.msg;msg/TaskCommand.msg;msg/WalkingCommand.msg;msg/WalkingState.msg;msg/JointControlAction.msg;msg/JointControlActionGoal.msg;msg/JointControlActionResult.msg;msg/JointControlActionFeedback.msg;msg/JointControlGoal.msg;msg/JointControlResult.msg;msg/JointControlFeedback.msg")
+set(dyros_jet_msgs_SERVICE_FILES "")

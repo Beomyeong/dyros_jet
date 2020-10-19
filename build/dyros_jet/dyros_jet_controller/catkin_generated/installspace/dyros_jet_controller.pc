@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/install
+
+Name: dyros_jet_controller
+Description: Description of dyros_jet_controller
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: dyros_jet_msgs imu_3dm_gx4 rt_dynamixel_msgs geometry_msgs roscpp sensor_msgs std_msgs realtime_tools eigen_conversions

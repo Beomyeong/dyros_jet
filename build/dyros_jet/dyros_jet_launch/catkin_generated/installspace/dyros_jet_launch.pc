@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/install
+
+Name: dyros_jet_launch
+Description: Description of dyros_jet_launch
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

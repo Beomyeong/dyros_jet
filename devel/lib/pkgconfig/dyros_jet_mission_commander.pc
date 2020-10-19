@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/devel
+
+Name: dyros_jet_mission_commander
+Description: Description of dyros_jet_mission_commander
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: dyros_jet_msgs

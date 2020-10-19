@@ -1,0 +1,8 @@
+prefix=/home/beom/catkin_ws/devel
+
+Name: dyros_jet_moveit
+Description: Description of dyros_jet_moveit
+Version: 0.3.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
