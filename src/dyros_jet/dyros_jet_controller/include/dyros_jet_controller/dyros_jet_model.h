@@ -94,8 +94,8 @@ public:
   void getArmLinksJacobianMatrix(unsigned int id, Eigen::Matrix<double, 6, 7> *jacobian);
 
 
-  void getCenterOfMassPosition(Eigen::Vector3d* position);
-  void getCenterOfMassPositionDot(Eigen::Vector3d* position);
+  void getCenterOfMassPosition(Eigen::Vector3d* position, Eigen::Vector3d* angular_momentum);
+  void getCenterOfMassPositionDot(Eigen::Vector3d* position, Eigen::Vector3d* linear_momentum);
 
   void getInertiaMatrix34DoF(Eigen::Matrix<double, 34, 34> *inertia);
   void getInertiaMatrix18DoF(Eigen::Matrix<double, 18, 18> *leg_inertia);
@@ -114,7 +114,13 @@ public:
   const Eigen::Matrix<double, 6, 6>& getLegLinkJacobian(unsigned int i) { return leg_link_jacobian_[i]; }
   const Eigen::Matrix<double, 6, 7>& getArmLinkJacobian(unsigned int i) { return arm_link_jacobian_[i]; }
   const Eigen::Vector3d & getLinkComPosition(unsigned int id) { return link_local_com_position_[id];}
-  const double & getLinkMass(unsigned int id) { return link_mass_[id]; }
+  const double& getLinkMass(unsigned int id) { return link_mass_[id]; }
+  const Eigen::Vector3d& getCurrentComAngularMomentum() {return angular_momentum_;}
+  const Eigen::Vector3d& getCurrentComLinearMomentum() { return linear_momentum_; }
+  const Eigen::Matrix<double, 29, 1>& getLinkMassVector() {return link_mass_vector_; }
+
+  const Eigen::Matrix3d& getLinkInertia(int i){ return link_inertia_[i];}
+//  const Eigen::Isometry3d& getLinkTransform(int i) {return link_transform_[i];}
 
 
   const Eigen::Vector3d& getSimulationCom(){return com_simulation_;}
@@ -132,9 +138,11 @@ public:
   const Eigen::Vector3d& getImuGravityDirection() {return grav_rpy_;}
 
 
+
   const Eigen::Matrix<double, 18, 18>& getLegInertia() { return leg_inertia_mat_; }
   const Eigen::Matrix<double, 34, 34>& getFullInertia() { return full_inertia_mat_; }
 
+  const Eigen::Vector3d& getBasePosition() {return base_position_;}
 
 private:
   RigidBodyDynamics::Model model_;
@@ -142,6 +150,8 @@ private:
   Eigen::Vector28d q_;
   Eigen::Matrix<double, 34, 1> q_virtual_;
   Eigen::Matrix<double, 34, 1> q_virtual_dot_;
+
+  Eigen::Vector3d cm_;
 
   Eigen::Vector12d q_ext_;
   Eigen::Matrix<double, DyrosJetModel::MODEL_WITH_VIRTUAL_DOF, 1> qvjoint_;
@@ -153,7 +163,9 @@ private:
   Eigen::Isometry3d currnet_transform_[4];  //each limb's end effector
   Eigen::Isometry3d link_transform_[28];    //all of links
   double link_mass_[29];
+//  Eigen::Vector2d link_mass_[29];
   Eigen::Vector3d link_local_com_position_[29];
+  Eigen::Matrix<double, 29,1> link_mass_vector_;
 
   Eigen::Matrix<double, 6, 6> leg_jacobian_[2];
   Eigen::Matrix<double, 6, 7> arm_jacobian_[2];
@@ -168,6 +180,8 @@ private:
   Eigen::Vector3d com_;
   Eigen::Vector3d com_simulation_;
   Eigen::Vector3d comDot_;
+  Eigen::Vector3d angular_momentum_;
+  Eigen::Vector3d linear_momentum_;
 
   Eigen::Vector3d accel_;
   Eigen::Vector3d angvel_;
@@ -188,6 +202,8 @@ private:
 
 
 
+  //for centroidal Momentum matrix
+  Eigen::Matrix<double, 3,3> link_inertia_[29];
 
 
 };

@@ -67,6 +67,7 @@ file(GLOB CONTROLLER_SRC
     "src/joint_controller.cpp"
     "src/moveit_controller.cpp"
     "src/joystick_walking_planner.cpp"
+    "src/centroidal_dynamics.cpp"
     )
 
 

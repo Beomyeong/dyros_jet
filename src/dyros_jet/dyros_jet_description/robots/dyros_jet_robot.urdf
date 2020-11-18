@@ -10,8 +10,7 @@
   <link name="base_link">
     <inertial>
       <origin xyz="0 0 0.08027" rpy="0 0 0" />
-      <mass 
-	value="3.90994" />
+      <mass value="3.90994" />
       <inertia
         ixx="0.02724195938"
         ixy="0"
@@ -47,14 +46,13 @@
       <origin
         xyz="-0.02955 0 0.06943"
         rpy="0 0 0" />
-      <mass 
-	value="1.54216" />
+      <mass value="1.54216" />
       <inertia
         ixx="0.00412070145"
         ixy="0"
         ixz="0.00089593414"
         iyy="0.00664372362"
-        iyz="-0.0000003791"
+        iyz="0"
         izz="0.00338413515" />
     </inertial>
     <visual>
@@ -108,9 +106,9 @@
       <inertia
         ixx="0.00180677428"
         ixy="0.00000973989"
-        ixz="0.00000040230"
+        ixz="0"
         iyy="0.00087972680"
-        iyz="-0.000033160"
+        iyz="0"
         izz="0.00199196267" />
     </inertial>
     <visual>
@@ -219,7 +217,7 @@
         value="2.04524" />
       <inertia
         ixx="0.03535528788"
-        ixy="0.00087858758"
+        ixy="-0.00087858758"
         ixz="-0.00310465960"
         iyy="0.03128221988"
         iyz="0.00677319603"
@@ -276,9 +274,9 @@
       <inertia
         ixx="0.00091081511"
         ixy="0.00006964019"
-        ixz="0.000002848"
+        ixz="0"
         iyy="0.00185149782"
-        iyz="-0.0000062320"
+        iyz="0"
         izz="0.00206162879" />
     </inertial>
     <visual>
@@ -331,10 +329,10 @@
         value="1.42541" />
       <inertia
         ixx="0.00349247764"
-        ixy="-0.0000003495"
+        ixy="0"
         ixz="-0.00086859128"
         iyy="0.00816767704"
-        iyz="-0.0000001029"
+        iyz="0"
         izz="0.00895530984" />
     </inertial>
     <visual>
@@ -387,10 +385,10 @@
         value="1.54216" />
       <inertia
         ixx="0.00412070145"
-        ixy="0.0000009012"
+        ixy="0"
         ixz="0.00089593414"
         iyy="0.00664372362"
-        iyz="-0.0000003794"
+        iyz="0"
         izz="0.00338413515" />
     </inertial>
     <visual>
@@ -444,9 +442,9 @@
       <inertia
         ixx="0.00180677428"
         ixy="-0.00000973989"
-        ixz="0.0000004386"
+        ixz="0"
         iyy="0.00087972680"
-        iyz="0.00003322"
+        iyz="0"
         izz="0.00199196267" />
     </inertial>
     <visual>
@@ -555,10 +553,10 @@
         value="2.04524" />
       <inertia
         ixx="0.03537964069"
-        ixy="-0.002045"
-        ixz="-0.007079"
+        ixy="0.00087727444"
+        ixz="-0.00310527519"
         iyy="0.03129299830"
-        iyz="-0.002961"
+        iyz="-0.00676289825"
         izz="0.00679475749" />
     </inertial>
     <visual>
@@ -612,9 +610,9 @@
       <inertia
         ixx="0.00091077271"
         ixy="-0.00006959439"
-        ixz="0.000002857"
+        ixz="0"
         iyy="0.00185147541"
-        iyz="0.000006241"
+        iyz="0"
         izz="0.00206164878" />
     </inertial>
     <visual>
@@ -667,10 +665,10 @@
         value="1.42541" />
       <inertia
         ixx="0.00350322410"
-        ixy="0.000001766"
-        ixz="-0.0006359"
+        ixy="0"
+        ixz="-0.00090168812"
         iyy="0.00816767704"
-        iyz="0.0000003606"
+        iyz="0"
         izz="0.00894456337" />
     </inertial>
     <visual>
@@ -717,17 +715,17 @@
     name="WaistPitch_Link">
     <inertial>
       <origin
-        xyz="0 0 0.1831"
+        xyz="0 0 0.14577"
         rpy="0 0 0" />
       <mass
         value="0.18235" />
       <inertia
-        ixx="0.00012302926"
+        ixx="0.003844"
         ixy="0"
         ixz="0"
-        iyy="0.00065359928"
+        iyy="0.004215"
         iyz="0"
-        izz="0.00063093458" />
+        izz="0.000457" />
     </inertial>
     <visual>
       <origin
@@ -799,19 +797,6 @@
           rgba="0.59216 0.61961 0.65098 1" />
       </material>
     </visual>
-    <visual>
-      <origin
-        xyz="-0.16 0 0.11"
-        rpy="0 0 0" />
-      <geometry>
-        <box size= "0.09 0.265 0.225"/>
-      </geometry>
-      <material
-        name="">
-        <color
-          rgba="0.59216 0.61961 0.65098 1" />
-      </material>
-    </visual>
     <collision>
       <origin
         xyz="0 0 0"
@@ -819,14 +804,6 @@
       <geometry>
         <mesh
           filename="package://dyros_jet_description/meshes/WaistYaw_Link.stl" />
-      </geometry>
-    </collision>
-    <collision>
-      <origin
-        xyz="-0.16 0 0.11"
-        rpy="0 0 0" />
-      <geometry>
-        <box size= "0.09 0.265 0.225"/>
       </geometry>
     </collision>
   </link>
@@ -891,7 +868,7 @@
     type="revolute">
     <origin
       xyz="0 0.17 0.239"
-      rpy="0.5236 0 0" />
+      rpy="0.5236 0 -4.6787E-15" />
     <parent
       link="WaistYaw_Link" />
     <child
@@ -906,17 +883,17 @@
     name="L_ShoulderRoll_Link">
     <inertial>
       <origin
-        xyz="0 0.03197 0.02958"
+        xyz="0 0.02958 -0.03197"
         rpy="0 0 0" />
       <mass
         value="0.11240" />
       <inertia
-        ixx="0.00020404661"
+        ixx="0.001421"
         ixy="0"
         ixz="0"
-        iyy="0.00041936488"
-        iyz="0.00000671313"
-        izz="0.00050880868" />
+        iyy="0.001585"
+        iyz="0.000389"
+        izz="0.001839" />
     </inertial>
     <visual>
       <origin
@@ -947,7 +924,7 @@
     type="revolute">
     <origin
       xyz="0 0 0"
-      rpy="0 0 0" />
+      rpy="0 0 -7.8886E-31" />
     <parent
       link="L_ShoulderPitch_Link" />
     <child
@@ -956,23 +933,23 @@
       xyz="1 0 0" />
     <limit
       effort="30"
-      velocity="1" lower="-2.1" upper="-0.2" />
+      velocity="1" lower="-3.14" upper="3.14" />
   </joint>
   <link
     name="L_ShoulderYaw_Link">
     <inertial>
       <origin
-        xyz="-0.00022 0.20695 -0.00024"
+        xyz="0.00022 0.02910 -0.20695"
         rpy="0 0 0" />
       <mass
         value="1.75149" />
       <inertia
-        ixx="0.01201096136"
-        ixy="-0.00003314922"
+        ixx="0.090419"
+        ixy="-0.00024"
         ixz="0"
-        iyy="0.00139869678"
-        iyz="-0.00006758314"
-        izz="0.08761122082" />
+        iyy="0.00126"
+        iyz="0"
+        izz="0.090836" />
     </inertial>
     <visual>
       <origin
@@ -1002,8 +979,8 @@
     name="L_ShoulderYaw"
     type="revolute">
     <origin
-      xyz="0 0 0.02886"
-      rpy="0 0 0" />
+      xyz="0 0 0.028856"
+      rpy="1.6653E-15 2.6672E-15 -1.1833E-29" />
     <parent
       link="L_ShoulderRoll_Link" />
     <child
@@ -1018,17 +995,17 @@
     name="L_ElbowRoll_Link">
     <inertial>
       <origin
-        xyz="-0.00013 0.06984 0.02766"
+        xyz="0.00013 0.02766 0.06984"
         rpy="0 0 0" />
       <mass
         value="0.83342" />
       <inertia
-        ixx="0.00111008305"
-        ixy="0.00000055705"
-        ixz="-0.00000036229"
-        iyy="0.00113664167"
-        iyz="0.00010148619"
-        izz="0.00071417056" />
+        ixx="0.00592"
+        ixy="-3E-06"
+        ixz="-8E-06"
+        iyy="0.004878"
+        iyz="0.001689"
+        izz="0.001797" />
     </inertial>
     <visual>
       <origin
@@ -1059,7 +1036,7 @@
     type="revolute">
     <origin
       xyz="0 0.294 0"
-      rpy="0 0 0" />
+      rpy="-5.2736E-15 2.2506E-15 4.0518E-15" />
     <parent
       link="L_ShoulderYaw_Link" />
     <child
@@ -1068,23 +1045,23 @@
       xyz="1 0 0" />
     <limit
       effort="30"
-      velocity="1" lower="-2.8" upper="0.3" />
+      velocity="1" lower="-3.14" upper="3.14" />
   </joint>
   <link
     name="L_WristYaw_Link">
     <inertial>
       <origin
-        xyz="-0.0006 0.25889 0"
+        xyz="-0.00052833 0.21354 0"
         rpy="0 0 0" />
       <mass
         value="0.52391" />
       <inertia
-        ixx="0.00309173456"
-        ixy="0.00001569255"
+        ixx="0.026688"
+        ixy="-7.8E-05"
         ixz="0"
-        iyy="0.00041001585"
+        iyy="0.000269"
         iyz="0"
-        izz="0.00332083933" />
+        izz="0.026765" />
     </inertial>
     <visual>
       <origin
@@ -1115,7 +1092,7 @@
     type="revolute">
     <origin
       xyz="0 0 0.075"
-      rpy="0 0 0" />
+      rpy="-5.5511E-17 0 0" />
     <parent
       link="L_ElbowRoll_Link" />
     <child
@@ -1130,17 +1107,17 @@
     name="L_WristRoll_Link">
     <inertial>
       <origin
-        xyz="0 -0.029698 0"
+        xyz="0 0.029698 0"
         rpy="0 0 0" />
       <mass
         value="0.07856" />
       <inertia
-        ixx="0.00010228871"
+        ixx="8.3E-05"
         ixy="0"
         ixz="0"
-        iyy="0.00010761509"
-        iyz="-0.00000303386"
-        izz="0.00002580006" />
+        iyy="9.0005E-05"
+        iyz="0"
+        izz="0.000153" />
     </inertial>
     <visual>
       <origin
@@ -1171,7 +1148,7 @@
     type="revolute">
     <origin
       xyz="-0.00015 0.3085 0"
-      rpy="0 0 0" />
+      rpy="3.7192E-15 -2.0473E-15 -4.2369E-15" />
     <parent
       link="L_WristYaw_Link" />
     <child
@@ -1186,17 +1163,17 @@
     name="L_HandYaw_Link">
     <inertial>
       <origin
-        xyz="0 0.18510 0.00220"
+        xyz="0 0.20231 0.0031654"
         rpy="0 0 0" />
       <mass
         value="1.20640" />
       <inertia
-        ixx="0.00607402214"
+        ixx="0.05396"
         ixy="0"
         ixz="0"
-        iyy="0.00224926768"
-        iyz="0.00009697326"
-        izz="0.00759001230" />
+        iyy="0.002601"
+        iyz="0.00084"
+        izz="0.055766" />
     </inertial>
     <visual>
       <origin
@@ -1284,7 +1261,7 @@
     type="revolute">
     <origin
       xyz="0 -0.17 0.239"
-      rpy="-0.5236 0 0" />
+      rpy="-0.5236 1.6324E-15 3.0939E-15" />
     <parent
       link="WaistYaw_Link" />
     <child
@@ -1299,17 +1276,17 @@
     name="R_ShoulderRoll_Link">
     <inertial>
       <origin
-        xyz="0 -0.03197 -0.02958"
+        xyz="0 -0.02958 -0.03197"
         rpy="0 0 0" />
       <mass
         value="0.11240" />
       <inertia
-        ixx="0.00020404661"
+        ixx="0.001421"
         ixy="0"
         ixz="0"
-        iyy="0.00041936488"        
-        iyz="-0.00000671313"
-        izz="0.00050880868" />
+        iyy="0.001585"
+        iyz="-0.000389"
+        izz="0.001839" />
     </inertial>
     <visual>
       <origin
@@ -1340,7 +1317,7 @@
     type="revolute">
     <origin
       xyz="0 0 0"
-      rpy="0 0 0" />
+      rpy="0 0 -1.9722E-31" />
     <parent
       link="R_ShoulderPitch_Link" />
     <child
@@ -1349,23 +1326,23 @@
       xyz="1 0 0" />
     <limit
       effort="30"
-      velocity="1" lower="0.2" upper="2.1" />
+      velocity="1" lower="-3.14" upper="3.14" />
   </joint>
   <link
     name="R_ShoulderYaw_Link">
     <inertial>
       <origin
-        xyz="-0.00022 -0.20696 -0.00024 "
+        xyz="0.00022 -0.2910 -0.20695"
         rpy="0 0 0" />
       <mass
         value="1.75149" />
       <inertia
-        ixx="0.01201096136"
-        ixy="0.00003314922"
-        ixz="0.00000009112"
-        iyy="0.00139888450"
-        iyz="0.00002113268"
-        izz="0.01260101996" />
+        ixx="0.090419"
+        ixy="0.00024"
+        ixz="0"
+        iyy="0.00126"
+        iyz="0"
+        izz="0.090836" />
     </inertial>
     <visual>
       <origin
@@ -1395,8 +1372,8 @@
     name="R_ShoulderYaw"
     type="revolute">
     <origin
-      xyz="0 0 0.02886"
-      rpy="0 0 0" />
+      xyz="0 0 0.028856"
+      rpy="3.3862E-15 1.3323E-16 -6.4991E-15" />
     <parent
       link="R_ShoulderRoll_Link" />
     <child
@@ -1416,12 +1393,12 @@
       <mass
         value="0.83342" />
       <inertia
-        ixx="0.00111008305"
-        ixy="0.00000036229"
-        ixz="0.00000055755"
-        iyy="0.00071417056"
-        iyz="0.00010148619"
-        izz="0.00113664167" />
+        ixx="0.00592"
+        ixy="3E-06"
+        ixz="-8E-06"
+        iyy="0.004878"
+        iyz="-0.001689"
+        izz="0.001797" />
     </inertial>
     <visual>
       <origin
@@ -1452,7 +1429,7 @@
     type="revolute">
     <origin
       xyz="0 -0.294 0"
-      rpy="0 0 0" />
+      rpy="8.7708E-15 6.5224E-15 6.7691E-15" />
     <parent
       link="R_ShoulderYaw_Link" />
     <child
@@ -1461,23 +1438,23 @@
       xyz="1 0 0" />
     <limit
       effort="30"
-      velocity="1" lower="-0.3" upper="2.8" />
+      velocity="1" lower="-3.14" upper="3.14" />
   </joint>
   <link
     name="R_WristYaw_Link">
     <inertial>
       <origin
-        xyz="-0.0006 -0.25889 0"
+        xyz="-0.00052833 -0.21354 0"
         rpy="0 0 0" />
       <mass
         value="0.52391" />
       <inertia
-        ixx="0.00309173456"
-        ixy="0.00001569255"
+        ixx="0.026688"
+        ixy="7.8E-05"
         ixz="0"
-        iyy="0.00041001585"
+        iyy="0.000269"
         iyz="0"
-        izz="0.00332083933" />
+        izz="0.026765" />
     </inertial>
     <visual>
       <origin
@@ -1508,7 +1485,7 @@
     type="revolute">
     <origin
       xyz="0 0 0.075"
-      rpy="0 0 0" />
+      rpy="5.5511E-17 7.8886E-31 -3.7657E-15" />
     <parent
       link="R_ElbowRoll_Link" />
     <child
@@ -1523,17 +1500,17 @@
     name="R_WristRoll_Link">
     <inertial>
       <origin
-        xyz="0 -0.02928 -0.00350"
+        xyz="0 -0.029698 0"
         rpy="0 0 0" />
       <mass
         value="0.07856" />
       <inertia
-        ixx="0.00010228871"
+        ixx="8.3E-05"
         ixy="0"
         ixz="0"
-        iyy="0.00010761509"
-        iyz="0.00000303386"
-        izz="0.00002580006" />
+        iyy="9E-05"
+        iyz="0"
+        izz="0.000153" />
     </inertial>
     <visual>
       <origin
@@ -1563,8 +1540,8 @@
     name="R_WristRoll"
     type="revolute">
     <origin
-      xyz="0 -0.3085 0"
-      rpy="0 0 0" />
+      xyz="-0.00015 -0.3085 0"
+      rpy="-3.1641E-15 -4.6105E-15 -2.8519E-15" />
     <parent
       link="R_WristYaw_Link" />
     <child
@@ -1573,23 +1550,23 @@
       xyz="1 0 0" />
     <limit
       effort="30"
-      velocity="1" lower="-1.9" upper="1.9" />
+      velocity="1" lower="-3.14" upper="3.14" />
   </joint>
   <link
     name="R_HandYaw_Link">
     <inertial>
       <origin
-        xyz="-0.00380 0.006 -0.14610"
+        xyz="0 -0.20231 0.0031654"
         rpy="0 0 0" />
       <mass
         value="1.20640" />
       <inertia
-        ixx="0.00759001230"
+        ixx="0.05396"
         ixy="0"
-        ixz="0.00009697326"
-        iyy="0.00607402214"
-        iyz="0"
-        izz="0.00224340618" />
+        ixz="0"
+        iyy="0.002601"
+        iyz="0.00084"
+        izz="0.055766" />
     </inertial>
     <visual>
       <origin
@@ -1597,7 +1574,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dyros_jet_description/meshes/R_HandYaw_new.stl" />
+          filename="package://dyros_jet_description/meshes/R_HandYaw_Link.stl" />
       </geometry>
       <material
         name="">
@@ -1611,7 +1588,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dyros_jet_description/meshes/R_HandYaw_new.stl" />
+          filename="package://dyros_jet_description/meshes/R_HandYaw_Link.stl" />
       </geometry>
     </collision>
   </link>
@@ -1620,7 +1597,7 @@
     type="revolute">
     <origin
       xyz="0 0 0"
-      rpy="0 0 0" />
+      rpy="0 -1.7256E-31 3.4513E-31" />
     <parent
       link="R_WristRoll_Link" />
     <child

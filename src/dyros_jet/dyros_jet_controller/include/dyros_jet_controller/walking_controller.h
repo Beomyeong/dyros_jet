@@ -11,6 +11,7 @@
 #include <thread>
 #include <mutex>
 
+
 #include <qpOASES.hpp>
 
 #define ZERO_LIBRARY_MODE
@@ -29,6 +30,7 @@ using namespace dyros_jet_controller;
 #define LA_LINK 15
 #define RF_LINK 7
 #define LF_LINK 1
+#define BASE_LINK 0
 
 #define DEGREE	(0.01745329251994329576923690768489)
 
@@ -256,25 +258,47 @@ public:
   void slowCalcContent();
 
 
-  void Relative_link_position(Eigen::Isometry3d* transform_matrix);
-  void Spatial_transform();
-  void Spatial_COM_transform();
-  void Relative_link_rotation(Eigen::Isometry3d* transform_matrix);
-  void relative_link_trans_matrix(Eigen::Isometry3d* transform_matrix);
-  void Relative_Inertia();
-  void Spatial_Inertia();
-  void Centroidal_Momentum_Matrix();
-  void Centroidal_Dynamics();
+
+
+
   void qpOASES_example();
   void getOptimizationInputMatrix();
   void getOptimizationInputMatrix2();
   void vibrationControl_modified(const Eigen::Vector12d desired_leg_q, Eigen::Vector12d &output);
   void Compliant_control(Eigen::Vector12d desired_leg_q);
 
-  void New_Relative_Inertia();
+
 
   void zmptoInitFloat();
 
+  //////////////////////////////////////////////////
+  ///////////////// Home Work //////////////////////
+
+  // for centroidal dynamics
+  void Relative_link_position(Eigen::Isometry3d* transform_matrix);
+  void Spatial_transform();
+  void Projection_Spatial_COM();
+  void Relative_link_rotation(Eigen::Isometry3d* transform_matrix);
+  void relative_link_trans_matrix(Eigen::Isometry3d* transform_matrix);
+  void Relative_Inertia();
+  void Joint_Spatial_Inertia();
+  void System_Spatial_Inertia();
+  void Centroidal_Momentum_Matrix();
+  void Centroidal_Dynamics();
+
+  void Spatial_link_transform();
+  void relative_link_trans_matrix2(Eigen::Isometry3d* transform_matrix);
+  void Link_Spatial_Inertia();
+  void Composite_Rigid_Body_Inertia();
+  void Spatial_tranform_to_COM();
+  void getCentroidal_Momentum_Matrix();
+
+  // for jacobian based control
+  void Jacobian_based_IK();
+
+  void UpdateCentroidalMomentumMatrix();
+
+  //////////////////////////////////////////////////
 
   ////resolved momentum control
   void ResolvedMomentumCtrl();
@@ -889,30 +913,60 @@ private:
   ////////////////////dynamic information from rbdl ////////////////////////
   Eigen::Isometry3d link_transform_[29];
   double link_mass_[29];
+  Eigen::Matrix<double, 29, 1> link_mass_vector_;
   double total_mass_;
   Eigen::Matrix3d link_inertia_[29];
   Eigen::Vector3d link_local_com_position_[29];
 
   Eigen::Isometry3d relative_link_transform_[29];
+  Eigen::Isometry3d link_from_prior_transform_[29];
+
 
   //////////////////////////////////////////////////////////////
   /////////////////////////Centroidal Dynamics/////////////////
   Eigen::Vector3d                        relative_distance_[28];
-  Eigen::Matrix<double, 6, 6>            Spatial_Matrix_[28];
+  Eigen::Matrix<double, 6, 6>            Spatial_Matrix_[29];
   Eigen::Matrix<double, 3, 3>            relative_rotation_[28];
+  Eigen::Matrix<double, 6, 6>            System_Inertia_[29];
+  Eigen::Matrix<double, 6, 6>            System_Inertia_0_;
   Eigen::Matrix<double, 6, 6>            Spatial_Inertia_[29];
-  Eigen::Matrix<double, 6, 6>            relative_Inertia_[29];
-  Eigen::Matrix<double, 6, 6>            Spatial_COM_Transform_[29];
+  Eigen::Matrix<double, 6, 6>            COM_Projection_Matrix_[29];
   Eigen::Vector6d                        Centroidal_Momentum_Matrix_[29];
   Eigen::Vector6d                        Centroidal_Momentum_[29];
+
+  Eigen::Vector6d                        Centroidal_Momentum_leg_[2];
+  Eigen::Vector6d                        Centroidal_Momentum_Upper_;
+  Eigen::Vector6d                        Centroidal_Momentum_total_;
+
   Eigen::Vector6d                        pre_Centroidal_Momentum_Matrix_[29];
   Eigen::Vector6d                        pre_Centroidal_Momentum_[29];
-  Eigen::Vector28d                        q_dot_CMM_;
+  Eigen::Vector28d                       q_dot_CMM_;
   Eigen::Vector6d                        CM_R_leg_, CM_L_leg_;
   Eigen::Vector6d                        pre_CM_R_leg_, pre_CM_L_leg_;
   VectorQd                               pre_q_dot_;
   Eigen::Matrix<double, 6, 6>            CCRBI_;
   Eigen::Vector6d                        average_spatial_velocity_;
+
+  Eigen::Vector3d                       current_Angular_momentum_;
+
+  Eigen::Vector3d                       relative_link_distance_[29];
+  Eigen::Matrix3d                       relative_link_rotation_[29];
+  Eigen::Matrix6d                       Spatial_link_transform_[29];
+  Eigen::Matrix6d                       Spatial_link_Inertia_[29];
+  Eigen::Matrix6d                       CCRB_Inertia_[29];
+  Eigen::Matrix6d                       Spatial_COM_transform_[29];
+
+
+  Eigen::Vector3d                       y_temp_;
+  Eigen::Matrix3d                       A_c_;
+
+  Eigen::Vector6d                       lp_;
+  Eigen::Vector6d                       rp_;
+
+  Eigen::Matrix<double, 6, 28>          Augmented_Centroidal_Momentum_Matrix_;
+  //////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
+
   VectorQd                       p_q_;
   VectorQd                       q_dot_;
   VectorQd                       q_dot_2;
@@ -922,13 +976,9 @@ private:
   Eigen::Vector6d                       pre_CM_leg_dot_;
   Eigen::Vector6d Left_foot_CM_, Right_foot_CM_, Left_arm_CM_, Right_arm_CM_, waist_CM_;
 
-  Eigen::Vector3d                       y_temp_;
-  Eigen::Matrix3d                       A_c_;
-
-  Eigen::Vector6d                       lp_;
-  Eigen::Vector6d                       rp_;
-  //////////////////////////////////////////////////////////////
   void settingParameter();
+
+
   /////////////////////////////////////////////////////////////
   //////////////////////////// QP Problems/////////////////////
 

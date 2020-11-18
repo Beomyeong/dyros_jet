@@ -292,7 +292,7 @@ void WalkingController::qpIK_test(){
     left_toe_length = sqrt(pow(ltoe_trajectory_float_.translation()(0),2) +pow(ltoe_trajectory_float_.translation()(1),2) +pow(ltoe_trajectory_float_.translation()(2),2));
     right_toe_length = sqrt(pow(rtoe_trajectory_float_.translation()(0),2) +pow(rtoe_trajectory_float_.translation()(1),2) +pow(rtoe_trajectory_float_.translation()(2),2));
 
-    file[28]<<walking_tick_<<"\t"<<left_leg_length<<"\t"<<right_leg_length<<"\t"<<left_toe_length<<"\t"<<right_toe_length<<endl;
+//    file[28]<<walking_tick_<<"\t"<<left_leg_length<<"\t"<<right_leg_length<<"\t"<<left_toe_length<<"\t"<<right_toe_length<<endl;
 
 //    real_t H[12*12], g[12],lb[12],ub[12], A[23*12], lbA[23],ubA[23] ;
     real_t H[12*12], g[12],  lb[12],ub[12],

@@ -211,6 +211,9 @@
       <Unit filename="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/math_type_define.h">
          <Option target="dyros_jet_control_headers"/>
       </Unit>
+      <Unit filename="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/centroidal_dynamics.cpp">
+         <Option target="dyros_jet_controller_lib"/>
+      </Unit>
       <Unit filename="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/control_base.cpp">
          <Option target="dyros_jet_controller_lib"/>
       </Unit>

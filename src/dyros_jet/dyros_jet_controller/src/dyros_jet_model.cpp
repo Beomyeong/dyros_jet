@@ -124,8 +124,8 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
 
   getInertiaMatrix34DoF(&full_inertia_mat_);
   getInertiaMatrix18DoF(&leg_inertia_mat_);
-  getCenterOfMassPosition(&com_);
-  getCenterOfMassPositionDot(&comDot_);
+  getCenterOfMassPosition(&com_, &angular_momentum_);
+  getCenterOfMassPositionDot(&comDot_, &linear_momentum_);
   for(unsigned int i=0; i<4; i++)
   {
     getTransformEndEffector((EndEffector)i, &currnet_transform_[i]);
@@ -141,13 +141,15 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     }
   }
 
-  link_mass_[0] = model_.mBodies[link_id_[0]].mMass; //plevis link mass
-  for(unsigned int i=1; i<29; i++)
+  for(unsigned int i=0; i<29; i++)
   {
-    getTransformEachLinks(i, &link_transform_[i-1]);
+//    getTransformEachLinks(i, &link_transform_[i-1]);
+    getTransformEachLinks(i, &link_transform_[i]);
     link_local_com_position_[i] =  model_.mBodies[link_id_[i]].mCenterOfMass;
     link_mass_[i] = model_.mBodies[link_id_[i]].mMass;
+    link_inertia_[i] = model_.mBodies[link_id_[i]].mInertia;
 
+    link_mass_vector_(i,0) = link_mass_[i];
 
     if(0< i && i<13)
     {
@@ -157,7 +159,9 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     {
       getArmLinksJacobianMatrix(i, &arm_link_jacobian_[i-15]);
     }
+
   }
+
 
 }
 
@@ -405,25 +409,29 @@ void DyrosJetModel::getArmLinksJacobianMatrix
   }
 }
 
-void DyrosJetModel::getCenterOfMassPosition(Eigen::Vector3d* position)
+void DyrosJetModel::getCenterOfMassPosition(Eigen::Vector3d* position, Eigen::Vector3d* angular_momentum)
 {
   RigidBodyDynamics::Math::Vector3d position_temp;
   position_temp.setZero();
   Eigen::Matrix<double, 34, 1> qdot;
   qdot.setZero();
   //Eigen::Vector3d com_vel;
-  //Eigen::Vector3d angular_momentum;
+  RigidBodyDynamics::Math::Vector3d angular_momentum_temp;
+
   double mass;
 
-  RigidBodyDynamics::Utils::CalcCenterOfMass(model_, q_virtual_, qdot, mass, position_temp, NULL, NULL, false);
+  RigidBodyDynamics::Utils::CalcCenterOfMass(model_, q_virtual_, q_virtual_dot_, mass, position_temp, NULL, &angular_momentum_temp, true);
   //RigidBodyDynamics::Utils::CalcCenterOfMass(model_, q_, qdot, mass, position_temp, NULL, NULL, false);
 
   //RigidBodyDynamics::Utils::CalcCenterOfMass(model_, q_, qdot, mass, position_temp);
 
+//  std::cout<<" total mass in rbdl : "<<mass<<std::endl;
   *position = position_temp;
+  *angular_momentum = angular_momentum_temp;
+
 }
 
-void DyrosJetModel::getCenterOfMassPositionDot(Eigen::Vector3d* position)
+void DyrosJetModel::getCenterOfMassPositionDot(Eigen::Vector3d* position, Eigen::Vector3d* linear_momentum)
 {
   RigidBodyDynamics::Math::Vector3d position_temp, position_dot;
   position_temp.setZero();
@@ -438,6 +446,7 @@ void DyrosJetModel::getCenterOfMassPositionDot(Eigen::Vector3d* position)
 
   //RigidBodyDynamics::Utils::CalcCenterOfMass(model_, q_, qdot, mass, position_temp);
   *position = position_dot;
+  *linear_momentum = position_dot*mass;
 }
 
 void DyrosJetModel::getInertiaMatrix34DoF(Eigen::Matrix<double, 34, 34> *inertia)

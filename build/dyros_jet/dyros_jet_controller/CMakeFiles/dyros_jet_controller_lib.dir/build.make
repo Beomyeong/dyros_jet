@@ -321,9 +321,33 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joyst
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o.provides.build: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o
 
 
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/centroidal_dynamics.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o"
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/centroidal_dynamics.cpp
+
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.i"
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/centroidal_dynamics.cpp > CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.i
+
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.s"
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/centroidal_dynamics.cpp -o CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.s
+
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.requires:
+
+.PHONY : dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.requires
+
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.provides: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.requires
+	$(MAKE) -f dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/build.make dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.provides.build
+.PHONY : dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.provides
+
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.provides.build: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o
+
+
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/state_estimator.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/state_estimator.cpp
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.i: cmake_force
@@ -347,7 +371,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/qpoptimization.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/qpoptimization.cpp
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.i: cmake_force
@@ -371,7 +395,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpopt
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/solver.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o   -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/solver.c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.i: cmake_force
@@ -395,7 +419,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/matrix_support.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.o   -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/matrix_support.c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/matrix_support.c.i: cmake_force
@@ -419,7 +443,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/ldl.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.o   -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/ldl.c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/ldl.c.i: cmake_force
@@ -443,7 +467,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.o: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/flags.make
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.o: /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/util.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building C object dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.o"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.o   -c /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/include/cvxgen_6_8_0/cvxgen/util.c
 
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.i: cmake_force
@@ -478,6 +502,7 @@ dyros_jet_controller_lib_OBJECTS = \
 "CMakeFiles/dyros_jet_controller_lib.dir/src/joint_controller.cpp.o" \
 "CMakeFiles/dyros_jet_controller_lib.dir/src/moveit_controller.cpp.o" \
 "CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o" \
+"CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o" \
 "CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o" \
 "CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o" \
 "CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o" \
@@ -499,6 +524,7 @@ dyros_jet_controller_lib_EXTERNAL_OBJECTS =
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joint_controller.cpp.o
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/moveit_controller.cpp.o
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o
+/home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o
@@ -542,7 +568,7 @@ dyros_jet_controller_lib_EXTERNAL_OBJECTS =
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: /usr/lib/x86_64-linux-gnu/libpthread.so
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so
 /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Linking CXX shared library /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Linking CXX shared library /home/beom/catkin_ws/devel/lib/libdyros_jet_controller_lib.so"
 	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/dyros_jet_controller_lib.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -561,6 +587,7 @@ dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires:
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joint_controller.cpp.o.requires
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/moveit_controller.cpp.o.requires
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o.requires
+dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o.requires
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o.requires
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o.requires
 dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/requires: dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o.requires

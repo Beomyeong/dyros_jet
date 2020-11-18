@@ -318,6 +318,33 @@ include/cvxgen_6_8_0/cvxgen/util.c.s:
 	cd /home/beom/catkin_ws/build && $(MAKE) -f dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/build.make dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/util.c.s
 .PHONY : include/cvxgen_6_8_0/cvxgen/util.c.s
 
+src/centroidal_dynamics.o: src/centroidal_dynamics.cpp.o
+
+.PHONY : src/centroidal_dynamics.o
+
+# target to build an object file
+src/centroidal_dynamics.cpp.o:
+	cd /home/beom/catkin_ws/build && $(MAKE) -f dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/build.make dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o
+.PHONY : src/centroidal_dynamics.cpp.o
+
+src/centroidal_dynamics.i: src/centroidal_dynamics.cpp.i
+
+.PHONY : src/centroidal_dynamics.i
+
+# target to preprocess a source file
+src/centroidal_dynamics.cpp.i:
+	cd /home/beom/catkin_ws/build && $(MAKE) -f dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/build.make dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.i
+.PHONY : src/centroidal_dynamics.cpp.i
+
+src/centroidal_dynamics.s: src/centroidal_dynamics.cpp.s
+
+.PHONY : src/centroidal_dynamics.s
+
+# target to generate assembly for a file
+src/centroidal_dynamics.cpp.s:
+	cd /home/beom/catkin_ws/build && $(MAKE) -f dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/build.make dyros_jet/dyros_jet_controller/CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.s
+.PHONY : src/centroidal_dynamics.cpp.s
+
 src/control_base.o: src/control_base.cpp.o
 
 .PHONY : src/control_base.o
@@ -724,6 +751,9 @@ help:
 	@echo "... include/cvxgen_6_8_0/cvxgen/util.o"
 	@echo "... include/cvxgen_6_8_0/cvxgen/util.i"
 	@echo "... include/cvxgen_6_8_0/cvxgen/util.s"
+	@echo "... src/centroidal_dynamics.o"
+	@echo "... src/centroidal_dynamics.i"
+	@echo "... src/centroidal_dynamics.s"
 	@echo "... src/control_base.o"
 	@echo "... src/control_base.i"
 	@echo "... src/control_base.s"

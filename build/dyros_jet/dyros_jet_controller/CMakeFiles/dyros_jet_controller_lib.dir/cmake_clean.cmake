@@ -10,6 +10,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/dyros_jet_controller_lib.dir/src/joint_controller.cpp.o"
   "CMakeFiles/dyros_jet_controller_lib.dir/src/moveit_controller.cpp.o"
   "CMakeFiles/dyros_jet_controller_lib.dir/src/joystick_walking_planner.cpp.o"
+  "CMakeFiles/dyros_jet_controller_lib.dir/src/centroidal_dynamics.cpp.o"
   "CMakeFiles/dyros_jet_controller_lib.dir/src/state_estimator.cpp.o"
   "CMakeFiles/dyros_jet_controller_lib.dir/src/qpoptimization.cpp.o"
   "CMakeFiles/dyros_jet_controller_lib.dir/include/cvxgen_6_8_0/cvxgen/solver.c.o"
