@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include rt_dynamixel_msgs/CMakeFiles/_rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting.dir/progress.make
 
 rt_dynamixel_msgs/CMakeFiles/_rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting:
-	cd /home/beom/catkin_ws/build/rt_dynamixel_msgs && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py rt_dynamixel_msgs /home/beom/catkin_ws/src/rt_dynamixel_msgs/srv/ModeSetting.srv 
+	cd /home/beom/catkin_ws/build/rt_dynamixel_msgs && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py rt_dynamixel_msgs /home/beom/catkin_ws/src/rt_dynamixel_msgs/srv/ModeSetting.srv 
 
 _rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting: rt_dynamixel_msgs/CMakeFiles/_rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting
 _rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting: rt_dynamixel_msgs/CMakeFiles/_rt_dynamixel_msgs_generate_messages_check_deps_ModeSetting.dir/build.make

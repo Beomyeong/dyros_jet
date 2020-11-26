@@ -6,6 +6,6 @@ pkg_name = "mujoco_ros_msgs"
 dependencies_str = "std_msgs;geometry_msgs"
 langs = "gencpp;geneus;genlisp;gennodejs;genpy"
 dep_include_paths_str = "mujoco_ros_msgs;/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros_msgs/msg;std_msgs;/opt/ros/kinetic/share/std_msgs/cmake/../msg;geometry_msgs;/opt/ros/kinetic/share/geometry_msgs/cmake/../msg"
-PYTHON_EXECUTABLE = "/usr/bin/python"
+PYTHON_EXECUTABLE = "/usr/bin/python2"
 package_has_static_sources = '' == 'TRUE'
 genmsg_check_deps_script = "/opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py"

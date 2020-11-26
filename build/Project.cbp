@@ -145,14 +145,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gmock" />
             <Add directory="/usr/src/gmock/include" />
             <Add directory="/usr/src/gtest" />
@@ -173,14 +165,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gmock" />
             <Add directory="/usr/src/gmock/include" />
             <Add directory="/usr/src/gtest" />
@@ -201,14 +185,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gmock" />
             <Add directory="/usr/src/gmock/include" />
             <Add directory="/usr/src/gtest" />
@@ -229,14 +205,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gmock" />
             <Add directory="/usr/src/gmock/include" />
             <Add directory="/usr/src/gtest" />
@@ -257,14 +225,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -283,14 +243,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -309,14 +261,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -335,14 +279,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -621,21 +557,13 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui_2/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtNetwork" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtQml" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtQuick" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
             <Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_gui_2/Makefile&quot;  VERBOSE=1 gui" />
@@ -662,21 +590,13 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui_2/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtNetwork" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtQml" />
             <Add directory="/usr/include/x86_64-linux-gnu/qt5/QtQuick" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
             <Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_gui_2/Makefile&quot;  VERBOSE=1 gui/fast" />
@@ -868,14 +788,6 @@
             <Add directory="/home/beom/catkin_ws/src/DynamixelSDK/c++/include/dynamixel_sdk" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/DynamixelSDK/c++/Makefile&quot;  VERBOSE=1 dynamixel_sdk" />
@@ -897,14 +809,6 @@
             <Add directory="/home/beom/catkin_ws/src/DynamixelSDK/c++/include/dynamixel_sdk" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/DynamixelSDK/c++/Makefile&quot;  VERBOSE=1 dynamixel_sdk/fast" />
@@ -1266,14 +1170,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_ext_encoder/Makefile&quot;  VERBOSE=1 dyros_jet_ext_encoder" />
@@ -1295,14 +1191,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_ext_encoder/Makefile&quot;  VERBOSE=1 dyros_jet_ext_encoder/fast" />
@@ -1324,14 +1212,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_ext_encoder/Makefile&quot;  VERBOSE=1 udp_client" />
@@ -1353,14 +1233,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_ext_encoder/Makefile&quot;  VERBOSE=1 udp_client/fast" />
@@ -1388,17 +1260,9 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui/include/qcustomplot" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/qt4" />
             <Add directory="/usr/include/qt4/QtCore" />
             <Add directory="/usr/include/qt4/QtGui" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_gui/Makefile&quot;  VERBOSE=1 dyros_jet_gui" />
@@ -1426,17 +1290,9 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui/include/qcustomplot" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/qt4" />
             <Add directory="/usr/include/qt4/QtCore" />
             <Add directory="/usr/include/qt4/QtGui" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_gui/Makefile&quot;  VERBOSE=1 dyros_jet_gui/fast" />
@@ -1459,14 +1315,6 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_haptic/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_haptic/Makefile&quot;  VERBOSE=1 dyros_jet_haptic" />
@@ -1489,14 +1337,6 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_haptic/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_haptic/Makefile&quot;  VERBOSE=1 dyros_jet_haptic/fast" />
@@ -1568,14 +1408,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_joystick/Makefile&quot;  VERBOSE=1 dyros_jet_joystick" />
@@ -1597,14 +1429,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_joystick/Makefile&quot;  VERBOSE=1 dyros_jet_joystick/fast" />
@@ -1808,15 +1632,7 @@
             <Add directory="/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros/Makefile&quot;  VERBOSE=1 mujoco_ros_lib" />
@@ -1840,15 +1656,7 @@
             <Add directory="/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros/Makefile&quot;  VERBOSE=1 mujoco_ros_lib/fast" />
@@ -1872,15 +1680,7 @@
             <Add directory="/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros/Makefile&quot;  VERBOSE=1 mujoco_ros" />
@@ -1904,15 +1704,7 @@
             <Add directory="/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros/Makefile&quot;  VERBOSE=1 mujoco_ros/fast" />
@@ -2084,14 +1876,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/imu_3dm_gx4/Makefile&quot;  VERBOSE=1 imu_3dm_gx4" />
@@ -2113,14 +1897,6 @@
             <Add directory="/home/beom/catkin_ws/devel/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/imu_3dm_gx4/Makefile&quot;  VERBOSE=1 imu_3dm_gx4/fast" />
@@ -2174,15 +1950,7 @@
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/orocos_kdl/../../include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller/Makefile&quot;  VERBOSE=1 dyros_jet_controller_lib" />
@@ -2206,15 +1974,7 @@
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/orocos_kdl/../../include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller/Makefile&quot;  VERBOSE=1 dyros_jet_controller_lib/fast" />
@@ -2238,15 +1998,7 @@
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/orocos_kdl/../../include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller/Makefile&quot;  VERBOSE=1 dyros_jet_controller" />
@@ -2270,15 +2022,7 @@
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/orocos_kdl/../../include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_controller/Makefile&quot;  VERBOSE=1 dyros_jet_controller/fast" />
@@ -2332,15 +2076,7 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_dynamixel_x_interface/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_dynamixel_x_interface/Makefile&quot;  VERBOSE=1 x_interface" />
@@ -2364,15 +2100,7 @@
             <Add directory="/home/beom/catkin_ws/src/dyros_jet/dyros_jet_dynamixel_x_interface/include" />
             <Add directory="/opt/ros/kinetic/include" />
             <Add directory="/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
             <Add directory="/usr/include/eigen3" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/beom/catkin_ws/build/dyros_jet/dyros_jet_dynamixel_x_interface/Makefile&quot;  VERBOSE=1 x_interface/fast" />

@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_JointState.dir/progress.make
 
 mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_JointState:
-	cd /home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py mujoco_ros_msgs /home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros_msgs/msg/JointState.msg std_msgs/Header
+	cd /home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py mujoco_ros_msgs /home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros_msgs/msg/JointState.msg std_msgs/Header
 
 _mujoco_ros_msgs_generate_messages_check_deps_JointState: mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_JointState
 _mujoco_ros_msgs_generate_messages_check_deps_JointState: mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_JointState.dir/build.make

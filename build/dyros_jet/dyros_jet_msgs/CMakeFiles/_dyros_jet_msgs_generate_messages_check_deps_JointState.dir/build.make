@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointState.dir/progress.make
 
 dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointState:
-	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/src/dyros_jet/dyros_jet_msgs/msg/JointState.msg 
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/src/dyros_jet/dyros_jet_msgs/msg/JointState.msg 
 
 _dyros_jet_msgs_generate_messages_check_deps_JointState: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointState
 _dyros_jet_msgs_generate_messages_check_deps_JointState: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointState.dir/build.make

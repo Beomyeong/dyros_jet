@@ -12,10 +12,10 @@ void WalkingController::qpIK(){
     if(walking_tick_ == 0)
         cout<<"optimization IK  "<<endl;
     // using qpoases
-    Eigen::Matrix<double, 12, 12> jacobian_A;
-    jacobian_A.setZero();
-    jacobian_A.block<6,6>(0,0) = current_leg_jacobian_l_;
-    jacobian_A.block<6,6>(6,6) = current_leg_jacobian_r_;
+//    Eigen::Matrix<double, 12, 12> jacobian_A;
+//    jacobian_A.setZero();
+//    jacobian_A.block<6,6>(0,0) = current_leg_jacobian_l_;
+//    jacobian_A.block<6,6>(6,6) = current_leg_jacobian_r_;
 
     Eigen::VectorXd y_input(12);
     Eigen::Matrix6d Kp;
@@ -25,19 +25,27 @@ void WalkingController::qpIK(){
     y_input.segment(0,6) = lp_;
     y_input.segment(6,6) = rp_;
 
-//    y_input(5) *= 0.5;
-//    y_input(11) *= 0.5;
+    Eigen::Matrix<double, 11, 12> Jacobian_A_redundant_yaw;
+    Jacobian_A_redundant_yaw.setZero();
+    Jacobian_A_redundant_yaw.block<5,6>(0,0) = current_leg_jacobian_l_.block<5,6>(0,0);
+    Jacobian_A_redundant_yaw.block<5,6>(5,6) = current_leg_jacobian_r_.block<5,6>(0,0);
+    Jacobian_A_redundant_yaw.block<1,6>(10,0) = current_leg_jacobian_l_.block<1,6>(5,0);
+    Jacobian_A_redundant_yaw.block<1,6>(10,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
 
-//    for(int i=0;i<10;i++){
-//    //    params.Y[i] = rfoot_trajectory_float_.translation()(i) ;
-//          params.Y[i] = y_input(i) ;
-//    }
+    Eigen::VectorXd y_input_10(11);
+    y_input_10.setZero();
+    y_input_10.segment<5>(0) = lp_.segment<5>(0);
+    y_input_10.segment<5>(5) = rp_.segment<5>(0);
 
-    //    for(int i=0;i<12;i++){
-    //        for(int j=0;j<12;j++){
-    //            params.Q[i+ 12*j] = iden(i,j);
-    //        }
-    //    }
+    Eigen::Matrix<double, 23, 12> Jacobian_A_redundant_yaw_joint_limit;
+    Jacobian_A_redundant_yaw_joint_limit.setZero();
+    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(0,0) = current_leg_jacobian_l_.block<5,6>(0,0);
+    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(5,6) = current_leg_jacobian_r_.block<5,6>(0,0);
+//    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,0) = current_leg_jacobian_l_.block<1,6>(5,0);
+//    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
+    Jacobian_A_redundant_yaw_joint_limit(10,0) = 1;
+    Jacobian_A_redundant_yaw_joint_limit(10,6) = -1;
+    Jacobian_A_redundant_yaw_joint_limit.block<12,12>(11,0).setIdentity();
 
     Eigen::Vector12d current_q_dot;
     if(walking_tick_ == 0){
@@ -51,44 +59,59 @@ void WalkingController::qpIK(){
     iden.setIdentity();
 
 
-    real_t H[12*12],A[12*12],lbA[12],ubA[12],lb[12],ub[12], g[12];
+    real_t H[12*12],A[23*12],lbA[23],ubA[23],lb[12],ub[12], g[12];
+
+    for(int j=0;j<12;j++){
+        for(int i=0;i<12;i++){
+            H[12*i+j] = iden(i,j);            
+//            A[12*i+j] = jacobian_A(i,j);
+        }
+//        for(int i=0;i<11;i++){
+//            A[12*i+j] = Jacobian_A_redundant_yaw(i,j);
+//        }
+        for(int i=0;i<23;i++){
+            A[12*i+j] = Jacobian_A_redundant_yaw_joint_limit(i,j);
+        }
+
+    }
 
     for(int i=0;i<12;i++){
-        for(int j=0;j<12;j++){
-            H[12*i+j] = iden(i,j);
-            A[12*i+j] = jacobian_A(i,j);
-        }
-    }
-    for(int i=0;i<12;i++){
-        lbA[i] = y_input(i)-0.001;
-        ubA[i] = y_input(i)+0.001;
+//        lbA[i] = y_input(i)-0.001;
+//        ubA[i] = y_input(i)+0.001;
         lb[i] =-10;
         ub[i] = 10;
-        g[i] = -current_q_dot(i);
+//        g[i] = -current_q_dot(i);
+        g[i] = 0.0;
+    }
+    for(int i=0;i<11;i++){
+        lbA[i] = y_input_10(i);
+        ubA[i] = y_input_10(i);
+    }
+    for(int i=0;i<12;i++){
+        lbA[i+11] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA[i+11] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
 
 
     real_t xOpt[12];
-    real_t yOpt[12+12];
+//    real_t yOpt[12+12];
 //    QProblem example(12,12, HST_IDENTITY);
-    QProblem example(12,12);
+    QProblem example(12,23);
 
     Options options;
     options.initialStatusBounds =ST_LOWER;
     options.numRefinementSteps = 1;
     options.enableCholeskyRefactorisation = 1;
-//    options.printLevel = PL_NONE;
-    options.enableEqualities = BT_TRUE;
+    options.printLevel = PL_NONE;
+//    options.enableEqualities = BT_TRUE;
 
     example.setOptions(options);
 
-    int_t nWSR = 10000000;
+    int_t nWSR = 1000;
 
     example.init(H,g,A,lb,ub,lbA,ubA,nWSR);
     example.getPrimalSolution(xOpt);
-    example.getDualSolution(yOpt);
-
-    example.hotstart(g,lb,ub,lbA,ubA,nWSR,0);
+    example.hotstart(g,lb,ub,lbA,ubA,nWSR);
     example.getPrimalSolution(xOpt);
 
 
@@ -96,16 +119,8 @@ void WalkingController::qpIK(){
     for(int i=0;i<6;i++){
         qp_q(i) = xOpt[i]/hz_ + desired_q_not_compensated_(LF_BEGIN + i);
         qp_q(i+6) = xOpt[i+6]/hz_ + desired_q_not_compensated_(RF_BEGIN +i);
-
     }
 
-
-//    if(walking_tick_ == 0){
-////        cout<<"jacobian matrix : "<<endl<<jacobian_A<<endl;
-//        //        cout<<"left jacobian " <<endl<<current_leg_jacobian_l_<<endl;
-////        cout<<"right jacobian "<<endl<<current_leg_jacobian_r_<<endl;
-//        cout<<"identity matrix "<<endl<<iden<<endl;
-//    }
     Eigen::Vector6d constraint_test_l, constraint_test_r, q_sol_l, q_sol_r;
     for(int i=0;i<6;i++){
         q_sol_l(i) = xOpt[i];
@@ -116,41 +131,18 @@ void WalkingController::qpIK(){
     for(int i=0;i<12;i++){
         q_sol(i)= xOpt[i];
     }
-    constraint_test = jacobian_A*q_sol;
+//    constraint_test = jacobian_A*q_sol;
 
-//    constraint_test_l = current_leg_jacobian_l_*q_sol_l;
-//    constraint_test_r = current_leg_jacobian_r_*q_sol_r;
-    constraint_test_l = jacobian_A.block<6,6>(0,0)*q_sol_l;
-    constraint_test_r = jacobian_A.block<6,6>(6,6)*q_sol_r;
+////    constraint_test_l = current_leg_jacobian_l_*q_sol_l;
+////    constraint_test_r = current_leg_jacobian_r_*q_sol_r;
+//    constraint_test_l = jacobian_A.block<6,6>(0,0)*q_sol_l;
+//    constraint_test_r = jacobian_A.block<6,6>(6,6)*q_sol_r;
 
-    Eigen::Vector12d inverse_test, q_temp;
+//    Eigen::Vector12d inverse_test, q_temp;
 
-    q_temp = jacobian_A.inverse()*y_input;
+//    q_temp = jacobian_A.inverse()*y_input;
 
-    inverse_test = jacobian_A*q_temp;
-
-   file[6]<<walking_tick_<<"\t"<<y_input(0)<<"\t"<<y_input(1)<<"\t"<<y_input(2)<<"\t"<<y_input(3)<<"\t"<<y_input(4)<<"\t"<<y_input(5)
-            <<"\t"<<y_input(6)<<"\t"<<y_input(7)<<"\t"<<y_input(8)<<"\t"<<y_input(9)<<"\t"<<y_input(10)<<"\t"<<y_input(11)
-           <<"\t"<<constraint_test(0)<<"\t"<<constraint_test(1)<<"\t"<<constraint_test(2)<<"\t"<<constraint_test(3)<<"\t"<<constraint_test(4)<<"\t"<<constraint_test(5)
-                       <<"\t"<<constraint_test(6)<<"\t"<<constraint_test(7)<<"\t"<<constraint_test(8)<<"\t"<<constraint_test(9)<<"\t"<<constraint_test(10)<<"\t"<<constraint_test(11)
-         <<"\t"<<constraint_test_l(0)<<"\t"<<constraint_test_l(1)<<"\t"<<constraint_test_l(2)<<"\t"<<constraint_test_l(3)<<"\t"<<constraint_test_l(4)<<"\t"<<constraint_test_l(5)
-        <<"\t"<<constraint_test_r(0)<<"\t"<<constraint_test_r(1)<<"\t"<<constraint_test_r(2)<<"\t"<<constraint_test_r(3)<<"\t"<<constraint_test_r(4)<<"\t"<<constraint_test_r(5)
-       <<"\t"<<lp_(0)<<"\t"<<lp_(1)<<"\t"<<lp_(2)<<"\t"<<lp_(3)<<"\t"<<lp_(4)<<"\t"<<lp_(5)
-      <<"\t"<<rp_(0)<<"\t"<<rp_(1)<<"\t"<<rp_(2)<<"\t"<<rp_(3)<<"\t"<<rp_(4)<<"\t"<<rp_(5)
-     <<"\t"<<inverse_test(0)<<"\t"<<inverse_test(1)<<"\t"<<inverse_test(2)<<"\t"<<inverse_test(3)<<"\t"<<inverse_test(4)<<"\t"<<inverse_test(5)
-       <<"\t"<<inverse_test(6)<<"\t"<<inverse_test(7)<<"\t"<<inverse_test(8)<<"\t"<<inverse_test(9)<<"\t"<<inverse_test(10)<<"\t"<<inverse_test(11)
-     <<endl;
-
-   file[7]<<walking_tick_
-         <<"\t"<<xOpt[0]<<"\t"<<xOpt[1]<<"\t"<<xOpt[2]<<"\t"<<xOpt[3]<<"\t"<<xOpt[4]<<"\t"<<xOpt[5]
-           <<"\t"<<xOpt[6]<<"\t"<<xOpt[7]<<"\t"<<xOpt[8]<<"\t"<<xOpt[9]<<"\t"<<xOpt[10]<<"\t"<<xOpt[11]
-          <<"\t"<<yOpt[0]<<"\t"<<yOpt[1]<<"\t"<<yOpt[2]<<"\t"<<yOpt[3]<<"\t"<<yOpt[4]<<"\t"<<yOpt[5]
-            <<"\t"<<yOpt[6]<<"\t"<<yOpt[7]<<"\t"<<yOpt[8]<<"\t"<<yOpt[9]<<"\t"<<yOpt[10]<<"\t"<<yOpt[11]
-           <<"\t"<<yOpt[12]<<"\t"<<yOpt[13]<<"\t"<<yOpt[14]<<"\t"<<yOpt[15]<<"\t"<<yOpt[16]<<"\t"<<yOpt[17]
-             <<"\t"<<yOpt[18]<<"\t"<<yOpt[19]<<"\t"<<yOpt[20]<<"\t"<<yOpt[21]<<"\t"<<yOpt[22]<<"\t"<<yOpt[23]
-         <<"\t"<<qp_q[0]*RAD2DEG<<"\t"<<qp_q[1]*RAD2DEG<<"\t"<<qp_q[2]*RAD2DEG<<"\t"<<qp_q[3]*RAD2DEG<<"\t"<<qp_q[4]*RAD2DEG<<"\t"<<qp_q[5]*RAD2DEG
-            <<"\t"<<qp_q[6]*RAD2DEG<<"\t"<<qp_q[7]*RAD2DEG<<"\t"<<qp_q[8]*RAD2DEG<<"\t"<<qp_q[9]*RAD2DEG<<"\t"<<qp_q[10]*RAD2DEG<<"\t"<<qp_q[11]*RAD2DEG<<endl;
-
+//    inverse_test = jacobian_A*q_temp;
 
    for(int i=0;i<12;i++){
        desired_q_(i) = qp_q(i);

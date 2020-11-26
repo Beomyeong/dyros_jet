@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback.dir/progress.make
 
 dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback:
-	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/devel/share/dyros_jet_msgs/msg/JointControlActionFeedback.msg dyros_jet_msgs/JointControlFeedback:actionlib_msgs/GoalID:std_msgs/Header:actionlib_msgs/GoalStatus
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/devel/share/dyros_jet_msgs/msg/JointControlActionFeedback.msg dyros_jet_msgs/JointControlFeedback:actionlib_msgs/GoalID:std_msgs/Header:actionlib_msgs/GoalStatus
 
 _dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback
 _dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_JointControlActionFeedback.dir/build.make

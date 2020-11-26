@@ -216,7 +216,6 @@ void WalkingController::compute()
           {
             desired_q_(i) = desired_leg_q_(i);
           }
-
 //          Eigen::VectorXd desired_waist_leg_qdot;
 //          desired_waist_leg_qdot.resize(13);
 
@@ -244,8 +243,8 @@ void WalkingController::compute()
           }
         }
         else if (ik_mode_ == 2){
-            //        qpIK();
-            qpIK_test();
+                    qpIK();
+//            qpIK_test();
         }
 
 
@@ -9918,7 +9917,7 @@ void WalkingController::CalculateCenterOfMassSupportBody(){
 }
 void WalkingController::SettingJointLimit(){
 
-    q_leg_min_(0) = -3.14; q_leg_max_(0) = 3.14;
+    q_leg_min_(0) = -45*DEG2RAD; q_leg_max_(0) = 45*DEG2RAD;
     q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
     q_leg_min_(2) = -40*DEG2RAD; q_leg_max_(2) = 25*DEG2RAD;
     q_leg_min_(3) =   0.0; q_leg_max_(3) = 3.14;
@@ -9926,7 +9925,7 @@ void WalkingController::SettingJointLimit(){
 //    q_leg_min_(4) = -3.14; q_leg_max_(4) = 3.14;
     q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
 
-    q_leg_min_(6) = -3.14; q_leg_max_(6) = 3.14;
+    q_leg_min_(6) = -45*DEG2RAD; q_leg_max_(6) = 45*DEG2RAD;
     q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
     q_leg_min_(8) = -25*DEG2RAD; q_leg_max_(8) = 40*DEG2RAD;
     q_leg_min_(9) = -3.14; q_leg_max_(9) = 0.0;

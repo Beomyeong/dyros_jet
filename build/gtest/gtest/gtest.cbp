@@ -25,14 +25,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -51,14 +43,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -77,14 +61,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>
@@ -103,14 +79,6 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add option="-DGTEST_CREATE_SHARED_LIBRARY=1" />
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/5" />
-            <Add directory="/usr/include/c++/5/backward" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/5" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-            <Add directory="/usr/local/include" />
             <Add directory="/usr/src/gtest" />
             <Add directory="/usr/src/gtest/include" />
          </Compiler>

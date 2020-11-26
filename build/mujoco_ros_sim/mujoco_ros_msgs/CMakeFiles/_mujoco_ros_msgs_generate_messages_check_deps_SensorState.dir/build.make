@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_SensorState.dir/progress.make
 
 mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_SensorState:
-	cd /home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py mujoco_ros_msgs /home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros_msgs/msg/SensorState.msg mujoco_ros_msgs/SensorBase:std_msgs/Header
+	cd /home/beom/catkin_ws/build/mujoco_ros_sim/mujoco_ros_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py mujoco_ros_msgs /home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros_msgs/msg/SensorState.msg mujoco_ros_msgs/SensorBase:std_msgs/Header
 
 _mujoco_ros_msgs_generate_messages_check_deps_SensorState: mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_SensorState
 _mujoco_ros_msgs_generate_messages_check_deps_SensorState: mujoco_ros_sim/mujoco_ros_msgs/CMakeFiles/_mujoco_ros_msgs_generate_messages_check_deps_SensorState.dir/build.make

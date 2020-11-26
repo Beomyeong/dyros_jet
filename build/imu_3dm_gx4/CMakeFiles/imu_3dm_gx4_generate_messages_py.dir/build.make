@@ -63,12 +63,12 @@ imu_3dm_gx4/CMakeFiles/imu_3dm_gx4_generate_messages_py: /home/beom/catkin_ws/de
 /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/_FilterOutput.py: /opt/ros/kinetic/share/std_msgs/msg/Header.msg
 /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/_FilterOutput.py: /opt/ros/kinetic/share/geometry_msgs/msg/Vector3.msg
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python from MSG imu_3dm_gx4/FilterOutput"
-	cd /home/beom/catkin_ws/build/imu_3dm_gx4 && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/beom/catkin_ws/src/imu_3dm_gx4/msg/FilterOutput.msg -Iimu_3dm_gx4:/home/beom/catkin_ws/src/imu_3dm_gx4/msg -Igeometry_msgs:/opt/ros/kinetic/share/geometry_msgs/cmake/../msg -Istd_msgs:/opt/ros/kinetic/share/std_msgs/cmake/../msg -p imu_3dm_gx4 -o /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg
+	cd /home/beom/catkin_ws/build/imu_3dm_gx4 && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/beom/catkin_ws/src/imu_3dm_gx4/msg/FilterOutput.msg -Iimu_3dm_gx4:/home/beom/catkin_ws/src/imu_3dm_gx4/msg -Igeometry_msgs:/opt/ros/kinetic/share/geometry_msgs/cmake/../msg -Istd_msgs:/opt/ros/kinetic/share/std_msgs/cmake/../msg -p imu_3dm_gx4 -o /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg
 
 /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/__init__.py: /opt/ros/kinetic/lib/genpy/genmsg_py.py
 /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/__init__.py: /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/_FilterOutput.py
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/beom/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python msg __init__.py for imu_3dm_gx4"
-	cd /home/beom/catkin_ws/build/imu_3dm_gx4 && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg --initpy
+	cd /home/beom/catkin_ws/build/imu_3dm_gx4 && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg --initpy
 
 imu_3dm_gx4_generate_messages_py: imu_3dm_gx4/CMakeFiles/imu_3dm_gx4_generate_messages_py
 imu_3dm_gx4_generate_messages_py: /home/beom/catkin_ws/devel/lib/python2.7/dist-packages/imu_3dm_gx4/msg/_FilterOutput.py

@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/beom/catkin_ws/build
 include dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_WalkingState.dir/progress.make
 
 dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_WalkingState:
-	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/src/dyros_jet/dyros_jet_msgs/msg/WalkingState.msg 
+	cd /home/beom/catkin_ws/build/dyros_jet/dyros_jet_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/kinetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py dyros_jet_msgs /home/beom/catkin_ws/src/dyros_jet/dyros_jet_msgs/msg/WalkingState.msg 
 
 _dyros_jet_msgs_generate_messages_check_deps_WalkingState: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_WalkingState
 _dyros_jet_msgs_generate_messages_check_deps_WalkingState: dyros_jet/dyros_jet_msgs/CMakeFiles/_dyros_jet_msgs_generate_messages_check_deps_WalkingState.dir/build.make
