@@ -805,5 +805,33 @@ static Eigen::MatrixXd UpperTriangularMatrix(Eigen::MatrixXd matrix){
     return out_matrix;
 }
 
+static Eigen::Isometry3d floating_pelvis_transformation_matrix(double virtual_joint){
+    Eigen::Isometry3d floating_to_pelvis_TM;
+
+    Eigen::Matrix3d Rotation_x_180;
+    Rotation_x_180.setIdentity();
+//    Rotation_x_180(1,1) = -1; Rotation_x_180(2,2) = -1;
+
+    Eigen::Matrix3d floating_rotation_matrix;
+    floating_rotation_matrix = Rotation_x_180*DyrosMath::rotateWithZ(virtual_joint);
+
+    floating_to_pelvis_TM.linear() = floating_rotation_matrix;
+    floating_to_pelvis_TM.translation().setZero();
+
+    return floating_to_pelvis_TM;
+}
+
+static Eigen::Matrix6d floating_pelv_rotation_6_matrix(double virtual_joint){
+    Eigen::Isometry3d floating_pelv_TM;
+    floating_pelv_TM = DyrosMath::floating_pelvis_transformation_matrix(virtual_joint);
+
+    Eigen::Matrix6d result;
+    result.setZero();
+    result.block<3,3>(0,0) = floating_pelv_TM.linear();
+    result.block<3,3>(3,3) = floating_pelv_TM.linear();
+
+    return result;
+}
+
 }
 #endif

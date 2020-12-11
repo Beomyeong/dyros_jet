@@ -267,6 +267,8 @@ public:
   void vibrationControl_modified(const Eigen::Vector12d desired_leg_q, Eigen::Vector12d &output);
   void Compliant_control(Eigen::Vector12d desired_leg_q);
 
+  void Jacobian_test(Eigen::Vector12d& desired_leg_q_dot);
+  void Jacobian_floating();
 
 
   void zmptoInitFloat();
@@ -351,6 +353,7 @@ public:
   void qp3();
   void qp2();
   void qpIK();
+  void qpIK_pelvis();
   void qp1();
   void previewQP();
   void MPCwQP();
@@ -571,6 +574,7 @@ private:
 
   Eigen::Isometry3d supportfoot_float_current_;
   Eigen::Isometry3d pelv_support_current_;
+  Eigen::Isometry3d pre_pelv_trajectory_support_;
   Eigen::Isometry3d lfoot_support_current_;
   Eigen::Isometry3d rfoot_support_current_;
   Eigen::Vector3d lfoot_float_current_euler_;
@@ -1282,6 +1286,23 @@ private:
     Eigen::Vector12d DOB_IK_output_;
     Eigen::Vector12d DOB_IK_output_b_;
     Eigen::Vector12d d_hat_b_;
+    Eigen::Matrix<double, 6, 7> current_leg_jacobian_l_floating_;
+    Eigen::Matrix<double, 6, 7> current_leg_jacobian_r_floating_;
+    double          floating_joint_;
+    double          floating_joint_init_;
+
+    /// using floating frame above the pelvis
+    ///
+    Eigen::Isometry3d   pelvis_floatingbase_current_;
+    Eigen::Isometry3d   pelvis_floatingbase_init_;
+
+    Eigen::Vector3d     pelvis_floatingbase_current_euler_;
+    Eigen::Vector3d     pelvis_floatingbase_current_euler_init_;
+
+    Eigen::Isometry3d   floating_support_init_;
+    Eigen::Isometry3d   floating_support_current_;
+
+
 
 };
 

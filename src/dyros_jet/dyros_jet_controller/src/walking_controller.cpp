@@ -101,11 +101,11 @@ void WalkingController::compute()
             getCOMestimation();
             getPelvTrajectory();
 
-            if(ik_mode_==2)
-                getFoottrajectory_heel_toe();
-            else{
+//            if(ik_mode_==2)
+//                getFoottrajectory_heel_toe();
+//            else{
                 getFootTrajectory();
-            }
+//            }
 //            getFootSinTrajectory();
 //            getOptimizedFootTrajectory();
 //            getAdaptiveFootTrajectory();
@@ -162,6 +162,10 @@ void WalkingController::compute()
 
 
 
+//        cout<<" jacobian left : "<<endl<<current_leg_jacobian_l_<<endl<<endl;
+        Jacobian_floating();
+
+
         supportToFloatPattern();
         getToeHeelTrajectory();
         calculateFootEdgeJaco();
@@ -197,15 +201,15 @@ void WalkingController::compute()
         getDesiredVelocity(lp_,rp_,ltoe_p_,rtoe_p_,lheel_p_,rheel_p_,lp_clik_,rp_clik_,ltoe_clik_, rtoe_clik_,lheel_clik_,rheel_clik_);
 
         file[10]<<walking_tick_
-               <<"\t"<<lp_(0)<<"\t"<<lp_(1)<<"\t"<<lp_(2)<<"\t"<<lp_(3)<<"\t"<<lp_(4)<<"\t"<<lp_(5)
-              <<"\t"<<rp_(0)<<"\t"<<rp_(1)<<"\t"<<rp_(2)<<"\t"<<rp_(3)<<"\t"<<rp_(4)<<"\t"<<rp_(5)
-             <<"\t"<<ltoe_p_(0)<<"\t"<<ltoe_p_(1)<<"\t"<<ltoe_p_(2)<<"\t"<<ltoe_p_(3)<<"\t"<<ltoe_p_(4)<<"\t"<<ltoe_p_(5)
-            <<"\t"<<rtoe_p_(0)<<"\t"<<rtoe_p_(1)<<"\t"<<rtoe_p_(2)<<"\t"<<rtoe_p_(3)<<"\t"<<rtoe_p_(4)<<"\t"<<rtoe_p_(5)
-           <<"\t"<<lheel_p_(0)<<"\t"<<lheel_p_(1)<<"\t"<<lheel_p_(2)<<"\t"<<lheel_p_(3)<<"\t"<<lheel_p_(4)<<"\t"<<lheel_p_(5)
-          <<"\t"<<rheel_p_(0)<<"\t"<<rheel_p_(1)<<"\t"<<rheel_p_(2)<<"\t"<<rheel_p_(3)<<"\t"<<rheel_p_(4)<<"\t"<<rheel_p_(5)
-         <<"\t"<<lheel_clik_(0)<<"\t"<<lheel_clik_(1)<<"\t"<<lheel_clik_(2)<<"\t"<<lheel_clik_(3)<<"\t"<<lheel_clik_(4)<<"\t"<<lheel_clik_(5)
-           <<"\t"<<rheel_clik_(0)<<"\t"<<rheel_clik_(1)<<"\t"<<rheel_clik_(2)<<"\t"<<rheel_clik_(3)<<"\t"<<rheel_clik_(4)<<"\t"<<rheel_clik_(5)
-             <<endl;
+                <<"\t"<<lp_(0)<<"\t"<<lp_(1)<<"\t"<<lp_(2)<<"\t"<<lp_(3)<<"\t"<<lp_(4)<<"\t"<<lp_(5)
+                <<"\t"<<rp_(0)<<"\t"<<rp_(1)<<"\t"<<rp_(2)<<"\t"<<rp_(3)<<"\t"<<rp_(4)<<"\t"<<rp_(5)
+                <<"\t"<<ltoe_p_(0)<<"\t"<<ltoe_p_(1)<<"\t"<<ltoe_p_(2)<<"\t"<<ltoe_p_(3)<<"\t"<<ltoe_p_(4)<<"\t"<<ltoe_p_(5)
+                <<"\t"<<rtoe_p_(0)<<"\t"<<rtoe_p_(1)<<"\t"<<rtoe_p_(2)<<"\t"<<rtoe_p_(3)<<"\t"<<rtoe_p_(4)<<"\t"<<rtoe_p_(5)
+                <<"\t"<<lheel_p_(0)<<"\t"<<lheel_p_(1)<<"\t"<<lheel_p_(2)<<"\t"<<lheel_p_(3)<<"\t"<<lheel_p_(4)<<"\t"<<lheel_p_(5)
+                <<"\t"<<rheel_p_(0)<<"\t"<<rheel_p_(1)<<"\t"<<rheel_p_(2)<<"\t"<<rheel_p_(3)<<"\t"<<rheel_p_(4)<<"\t"<<rheel_p_(5)
+                <<"\t"<<lheel_clik_(0)<<"\t"<<lheel_clik_(1)<<"\t"<<lheel_clik_(2)<<"\t"<<lheel_clik_(3)<<"\t"<<lheel_clik_(4)<<"\t"<<lheel_clik_(5)
+                <<"\t"<<rheel_clik_(0)<<"\t"<<rheel_clik_(1)<<"\t"<<rheel_clik_(2)<<"\t"<<rheel_clik_(3)<<"\t"<<rheel_clik_(4)<<"\t"<<rheel_clik_(5)
+                <<endl;
 
         /////////////////////compute/////////////////////////
         if (ik_mode_ == 0)
@@ -231,6 +235,7 @@ void WalkingController::compute()
         else if (ik_mode_ == 1)
         {
           computeJacobianControl(lfoot_trajectory_float_, rfoot_trajectory_float_, lfoot_trajectory_euler_float_, rfoot_trajectory_euler_float_, desired_leg_q_dot_);
+//            Jacobian_test(desired_leg_q_dot_);
 
           for(int i=0; i<12; i++)
           {
@@ -243,10 +248,12 @@ void WalkingController::compute()
           }
         }
         else if (ik_mode_ == 2){
-                    qpIK();
+//                    qpIK();
+            qpIK_pelvis();
 //            qpIK_test();
         }
 
+        desired_q_(WA_BEGIN) = -floating_joint_;
 
 //        if(walking_tick_ > 301)
 //            desired_q_ = desired_q_not_compensated_;
@@ -293,17 +300,17 @@ void WalkingController::compute()
         //desired_q_(WA_BEGIN) = vars.x[6]/hz_ + desired_q_not_compensated_(WA_BEGIN);
 
         //desired_q_(WA_BEGIN) = desired_waist_leg_qdot(12)/hz_ + desired_q_not_compensated_(WA_BEGIN);
-        desired_q_(WA_BEGIN) = target_speed_(6)/hz_ + desired_q_not_compensated_(WA_BEGIN);
+//        desired_q_(WA_BEGIN) = target_speed_(6)/hz_ + desired_q_not_compensated_(WA_BEGIN);
 
 
        // desired_q_(WA_BEGIN) = DyrosMath::cubic(walking_tick_,10,100,0.0,45*DEGREE,0.0,0.0);
 
-        for(int i=0;i<7;i++){
-           desired_q_(RA_BEGIN+i) = target_speed_(7+i)/hz_ + desired_q_not_compensated_(RA_BEGIN+i);
-           desired_q_(LA_BEGIN+i) = target_speed_(14+i)/hz_ + desired_q_not_compensated_(LA_BEGIN+i);
-         //desired_q_(RA_BEGIN+i) = target_speed_(1+i) + desired_q_not_compensated_(RA_BEGIN+i);
-         //desired_q_(LA_BEGIN+i) = target_speed_(8+i) + desired_q_not_compensated_(LA_BEGIN+i);
-        }
+//        for(int i=0;i<7;i++){
+//           desired_q_(RA_BEGIN+i) = target_speed_(7+i)/hz_ + desired_q_not_compensated_(RA_BEGIN+i);
+//           desired_q_(LA_BEGIN+i) = target_speed_(14+i)/hz_ + desired_q_not_compensated_(LA_BEGIN+i);
+//         //desired_q_(RA_BEGIN+i) = target_speed_(1+i) + desired_q_not_compensated_(RA_BEGIN+i);
+//         //desired_q_(LA_BEGIN+i) = target_speed_(8+i) + desired_q_not_compensated_(LA_BEGIN+i);
+//        }
 
 
 //        Eigen::Vector12d qp_q;
@@ -706,6 +713,7 @@ void WalkingController::parameterSetting()
   joystick_rotation_num_ = 0;
   pre_theta_ = 0;
 //  theta_total_ =0;
+  floating_joint_ = 0.0;
 
   foot_height_ = 0.1168;//0.05;
   //com_update_flag_ = true; // frome A to B1
@@ -716,6 +724,10 @@ void WalkingController::parameterSetting()
   matrix_get_flag_ = false;
   MPC_Matrix_cal_ = false;
 
+
+  //// for setting floating frame to pelvis transpormation matrix
+  pelvis_floatingbase_init_.linear().setIdentity();
+  pelvis_floatingbase_init_.translation().setZero();
   //zc_ = 0.75;
 
   ///////////cvxgen setting////////////
@@ -809,13 +821,20 @@ void WalkingController::getRobotState()
       ////////////////////////////////////////////////////////
 
 
+      pelv_float_current_ = DyrosMath::floating_pelvis_transformation_matrix(floating_joint_);
+
       com_sim_old_ = com_sim_current_;
       com_float_old_ = com_float_current_;
       com_support_old_ = com_support_current_;
 
-      lfoot_float_current_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)0);
-      rfoot_float_current_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)1);
-      com_float_current_ = model_.getCurrentCom();
+//      lfoot_float_current_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)0);
+//      rfoot_float_current_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)1);
+//      com_float_current_ = model_.getCurrentCom();
+
+      lfoot_float_current_ = pelv_float_current_*model_.getCurrentTransform((DyrosJetModel::EndEffector)0);
+      rfoot_float_current_ = pelv_float_current_*model_.getCurrentTransform((DyrosJetModel::EndEffector)1);
+      com_float_current_ = pelv_float_current_.linear()*model_.getCurrentCom();
+
       com_dot_float_current_ = model_.getCurrentComDot();
       current_Angular_momentum_ = model_.getCurrentComAngularMomentum();
 
@@ -909,8 +928,10 @@ void WalkingController::getRobotState()
       //com_sim_current_ = (base_sim_global_current_.linear()).transpose()*com_sim_current_; //change frame from glrobal to pelv
       //com_sim_current_ = DyrosMath::multiplyIsometry3dVector3d(pelv_support_current_, com_sim_current_); //change frame from pelv to support foot
 
-      current_leg_jacobian_l_ = model_.getLegJacobian((DyrosJetModel::EndEffector) 0);
-      current_leg_jacobian_r_ = model_.getLegJacobian((DyrosJetModel::EndEffector) 1);
+//      current_leg_jacobian_l_ = model_.getLegJacobian((DyrosJetModel::EndEffector) 0);
+//      current_leg_jacobian_r_ = model_.getLegJacobian((DyrosJetModel::EndEffector) 1);
+      current_leg_jacobian_l_ = DyrosMath::floating_pelv_rotation_6_matrix(floating_joint_)*model_.getLegJacobian((DyrosJetModel::EndEffector) 0);
+      current_leg_jacobian_r_ = DyrosMath::floating_pelv_rotation_6_matrix(floating_joint_)*model_.getLegJacobian((DyrosJetModel::EndEffector) 1);
       current_arm_jacobian_l_ = model_.getArmJacobian((DyrosJetModel::EndEffector) 2);
       current_arm_jacobian_r_ = model_.getArmJacobian((DyrosJetModel::EndEffector) 3);
 //      current_waist_jacobian_[0] = model_.getWaistJacobian(0);
@@ -1066,7 +1087,9 @@ void WalkingController::getRobotState()
 
       }
 
-      pelv_support_current_ = DyrosMath::inverseIsometry3d(supportfoot_float_current_);
+//      pelv_support_current_ = DyrosMath::inverseIsometry3d(supportfoot_float_current_);
+      floating_support_current_ = DyrosMath::inverseIsometry3d(supportfoot_float_current_);
+      pelv_support_current_ = floating_support_current_*pelv_float_current_;
 
       com_support_current_CLIPM_b = com_support_current_CLIPM_;
       com_support_current_CLIPM_ =  DyrosMath::multiplyIsometry3dVector3d(pelv_support_current_, com_float_current_);
@@ -2002,15 +2025,26 @@ void WalkingController::updateInitialState()
     desired_leg_q_dot_.setZero();
     lfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(0));
     rfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(1));
-    com_float_init_ = model_.getCurrentCom();
+//    com_float_init_ = model_.getCurrentCom();
 
+    floating_joint_init_ = floating_joint_;
+    cout<<"lfoot from pelvis : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
+    // at the virtual coordinate
+    pelv_float_init_ = DyrosMath::floating_pelvis_transformation_matrix(floating_joint_); // pelvis transformation matrix based on floating bas
+
+    com_float_init_ = pelv_float_init_.linear()*model_.getCurrentCom(); // com transforamtion matrix basedon floating base
+    lfoot_float_init_ = pelv_float_init_*lfoot_float_init_; // left foot transformation matrix based on flaoting base
+    rfoot_float_init_ = pelv_float_init_*rfoot_float_init_; // right foot transformation matrix based on flaoting base
+
+    cout<<"lfoot from floating : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
+    cout<<"pelvis from floating : "<<endl<<pelv_float_init_.linear()<<endl<<pelv_float_init_.translation()<<endl;
     lfoot_float_euler_init_ = DyrosMath::rot2Euler(lfoot_float_init_.linear());
     rfoot_float_euler_init_ = DyrosMath::rot2Euler(rfoot_float_init_.linear());
 
     lfoot_float_init_0_ = lfoot_float_init_;
     rfoot_float_init_0_ = rfoot_float_init_;
 
-    pelv_float_init_.setIdentity();
+
 
     Eigen::Isometry3d ref_frame;
 
@@ -2062,8 +2096,13 @@ void WalkingController::updateInitialState()
 
     lfoot_support_init_ = DyrosMath::multiplyIsometry3d(DyrosMath::inverseIsometry3d(ref_frame),lfoot_float_init_);
     rfoot_support_init_ = DyrosMath::multiplyIsometry3d(DyrosMath::inverseIsometry3d(ref_frame),rfoot_float_init_);
-    pelv_support_init_ = DyrosMath::inverseIsometry3d(ref_frame);
-    com_support_init_ = pelv_support_init_.linear()*com_float_init_ + pelv_support_init_.translation();\
+
+//    pelv_support_init_ = DyrosMath::inverseIsometry3d(ref_frame); // pelvis from support foot
+//    com_support_init_ = pelv_support_init_.linear()*com_float_init_ + pelv_support_init_.translation();
+
+    floating_support_init_ = DyrosMath::inverseIsometry3d(ref_frame); // floating base from suppor toot
+    pelv_support_init_ = floating_support_init_*pelv_float_init_;
+    com_support_init_ = pelv_support_init_.translation() + pelv_support_init_.linear()*com_float_init_;
 
     lfoot_support_init_0_ = lfoot_support_init_;
     rfoot_support_init_0_ = rfoot_support_init_;
@@ -2317,10 +2356,24 @@ void WalkingController::updateInitialState()
     q_init_ = current_q_;
     lfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(0));
     rfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(1));
-    com_float_init_ = model_.getCurrentCom();
+
+    floating_joint_init_ = floating_joint_;
+//    com_float_init_ = model_.getCurrentCom();
 
 //    lfoot_float_init_ = pre_lfoot_trajectory_float_;
 //    rfoot_float_init_ = pre_rfoot_trajectory_float_;
+
+
+    // at the virtual coordinate
+    pelv_float_init_ = DyrosMath::floating_pelvis_transformation_matrix(floating_joint_); // pelvis transformation matrix based on floating base
+
+    com_float_init_ = pelv_float_init_*model_.getCurrentCom(); // com transformation matrix based on floating base
+    lfoot_float_init_ = pelv_float_init_*lfoot_float_init_;  // left foot transformation matrix based on floating base
+    rfoot_float_init_ = pelv_float_init_*rfoot_float_init_;  // right foot transformation matrix based on floating base
+
+    lfoot_float_euler_init_ = DyrosMath::rot2Euler(lfoot_float_init_.linear());
+    rfoot_float_euler_init_ = DyrosMath::rot2Euler(rfoot_float_init_.linear());
+
 
     lfoot_float_euler_init_ = DyrosMath::rot2Euler(lfoot_float_init_.linear());
     rfoot_float_euler_init_ = DyrosMath::rot2Euler(rfoot_float_init_.linear());
@@ -2329,7 +2382,7 @@ void WalkingController::updateInitialState()
 //    cout<<"walking tick : "<<walking_tick_<<", current step num : "<<current_step_num_<<endl;
 //    cout<<"lfoot init from moel : " <<lfoot_float_init_.translation()<<endl<<"link transform : "<<endl<<link_transform_[LF_LINK+5].translation()<<endl;
 
-    pelv_float_init_.setIdentity();
+
 
     Eigen::Isometry3d ref_frame;
 
@@ -2409,8 +2462,12 @@ void WalkingController::updateInitialState()
 
     lfoot_support_init_ = DyrosMath::multiplyIsometry3d(DyrosMath::inverseIsometry3d(ref_frame),lfoot_float_init_);
     rfoot_support_init_ = DyrosMath::multiplyIsometry3d(DyrosMath::inverseIsometry3d(ref_frame),rfoot_float_init_);
-    pelv_support_init_ = DyrosMath::inverseIsometry3d(ref_frame);
-    com_support_init_ = pelv_support_init_.linear()*com_float_init_ + pelv_support_init_.translation();
+//    pelv_support_init_ = DyrosMath::inverseIsometry3d(ref_frame);
+//    com_support_init_ = pelv_support_init_.linear()*com_float_init_ + pelv_support_init_.translation();
+
+    floating_support_init_ = DyrosMath::inverseIsometry3d(ref_frame); // floating base from suppor toot
+    pelv_support_init_ = floating_support_init_*pelv_float_init_;
+    com_support_init_ = pelv_support_init_.translation() + pelv_support_init_.linear()*com_float_init_;
 
     lfoot_DSP1_support_init_ = lfoot_support_init_;
     rfoot_DSP1_support_init_ = rfoot_support_init_;
@@ -2925,10 +2982,16 @@ void WalkingController::getPelvTrajectory()
   if(com_control_mode_ == true)
   {
     double kp = 1.0;//2.0;
+
+//    if(walking_tick_ == 0)
+//        pre_pelv_trajectory_support_ = pelv_support_current_;
+
     if(estimator_flag_ == false || l_ft_(2)+r_ft_(2)<0.7*51*9.81)
     {
       pelv_trajectory_support_.translation()(0) = pelv_support_current_.translation()(0) + kp*(com_desired_(0) - com_support_current_(0));
       pelv_trajectory_support_.translation()(1) = pelv_support_current_.translation()(1) + kp*(com_desired_(1) - com_support_current_(1));
+//        pelv_trajectory_support_.translation()(0) = pre_pelv_trajectory_support_.translation()(0) + kp*(com_desired_(0) - com_support_current_(0));
+//        pelv_trajectory_support_.translation()(1) = pre_pelv_trajectory_support_.translation()(1) + kp*(com_desired_(1) - com_support_current_(1));
     }
     else
     {
@@ -3007,7 +3070,11 @@ void WalkingController::getPelvTrajectory()
       Trunk_trajectory_euler(2) = z_rot/2.0;
   }
 
+  file[19]<<walking_tick_<<"\t"<<Trunk_trajectory_euler(0)<<"\t"<<Trunk_trajectory_euler(1)<<"\t"<<Trunk_trajectory_euler(2)<<endl;
   pelv_trajectory_support_.linear() = DyrosMath::rotateWithZ(Trunk_trajectory_euler(2))*DyrosMath::rotateWithY(Trunk_trajectory_euler(1))*DyrosMath::rotateWithX(Trunk_trajectory_euler(0));
+
+//  pre_pelv_trajectory_support_ = pelv_trajectory_support_;
+
 }
 
 void WalkingController::getFootTrajectory()
@@ -3028,6 +3095,9 @@ void WalkingController::getFootTrajectory()
       }
 
   }
+
+  double pelv_angle = 10*DEG2RAD;
+
 
   if(walking_tick_ < t_start_real_+t_double1_)
   {
@@ -3061,6 +3131,11 @@ void WalkingController::getFootTrajectory()
     lfoot_trajectory_support_.linear() = DyrosMath::rotateWithZ(lfoot_trajectory_euler_support_(2))*DyrosMath::rotateWithY(lfoot_trajectory_euler_support_(1))*DyrosMath::rotateWithX(lfoot_trajectory_euler_support_(0));
     rfoot_trajectory_support_.linear() = DyrosMath::rotateWithZ(rfoot_trajectory_euler_support_(2))*DyrosMath::rotateWithY(rfoot_trajectory_euler_support_(1))*DyrosMath::rotateWithX(rfoot_trajectory_euler_support_(0));
 
+    lfoot_trajectory_euler_support_.setZero();
+    rfoot_trajectory_euler_support_.setZero();
+    lfoot_trajectory_support_.linear().setIdentity();
+    rfoot_trajectory_support_.linear().setIdentity();
+
   }
   else if(walking_tick_ >= t_start_real_+t_double1_ && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)
   {
@@ -3080,6 +3155,7 @@ void WalkingController::getFootTrajectory()
 
       // setting for Left supporting foot
 
+      floating_joint_ = DyrosMath::cubic(walking_tick_,t_start_real_+t_double1_,t_start_+ t_total_-t_double2_-t_rest_last_,floating_joint_init_,pelv_angle,0.0,0.0);
       if(walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0) // the period for lifting the right foot
       {
         rfoot_trajectory_support_.translation()(2) = DyrosMath::cubic(walking_tick_,t_start_real_+t_double1_+t_rest_temp,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0,0,foot_height_,0.0,0.0);
@@ -3129,6 +3205,7 @@ void WalkingController::getFootTrajectory()
       ankle_temp = 0*DEG2RAD;
       //ankle_temp = -15*DEG2RAD;
 
+      floating_joint_ = DyrosMath::cubic(walking_tick_,t_start_real_+t_double1_,t_start_+ t_total_-t_double2_-t_rest_last_,floating_joint_init_,-pelv_angle,0.0,0.0);
       rfoot_trajectory_support_.linear() = DyrosMath::rotateWithZ(rfoot_trajectory_euler_support_(2))*DyrosMath::rotateWithY(rfoot_trajectory_euler_support_(1))*DyrosMath::rotateWithX(rfoot_trajectory_euler_support_(0));
 
       if(walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0)
@@ -3188,6 +3265,11 @@ void WalkingController::getFootTrajectory()
       rfoot_trajectory_euler_support_ = rfoot_support_euler_init_;
       rfoot_trajectory_dot_support_.setZero();
     }
+
+    lfoot_trajectory_euler_support_.setZero();
+    rfoot_trajectory_euler_support_.setZero();
+    lfoot_trajectory_support_.linear().setIdentity();
+    rfoot_trajectory_support_.linear().setIdentity();
 
   }
   else
@@ -3249,6 +3331,11 @@ void WalkingController::getFootTrajectory()
       rfoot_trajectory_euler_support_ = rfoot_support_euler_init_;
       rfoot_trajectory_dot_support_.setZero();
     }
+
+    lfoot_trajectory_euler_support_.setZero();
+    rfoot_trajectory_euler_support_.setZero();
+    lfoot_trajectory_support_.linear().setIdentity();
+    rfoot_trajectory_support_.linear().setIdentity();
   }
 }
 void WalkingController::getAdaptiveFootTrajectory()
@@ -9917,21 +10004,35 @@ void WalkingController::CalculateCenterOfMassSupportBody(){
 }
 void WalkingController::SettingJointLimit(){
 
-    q_leg_min_(0) = -45*DEG2RAD; q_leg_max_(0) = 45*DEG2RAD;
+    q_leg_min_(0) = -50*DEG2RAD; q_leg_max_(0) = 50*DEG2RAD;
     q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
-    q_leg_min_(2) = -40*DEG2RAD; q_leg_max_(2) = 25*DEG2RAD;
+    q_leg_min_(2) = -30*DEG2RAD; q_leg_max_(2) = 35*DEG2RAD;
     q_leg_min_(3) =   0.0; q_leg_max_(3) = 3.14;
-    q_leg_min_(4) = -45*DEG2RAD; q_leg_max_(4) = -20*DEG2RAD; // max : -25 min :-45
+//    q_leg_min_(4) = -45*DEG2RAD; q_leg_max_(4) = -20*DEG2RAD; // max : -25 min :-45
 //    q_leg_min_(4) = -3.14; q_leg_max_(4) = 3.14;
     q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
 
-    q_leg_min_(6) = -45*DEG2RAD; q_leg_max_(6) = 45*DEG2RAD;
+    q_leg_min_(6) = -50*DEG2RAD; q_leg_max_(6) = 50*DEG2RAD;
     q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
-    q_leg_min_(8) = -25*DEG2RAD; q_leg_max_(8) = 40*DEG2RAD;
+    q_leg_min_(8) = -35*DEG2RAD; q_leg_max_(8) = 30*DEG2RAD;
     q_leg_min_(9) = -3.14; q_leg_max_(9) = 0.0;
-    q_leg_min_(10) = 20*DEG2RAD; q_leg_max_(10) = 45*DEG2RAD;//3.14; min : 25 max 45
+//    q_leg_min_(10) = 20*DEG2RAD; q_leg_max_(10) = 45*DEG2RAD;//3.14; min : 25 max 45
 //    q_leg_min_(10) = -3.14; q_leg_max_(10) = 3.14;
     q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
+
+//    q_leg_min_(0) = -3.14; q_leg_max_(0) = 3.14;
+//    q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
+//    q_leg_min_(2) = -3.14; q_leg_max_(2) = 3.14;
+//    q_leg_min_(3) =   0.0; q_leg_max_(3) = 3.14;
+    q_leg_min_(4) = -3.14; q_leg_max_(4) = 3.14;
+//    q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
+
+//    q_leg_min_(6) = -3.14; q_leg_max_(6) = 3.14;
+//    q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
+//    q_leg_min_(8) = -3.14; q_leg_max_(8) = 3.14;
+//    q_leg_min_(9) = -3.14; q_leg_max_(9) = 0.0;
+    q_leg_min_(10) = -3.14; q_leg_max_(10) = 3.14;
+//    q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
 
 //    if(walking_tick_<=t_start_ + t_double1_){
 //        q_leg_max_(4) = -32*DEG2RAD;
@@ -10230,6 +10331,136 @@ void WalkingController::Compliant_control(Eigen::Vector12d desired_leg_q)
   d_hat_b_ = d_hat;
 //  cout << d_hat*180/M_PI << endl;
   DOB_IK_output_b_ = DOB_IK_output_;
+}
+
+void WalkingController::Jacobian_test(Eigen::Vector12d& desired_leg_q_dot){
+
+    Eigen::Matrix6d Jacobian_L_2_pel;
+    Eigen::Matrix6d Jacobian_R_2_pel;
+
+    Eigen::Matrix6d Rotation_L_P, Rotation_R_P;
+    Rotation_L_P.setZero(); Rotation_R_P.setZero();
+    Rotation_L_P.block<3,3>(0,0) = lfoot_float_current_.linear().transpose();
+    Rotation_L_P.block<3,3>(3,3) = lfoot_float_current_.linear().transpose();
+
+    Rotation_R_P.block<3,3>(0,0) = rfoot_float_current_.linear().transpose();
+    Rotation_R_P.block<3,3>(3,3) = rfoot_float_current_.linear().transpose();
+
+    Jacobian_L_2_pel = Rotation_L_P*current_leg_jacobian_l_;  // pelvis jacobian from left foot
+    Jacobian_R_2_pel = Rotation_R_P*current_leg_jacobian_r_;  // pelvis jacobian from right foot
+
+    Eigen::Matrix6d Jacobian_R_2_L, Jacobian_L_2_R;
+    Jacobian_R_2_L.setZero(); Jacobian_L_2_R.setZero();
+
+    Jacobian_L_2_R = Rotation_L_P*current_leg_jacobian_r_; // right foot jacobian from left foot
+    Jacobian_R_2_L = Rotation_R_P*current_leg_jacobian_l_; // left foot jacobian from right foot
+
+
+    //// pelvis from support foot , and swing foot from pelvis // for test to check control from support foot
+    Eigen::Vector6d cubic_p;
+    Eigen::Vector3d p_phi;
+    Eigen::Vector6d p_velocity;
+
+    p_velocity.setZero();
+
+    if(walking_tick_ == 0 || walking_tick_ == t_start_){
+        p_velocity.topRows<3>() = (-pelv_support_current_.translation() + pelv_trajectory_support_.translation());
+    }
+    else{
+        p_velocity.topRows<3>() = (-pre_pelv_trajectory_support_.translation() + pelv_trajectory_support_.translation());
+    }
+
+    for(int i=0;i<3;i++){
+        cubic_p(i) = pelv_trajectory_support_.translation()(i);
+        cubic_p(i+3) = 0.0;
+    }
+
+    if(walking_tick_ == 0 || walking_tick_ == t_start_){
+        p_phi = DyrosMath::legGetPhi(pelv_support_current_,pelv_support_init_,cubic_p);
+    }
+    else{
+        p_phi = DyrosMath::legGetPhi(pre_pelv_trajectory_support_,pelv_support_init_,cubic_p);
+    }
+
+//    p_velocity.segment<3>(3) = -p_phi;
+    p_velocity*=200;
+
+    pre_pelv_trajectory_support_ = pelv_trajectory_support_;
+
+    Eigen::Vector6d q_lfoot_dot, q_rfoot_dot;
+    if(foot_step_(current_step_num_,6) == 1)// left foot support , right foot swing
+    {
+        q_lfoot_dot = Jacobian_L_2_pel.inverse()*p_velocity;
+        q_rfoot_dot = current_leg_jacobian_r_.inverse()*rp_;
+    }
+    else {// right foot support and left foot swing
+        q_lfoot_dot = current_leg_jacobian_l_.inverse()*lp_;
+        q_rfoot_dot = Jacobian_R_2_pel.inverse()*p_velocity;
+    }
+
+    for(int i=0;i<6;i++){
+        desired_leg_q_dot(i) = q_lfoot_dot(i);
+        desired_leg_q_dot(i+6) = q_rfoot_dot(i);
+    }
+
+    file[14]<<walking_tick_<<"\t"<<p_velocity(0)<<"\t"<<p_velocity(1)<<"\t"<<p_velocity(2)<<"\t"<<p_velocity(3)<<"\t"<<p_velocity(4)<<"\t"<<p_velocity(5)<<endl;
+
+}
+void WalkingController::Jacobian_floating(){
+    //// calculating leg jacobian from floating ////
+
+
+    current_leg_jacobian_l_floating_.setZero();
+    current_leg_jacobian_r_floating_.setZero();
+
+    Eigen::Matrix3d floating_rotation_matrix;
+//    floating_rotation_matrix = DyrosMath::rotateWithZ(floating_joint_);// floating joint axis goes up
+    Eigen::Matrix3d Rotation_x_180;
+    Rotation_x_180.setIdentity();
+    Rotation_x_180(1,1) = -1; Rotation_x_180(2,2) = -1;
+    floating_rotation_matrix = Rotation_x_180*DyrosMath::rotateWithZ(floating_joint_);
+
+    Eigen::Matrix6d floating_left_leg_jacobian, floating_right_leg_jacobian, Rotation_matrix_to_floating;
+    Rotation_matrix_to_floating.setZero();
+    Rotation_matrix_to_floating.block<3,3>(0,0) = floating_rotation_matrix;
+    Rotation_matrix_to_floating.block<3,3>(3,3) = floating_rotation_matrix;
+
+    floating_left_leg_jacobian = Rotation_matrix_to_floating*current_leg_jacobian_l_;
+    floating_right_leg_jacobian = Rotation_matrix_to_floating*current_leg_jacobian_r_;
+
+
+
+    Eigen::Vector3d float_Left_dot, float_Right_dot;
+
+    Eigen::Matrix3d float_pel_dot;
+    float_pel_dot.setZero();
+    //// floating joint axis goes up
+//    float_pel_dot(0,0) = -sin(floating_joint_); float_pel_dot(0,1) = -cos(floating_joint_);
+//    float_pel_dot(1,0) = cos(floating_joint_); float_pel_dot(1,1) = -sin(floating_joint_);
+
+    /// floating joint axis goes down
+    float_pel_dot(0,0) = -sin(floating_joint_); float_pel_dot(0,1) = -cos(floating_joint_);
+    float_pel_dot(1,0) = -cos(floating_joint_); float_pel_dot(1,1) = sin(floating_joint_);
+
+    float_Left_dot = float_pel_dot*lfoot_float_current_.translation();
+    float_Right_dot = float_pel_dot*rfoot_float_current_.translation();
+
+    current_leg_jacobian_l_floating_.block<6,6>(0,1) = floating_left_leg_jacobian;
+    current_leg_jacobian_r_floating_.block<6,6>(0,1) = floating_right_leg_jacobian;
+
+    current_leg_jacobian_l_floating_.block<3,1>(0,0) = float_Left_dot;
+    current_leg_jacobian_l_floating_.block<3,1>(3,0) = floating_rotation_matrix.col(2);
+
+    current_leg_jacobian_r_floating_.block<3,1>(0,0) = float_Right_dot;
+    current_leg_jacobian_r_floating_.block<3,1>(3,0) = floating_rotation_matrix.col(2);
+
+
+//    cout<<"floating left leg jacobian : "<<endl<<current_leg_jacobian_l_floating_<<endl;
+//    cout<<"current right leg jacobian : "<<endl<<current_leg_jacobian_r_<<endl;
+//    cout<<"floating right leg jacobian : "<<endl<<current_leg_jacobian_l_floating_<<endl;
+
+
+
 }
 }
 

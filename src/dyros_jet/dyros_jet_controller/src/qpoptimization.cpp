@@ -37,15 +37,62 @@ void WalkingController::qpIK(){
     y_input_10.segment<5>(0) = lp_.segment<5>(0);
     y_input_10.segment<5>(5) = rp_.segment<5>(0);
 
-    Eigen::Matrix<double, 23, 12> Jacobian_A_redundant_yaw_joint_limit;
+//    Eigen::Matrix<double, 23, 12> Jacobian_A_redundant_yaw_joint_limit;
+//    Jacobian_A_redundant_yaw_joint_limit.setZero();
+//    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(0,0) = current_leg_jacobian_l_.block<5,6>(0,0);
+//    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(5,6) = current_leg_jacobian_r_.block<5,6>(0,0);
+////    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,0) = current_leg_jacobian_l_.block<1,6>(5,0);
+////    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
+//    Jacobian_A_redundant_yaw_joint_limit(10,0) = 1;
+//    Jacobian_A_redundant_yaw_joint_limit(10,6) = -1;
+//    Jacobian_A_redundant_yaw_joint_limit.block<12,12>(11,0).setIdentity();
+
+    Eigen::Matrix<double, 21, 12> Jacobian_A_redundant_yaw_joint_limit;
     Jacobian_A_redundant_yaw_joint_limit.setZero();
-    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(0,0) = current_leg_jacobian_l_.block<5,6>(0,0);
-    Jacobian_A_redundant_yaw_joint_limit.block<5,6>(5,6) = current_leg_jacobian_r_.block<5,6>(0,0);
+    Jacobian_A_redundant_yaw_joint_limit.block<4,6>(0,0) = current_leg_jacobian_l_.block<4,6>(1,0);
+    Jacobian_A_redundant_yaw_joint_limit.block<4,6>(4,6) = current_leg_jacobian_r_.block<4,6>(1,0);
 //    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,0) = current_leg_jacobian_l_.block<1,6>(5,0);
 //    Jacobian_A_redundant_yaw_joint_limit.block<1,6>(10,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
-    Jacobian_A_redundant_yaw_joint_limit(10,0) = 1;
-    Jacobian_A_redundant_yaw_joint_limit(10,6) = -1;
-    Jacobian_A_redundant_yaw_joint_limit.block<12,12>(11,0).setIdentity();
+    Jacobian_A_redundant_yaw_joint_limit(8,0) = 1;
+    Jacobian_A_redundant_yaw_joint_limit(8,6) = -1;
+    Jacobian_A_redundant_yaw_joint_limit.block<12,12>(9,0).setIdentity();
+
+    Eigen::VectorXd y_input_9(9);
+    y_input_9.setZero();
+    y_input_9.segment<4>(0) = lp_.segment<4>(1);
+    y_input_9.segment<4>(4) = rp_.segment<4>(1);
+
+//    Eigen::Matrix<double, 24, 12> Jacobian_A_redundant_yaw_joint_limit;
+//    Jacobian_A_redundant_yaw_joint_limit.setZero();
+//    Jacobian_A_redundant_yaw_joint_limit.block<6,6>(0,0) = current_leg_jacobian_l_;
+//    Jacobian_A_redundant_yaw_joint_limit.block<6,6>(6,6) = current_leg_jacobian_r_;
+//    Jacobian_A_redundant_yaw_joint_limit.block<12,12>(12,0).setIdentity();
+
+    Eigen::VectorXd y_input_12(12);
+    y_input_12.setZero();
+    y_input_12.segment<6>(0) = lp_;
+    y_input_12.segment<6>(6) = rp_;
+
+
+    Eigen::Matrix<double, 12, 12> Jacobian_H, Jacobian_H_t;
+    Jacobian_H.setZero(); Jacobian_H_t.setZero();
+    Jacobian_H.block<6,6>(0,0) = current_leg_jacobian_l_;
+    Jacobian_H.block<6,6>(6,6) = current_leg_jacobian_r_;
+    Jacobian_H_t = Jacobian_H.transpose();
+
+    Eigen::Matrix<double, 12, 12> Jacobian_H_Matrix;
+    Jacobian_H_Matrix.setZero();
+    Jacobian_H_Matrix = Jacobian_H_t*Jacobian_H;
+
+    Eigen::Vector12d g_vector;
+    if(walking_tick_ ==0){
+        pre_q_sol_.setZero();
+    }
+    g_vector.segment<6>(0) = Jacobian_H_t.block<6,6>(0,0)*lp_ +  pre_q_sol_.segment<6>(0);
+    g_vector.segment<6>(6) = Jacobian_H_t.block<6,6>(6,6)*rp_ +  pre_q_sol_.segment<6>(6);
+
+//    g_vector.segment<6>(0) = current_leg_jacobian_l_.transpose()*lp_ ;//+  0.1 * pre_q_sol_.segment<6>(0);
+//    g_vector.segment<6>(6) = current_leg_jacobian_r_.transpose()*rp_ ;//+  0.1 * pre_q_sol_.segment<6>(6);
 
     Eigen::Vector12d current_q_dot;
     if(walking_tick_ == 0){
@@ -59,17 +106,19 @@ void WalkingController::qpIK(){
     iden.setIdentity();
 
 
-    real_t H[12*12],A[23*12],lbA[23],ubA[23],lb[12],ub[12], g[12];
+//    real_t H[12*12],A[23*12],lbA[23],ubA[23],lb[12],ub[12], g[12];
+//    real_t H[12*12],A[24*12],lbA[24],ubA[24],lb[12],ub[12], g[12];
+    real_t H[12*12],A[21*12],lbA[21],ubA[21],lb[12],ub[12], g[12];
 
     for(int j=0;j<12;j++){
         for(int i=0;i<12;i++){
-            H[12*i+j] = iden(i,j);            
+            H[12*i+j] = Jacobian_H_Matrix(i,j) + iden(i,j);
 //            A[12*i+j] = jacobian_A(i,j);
         }
 //        for(int i=0;i<11;i++){
 //            A[12*i+j] = Jacobian_A_redundant_yaw(i,j);
 //        }
-        for(int i=0;i<23;i++){
+        for(int i=0;i<21;i++){
             A[12*i+j] = Jacobian_A_redundant_yaw_joint_limit(i,j);
         }
 
@@ -81,16 +130,35 @@ void WalkingController::qpIK(){
         lb[i] =-10;
         ub[i] = 10;
 //        g[i] = -current_q_dot(i);
-        g[i] = 0.0;
+        g[i] = -g_vector(i);
     }
-    for(int i=0;i<11;i++){
-        lbA[i] = y_input_10(i);
-        ubA[i] = y_input_10(i);
+
+    for(int i=0;i<9;i++){
+        lbA[i] = y_input_9(i);
+        ubA[i] = y_input_9(i);
     }
     for(int i=0;i<12;i++){
-        lbA[i+11] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA[i+11] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA[i+9] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA[i+9] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
+
+//    for(int i=0;i<11;i++){
+//        lbA[i] = y_input_10(i);
+//        ubA[i] = y_input_10(i);
+//    }
+//    for(int i=0;i<12;i++){
+//        lbA[i+11] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+//        ubA[i+11] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+//    }
+
+//    for(int i=0;i<12;i++){
+//        lbA[i] = y_input_12(i);
+//        ubA[i] = y_input_12(i);
+//    }
+//    for(int i=0;i<12;i++){
+//        lbA[i+12] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+//        ubA[i+12] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+//    }
 
 
     real_t xOpt[12];
@@ -130,6 +198,7 @@ void WalkingController::qpIK(){
 
     for(int i=0;i<12;i++){
         q_sol(i)= xOpt[i];
+        pre_q_sol_(i) = q_sol(i);
     }
 //    constraint_test = jacobian_A*q_sol;
 
@@ -154,6 +223,152 @@ void WalkingController::qpIK(){
        pre_q_dot_(i) = xOpt[i];
    }
 
+}
+void WalkingController::qpIK_pelvis(){
+
+    //redundant pelvis IK
+    if(walking_tick_ == 0)
+        cout<<"optimization IK with redundant pelvis DOF  "<<endl;
+    // using qpoases
+//    Eigen::Matrix<double, 12, 12> jacobian_A;
+//    jacobian_A.setZero();
+//    jacobian_A.block<6,6>(0,0) = current_leg_jacobian_l_;
+//    jacobian_A.block<6,6>(6,6) = current_leg_jacobian_r_;
+
+
+    /////////////////////////////
+    /// cost function matrix ////
+    ///
+    ///
+    ///
+
+    if(walking_tick_ == 0){
+        pre_q_dot_.setZero();
+    }
+
+    //// for weighting factor ///
+    Eigen::Matrix<double, 12, 12> w1, w2;
+    w1.setIdentity();
+    w2.setIdentity();
+
+    w1(0,0) = 0.2; w1(6,6) = 0.2;
+    w2*= 0.5;
+    // for H matrix
+
+    Eigen::Matrix<double, 12, 12> Jacobian_12, Jacobian_12_t;
+    Jacobian_12.setZero(); Jacobian_12_t.setZero();
+    Jacobian_12.block<6,6>(0,0) = current_leg_jacobian_l_;
+    Jacobian_12.block<6,6>(6,6) = current_leg_jacobian_r_;
+
+    Jacobian_12_t = Jacobian_12.transpose();
+
+    Eigen::Matrix<double, 12, 12> Iden_12;
+    Iden_12.setIdentity();
+
+    Eigen::Matrix<double, 12, 12> H_matrix_12;
+    H_matrix_12 = w1*Jacobian_12_t*Jacobian_12 + w2*Iden_12;
+
+    // for g vector
+    Eigen::Vector12d g_vector_12;
+    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_.transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(0);
+    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_.transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(6);
+
+    ///// for constraint vector /////
+    Eigen::Matrix<double, 23, 12> Constraint_A_23;
+    Constraint_A_23.block<4,6>(0,0) = current_leg_jacobian_l_.block<4,6>(0,0);
+    Constraint_A_23.block<4,6>(0,6) = -current_leg_jacobian_r_.block<4,6>(0,0);
+
+    Constraint_A_23.block<1,6>(4,0) = current_leg_jacobian_l_.block<1,6>(5,0);
+    Constraint_A_23.block<1,6>(4,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
+
+    if(foot_step_(current_step_num_,6) == 0){// right foot support
+        Constraint_A_23.block<6,6>(5,0).setZero();
+        Constraint_A_23.block<6,6>(5,6) = current_leg_jacobian_r_;
+    }
+    else{ // left foot support
+        Constraint_A_23.block<6,6>(5,0) = current_leg_jacobian_l_;
+        Constraint_A_23.block<6,6>(5,6).setZero();
+    }
+    Constraint_A_23.block<12,12>(11,0).setIdentity();
+
+    Eigen::VectorXd u_inequality(23), l_inequality(23);
+
+    u_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
+    u_inequality(4) = lp_(5) - rp_(5);
+
+    l_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
+    l_inequality(4) = lp_(5) - rp_(5);
+
+    if(foot_step_(current_step_num_,6) == 0){// right foot support
+        u_inequality.segment<6>(5) = rp_;
+        l_inequality.segment<6>(5) = rp_;
+
+    }
+    else{ // left foot support
+        u_inequality.segment<6>(5) = lp_;
+        l_inequality.segment<6>(5) = lp_;
+    }
+
+    u_inequality.segment<12>(11) = (q_leg_max_ - desired_q_not_compensated_.segment<12>(0))*hz_;
+    l_inequality.segment<12>(11) = (q_leg_min_ - desired_q_not_compensated_.segment<12>(0))*hz_;
+
+
+    real_t H[12*12],A[23*12],lbA[23],ubA[23],lb[12],ub[12], g[12];
+
+    for(int j=0;j<12;j++){
+        for(int i=0;i<12;i++){
+            H[12*i+j] = H_matrix_12(i,j);
+        }
+        for(int i=0;i<23;i++){
+            A[12*i+j] = Constraint_A_23(i,j);
+        }
+    }
+
+    for(int i=0;i<12;i++){
+        lb[i] =-10;
+        ub[i] = 10;
+
+        g[i] = -g_vector_12(i);
+    }
+
+    for(int i=0;i<23;i++){
+        lbA[i] = l_inequality(i);
+        ubA[i] = u_inequality(i);
+    }
+
+    real_t xOpt[12];
+    QProblem example(12,23);
+
+    Options options;
+    options.initialStatusBounds =ST_LOWER;
+    options.numRefinementSteps = 1;
+    options.enableCholeskyRefactorisation = 1;
+    options.printLevel = PL_NONE;
+//    options.enableEqualities = BT_TRUE;
+
+    example.setOptions(options);
+
+    int_t nWSR = 1000;
+
+    example.init(H,g,A,lb,ub,lbA,ubA,nWSR);
+    example.getPrimalSolution(xOpt);
+    example.hotstart(g,lb,ub,lbA,ubA,nWSR);
+    example.getPrimalSolution(xOpt);
+
+
+    Eigen::Vector12d qp_q;
+    for(int i=0;i<6;i++){
+        qp_q(i) = xOpt[i]/hz_ + desired_q_not_compensated_(LF_BEGIN + i);
+        qp_q(i+6) = xOpt[i+6]/hz_ + desired_q_not_compensated_(RF_BEGIN +i);
+    }
+
+    for(int i=0;i<12;i++){
+        pre_q_dot_(i) = xOpt[i];
+    }
+
+   for(int i=0;i<12;i++){
+       desired_q_(i) = qp_q(i);
+   }
 }
 void WalkingController::qpIK_test(){
     Eigen::MatrixXd Q_input;
@@ -5054,66 +5269,68 @@ void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d 
 //        l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_lifting_init_,cubic_xl);
 //        r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_lifting_init_,cubic_xl);
 //    }
-    else if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
-    {
-        if(walking_tick_ == t_start_ + t_double1_){
-            if(foot_step_(current_step_num_,6) == 1)//left foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
-                r_leg_phi = DyrosMath::legGetPhi(rfoot_float_current_,rfoot_lifting_float_init_,cubic_xr);
+    //////
+//    else if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+//    {
+//        if(walking_tick_ == t_start_ + t_double1_){
+//            if(foot_step_(current_step_num_,6) == 1)//left foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
+//                r_leg_phi = DyrosMath::legGetPhi(rfoot_float_current_,rfoot_lifting_float_init_,cubic_xr);
 
-            }
-            else//right foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_lifting_float_init_,cubic_xl);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
-            }
-        }
-        else{
-            if(foot_step_(current_step_num_,6) == 1)//left foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_lifting_float_init_,cubic_xr);
-            }
-            else//right foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_lifting_float_init_,cubic_xl);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
-            }
-        }
-    }
-    else if(walking_tick_ >= t_start_+t_total_-t_double2_-t_rest_last_)
-    {
-        if(walking_tick_ == t_start_+t_total_-t_double2_-t_rest_last_){
-            if(foot_step_(current_step_num_,6) == 1)//left foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
-//                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_DSP2_float_init_,cubic_xl);
-                r_leg_phi = DyrosMath::legGetPhi(rfoot_float_current_,rfoot_DSP2_float_init_,cubic_xr);
-
-            }
-            else//right foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_DSP2_float_init_,cubic_xl);
+//            }
+//            else//right foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_lifting_float_init_,cubic_xl);
+//                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
+//            }
+//        }
+//        else{
+//            if(foot_step_(current_step_num_,6) == 1)//left foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
+//                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_lifting_float_init_,cubic_xr);
+//            }
+//            else//right foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_lifting_float_init_,cubic_xl);
+//                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
+//            }
+//        }
+//    }
+//    else if(walking_tick_ >= t_start_+t_total_-t_double2_-t_rest_last_)
+//    {
+//        if(walking_tick_ == t_start_+t_total_-t_double2_-t_rest_last_){
+//            if(foot_step_(current_step_num_,6) == 1)//left foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
+////                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_DSP2_float_init_,cubic_xl);
 //                r_leg_phi = DyrosMath::legGetPhi(rfoot_float_current_,rfoot_DSP2_float_init_,cubic_xr);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
-            }
-        }
-        else{
-            if(foot_step_(current_step_num_,6) == 1)//left foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
-//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_DSP2_float_init_,cubic_xr);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_DSP2_float_init_,cubic_xr);
-            }
-            else//right foot support
-            {
-                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_DSP2_float_init_,cubic_xl);
+
+//            }
+//            else//right foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(lfoot_float_current_,lfoot_DSP2_float_init_,cubic_xl);
+////                r_leg_phi = DyrosMath::legGetPhi(rfoot_float_current_,rfoot_DSP2_float_init_,cubic_xr);
+//                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
+//            }
+//        }
+//        else{
+//            if(foot_step_(current_step_num_,6) == 1)//left foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
+////                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_DSP2_float_init_,cubic_xr);
 //                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_DSP2_float_init_,cubic_xr);
-                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
-            }
-        }
-    }
+//            }
+//            else//right foot support
+//            {
+//                l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_,lfoot_DSP2_float_init_,cubic_xl);
+////                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_,rfoot_DSP2_float_init_,cubic_xr);
+//                r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
+//            }
+//        }
+//    }
+    ////////
     else{
         l_leg_phi = DyrosMath::legGetPhi(pre_lfoot_trajectory_float_, lfoot_float_init_, cubic_xl);
         r_leg_phi = DyrosMath::legGetPhi(pre_rfoot_trajectory_float_, rfoot_float_init_, cubic_xr);
