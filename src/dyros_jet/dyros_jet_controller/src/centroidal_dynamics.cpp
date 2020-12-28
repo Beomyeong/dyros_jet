@@ -110,14 +110,14 @@ void WalkingController::relative_link_trans_matrix(Eigen::Isometry3d* transform_
 //    }
 //    file[14]<<endl;
 
-//    if(walking_tick_ ==0){
-//        cout<<"relative distance in link trans matrix function "<<endl;
-//        for(int i=0;i<29;i++)
-//            cout<<i<<"th relative distance "<<endl<<relative_distance_[i]<<endl;
+    if(walking_tick_ ==0){
+        cout<<"relative distance in link trans matrix function "<<endl;
+        for(int i=0;i<29;i++)
+            cout<<i<<"th relative distance "<<endl<<relative_distance_[i]<<endl;
 
 //        for(int i=0;i<20;i++)
 //            cout<<i<<"th relative rotation " <<endl<<relative_rotation_[i]<<endl;
-//    }
+    }
 
 }
 void WalkingController::relative_link_trans_matrix2(Eigen::Isometry3d* transform_matrix){
@@ -267,6 +267,8 @@ void WalkingController::Spatial_transform(){
     for(int i=0;i<28;i++){
         Skew_temp = DyrosMath::skew(relative_distance_[i]);
         Rotation_temp = relative_rotation_[i]*(Skew_temp.transpose());
+        if(walking_tick_ == 0)
+            cout<<"skew matrix : "<<i<<endl<<Skew_temp.transpose()<<endl;
 
 
         Spatial_Matrix_[i].block<3,3>(0,0) = relative_rotation_[i];
@@ -818,6 +820,9 @@ void WalkingController::Centroidal_Momentum_Matrix(){
         Centroidal_Momentum_[28] += Centroidal_Momentum_[i];
     }
 
+    if(walking_tick_ == 0){
+        cout<<"calculated : "<<Centroidal_Momentum_Matrix_[LF_BEGIN+5]<<endl<<"from rbdl : "<<Augmented_Centroidal_Momentum_Matrix_.col(LF_BEGIN+5)<<endl;
+    }
     Eigen::Matrix6d Inertia_G;
 
     Inertia_G.setZero();
