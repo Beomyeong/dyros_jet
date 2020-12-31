@@ -402,7 +402,7 @@ void WalkingController::qpIK_pelvis_13(){
 
     Eigen::Matrix<double, 13, 13> w1_13, w2_13, w3_13;
     w1_13.setIdentity(); w2_13.setIdentity(); w3_13.setIdentity();
-    w2_13(0,0)= 2; w2_13(1,1) = 2; w2_13(7,7) = 2;
+//    w2_13(0,0)= 2; w2_13(1,1) = 2; w2_13(7,7) = 2;
 //    w3_13*= 0.1;
     // for H matrix
 
@@ -554,6 +554,7 @@ void WalkingController::qpIK_pelvis_13(){
 //    floating_joint_limit_min = -20*DEG2RAD;
 
     Eigen::Matrix<double, 25, 13> Constraint_A_25_13;
+    Constraint_A_25_13.setZero();
     Constraint_A_25_13.block<12,13>(0,0) = Jacobian_12_13;
     Constraint_A_25_13.block<13,13>(12,0).setIdentity();
 
@@ -638,9 +639,9 @@ void WalkingController::qpIK_pelvis_13(){
         g_13[j] = -g_vector_13(j);
     }
     if(foot_step_(current_step_num_,6) ==0)//right foot support
-        ub_13[0] =0.1;
+        lb_13[0] =-0.1;
     else {
-        lb_13[0] = -0.1;
+        ub_13[0] = 0.1;
     }
 //    lb_13[12] = -5;
 //    ub_13[12] = 5;
