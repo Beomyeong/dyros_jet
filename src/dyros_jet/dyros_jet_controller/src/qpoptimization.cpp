@@ -402,7 +402,7 @@ void WalkingController::qpIK_pelvis_13(){
 
     Eigen::Matrix<double, 13, 13> w1_13, w2_13, w3_13;
     w1_13.setIdentity(); w2_13.setIdentity(); w3_13.setIdentity();
-    w2_13(12,12)= 2; w2_13(0,0) = 2; w2_13(6,6) = 2;
+    w2_13(0,0)= 2; w2_13(1,1) = 2; w2_13(7,7) = 2;
 //    w3_13*= 0.1;
     // for H matrix
 
@@ -421,17 +421,22 @@ void WalkingController::qpIK_pelvis_13(){
     Eigen::Matrix<double, 13, 12> Jacobian_12_13_t;
     Jacobian_12_13.setZero(); Jacobian_12_13_t.setZero();
 
-    Jacobian_12_13.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,0);
-    Jacobian_12_13.block<6,1>(0,12) = current_leg_jacobian_l_floating_.block<6,1>(0,6);
+//    Jacobian_12_13.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,0);
+//    Jacobian_12_13.block<6,1>(0,12) = current_leg_jacobian_l_floating_.block<6,1>(0,6);
 
-    Jacobian_12_13.block<6,6>(6,6) = current_leg_jacobian_r_floating_.block<6,6>(0,0);
-    Jacobian_12_13.block<6,1>(6,12) = current_leg_jacobian_r_floating_.block<6,1>(0,6);
+//    Jacobian_12_13.block<6,6>(6,6) = current_leg_jacobian_r_floating_.block<6,6>(0,0);
+//    Jacobian_12_13.block<6,1>(6,12) = current_leg_jacobian_r_floating_.block<6,1>(0,6);
+
+    Jacobian_12_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+    Jacobian_12_13.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    Jacobian_12_13.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
     Jacobian_12_13_t = Jacobian_12_13.transpose();
 
     Eigen::Matrix<double, 13, 13> Iden_13,  Selec_floating, Selec_square;
     Iden_13.setIdentity();   Selec_floating.setZero();
-    Selec_floating(12,12) = 1;
+    Selec_floating(0,0) = 1;
 
     Selec_square = Selec_floating.transpose()*Selec_floating;
 
@@ -444,8 +449,10 @@ void WalkingController::qpIK_pelvis_13(){
     // for g vector
     Eigen::Vector12d g_vector_12, desired_v;
     Eigen::VectorXd g_vector_13(13);
-    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,0).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(0);
-    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,0).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(6);
+//    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,0).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(0);
+//    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,0).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(6);
+    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(1);
+    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(7);
     desired_v.segment<6>(0) = lp_;
     desired_v.segment<6>(6) = rp_;
 
@@ -453,8 +460,9 @@ void WalkingController::qpIK_pelvis_13(){
     if(walking_tick_ ==0){
         pre_q_d = q_init_.segment<13>(0);
     }else{
-        pre_q_d.segment<12>(0) = desired_q_not_compensated_.segment<12>(0);
-        pre_q_d(12) = pre_floating_joint_;
+//        pre_q_d.segment<12>(0) = desired_q_not_compensated_.segment<12>(0);
+//        pre_q_d(12) = pre_floating_joint_;
+        pre_q_d = desired_q_not_compensated_.segment<13>(0);
     }
 
     w2_13.setZero();
@@ -553,11 +561,11 @@ void WalkingController::qpIK_pelvis_13(){
     u_inequality_25.segment<12>(0) = desired_v;
     l_inequality_25.segment<12>(0) = desired_v;
 
-    u_inequality_25.segment<12>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<12>(0))*hz_;
-    l_inequality_25.segment<12>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<12>(0))*hz_;
+    u_inequality_25.segment<13>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+    l_inequality_25.segment<13>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<13>(0))*hz_;
 
-    u_inequality_25(24) = (floating_joint_limit_max - pre_floating_joint_)*hz_;
-    l_inequality_25(24) = (floating_joint_limit_min - pre_floating_joint_)*hz_;
+//    u_inequality_25(24) = (floating_joint_limit_max - pre_floating_joint_)*hz_;
+//    l_inequality_25(24) = (floating_joint_limit_min - pre_floating_joint_)*hz_;
 
 //    u_inequality_25(24) = (30*DEGREE - pre_floating_joint_)*hz_;
 //    l_inequality_25(24) = (-30*DEGREE - pre_floating_joint_)*hz_;
@@ -630,9 +638,9 @@ void WalkingController::qpIK_pelvis_13(){
         g_13[j] = -g_vector_13(j);
     }
     if(foot_step_(current_step_num_,6) ==0)//right foot support
-        ub_13[12] =0.1;
+        ub_13[0] =0.1;
     else {
-        lb_13[12] = -0.1;
+        lb_13[0] = -0.1;
     }
 //    lb_13[12] = -5;
 //    ub_13[12] = 5;
@@ -691,7 +699,8 @@ void WalkingController::qpIK_pelvis_13(){
     file[18]<<endl;
 
    for(int i=0;i<13;i++){
-       desired_q_(i) = qp_q(i);
+//       desired_q_(i) = qp_q(i);
+       desired_q_(i) = xOpt[i]/hz_ + desired_q_not_compensated_(i);
    }
 
    file[12]<<walking_tick_<<"\t"<<foot_step_(current_step_num_,6)<<"\t"<<x_stride<<"\t"<<y_stride<<"\t"<<floating_joint_limit_min<<"\t"<<floating_joint_limit_max<<"\t"<<floating_joint_<<endl;
@@ -1341,8 +1350,8 @@ void WalkingController::qpIK_test(){
     for(int i=0;i<6;i++){
 //        qp_q(i) = qOpt[i]/hz_ + desired_q_not_compensated_[LF_BEGIN+i];
 //        qp_q(i+6) = qOpt[i+6]/hz_ + desired_q_not_compensated_[RF_BEGIN+i];
-        desired_q_(i) = qOpt[i]/hz_ + desired_q_not_compensated2_[LF_BEGIN + i];
-        desired_q_(i+6) = qOpt[i+6]/hz_ + desired_q_not_compensated2_[RF_BEGIN +i];
+        desired_q_(LF_BEGIN + i) = qOpt[i]/hz_ + desired_q_not_compensated2_[LF_BEGIN + i];
+        desired_q_(LF_BEGIN+ i+6) = qOpt[i+6]/hz_ + desired_q_not_compensated2_[RF_BEGIN +i];
     }
 
 
@@ -5718,30 +5727,30 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     A_dsp1.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
     A_lifting.block<12,12>(6,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_lifting(i+6) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA_lifting(i+6) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA_lifting(i+6) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_lifting(i+6) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_landing.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_landing(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA_landing(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_dsp2.block<12,12>(12,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
@@ -5759,6 +5768,8 @@ void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d 
     if(walking_tick_ == 0 || walking_tick_ == t_start_ || walking_tick_ == t_start_+t_total_-t_double2_-t_rest_last_  ){
         lp.topRows<3>() = (-lfoot_float_current_.translation()+lfoot_trajectory_float_.translation());
         rp.topRows<3>() = (-rfoot_float_current_.translation()+rfoot_trajectory_float_.translation());
+//        lp.topRows<3>().setZero();
+//        rp.topRows<3>().setZero();
     }
     else{
       lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());
@@ -5860,6 +5871,8 @@ void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d 
     lp.bottomRows<3>() = - l_leg_phi;
     rp.bottomRows<3>() = - r_leg_phi;
 
+//    lp.bottomRows<3>().setZero();
+//    rp.bottomRows<3>().setZero();
 
 
     // for calculating toe and heel desired velocity

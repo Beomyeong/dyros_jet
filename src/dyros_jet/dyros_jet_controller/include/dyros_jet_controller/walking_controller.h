@@ -19,18 +19,35 @@
 using namespace qpOASES;
 using namespace dyros_jet_controller;
 
-#define WA_BEGIN 12
+//#define WA_BEGIN 12
+//#define RA_BEGIN 21
+//#define LA_BEGIN 14
+//#define RF_BEGIN 6
+//#define LF_BEGIN 0
+
+//#define WA_LINK 13
+//#define RA_LINK 22
+//#define LA_LINK 15
+//#define RF_LINK 7
+//#define LF_LINK 1
+//#define BASE_LINK 0
+
+#define WA_BEGIN 13
 #define RA_BEGIN 21
 #define LA_BEGIN 14
-#define RF_BEGIN 6
-#define LF_BEGIN 0
 
-#define WA_LINK 13
+#define RF_BEGIN 7
+#define LF_BEGIN 1
+#define VIRTUAL_JOINT 0
+
+#define WA_LINK 14
 #define RA_LINK 22
 #define LA_LINK 15
-#define RF_LINK 7
-#define LF_LINK 1
-#define BASE_LINK 0
+
+#define RF_LINK 8
+#define LF_LINK 2
+#define BASE_LINK 1
+#define VIRTUAL_LINK 0
 
 #define DEGREE	(0.01745329251994329576923690768489)
 
@@ -375,6 +392,7 @@ public:
   void MovingZMPtrajectory();
   void MovingZMPGenerator(const unsigned int norm_size, const unsigned planning_step_num);
   void MovingonestepZMP(unsigned int current_step_number, Eigen::VectorXd& temp_px, Eigen::VectorXd& temp_py);
+  void SettingVirtualJointLimit();
 
   // for controlled LIPM // updated by myeongju
   void getComTrajectory_MJ();
@@ -1189,8 +1207,8 @@ private:
     Eigen::Isometry3d rtoe_float_current_;
     Eigen::Isometry3d rheel_float_current_;
 
-    Eigen::Vector12d q_leg_min_;
-    Eigen::Vector12d q_leg_max_;
+    Eigen::VectorXd q_leg_min_;
+    Eigen::VectorXd q_leg_max_;
 
 
     Eigen::Isometry3d pre_ltoe_trajectory_;

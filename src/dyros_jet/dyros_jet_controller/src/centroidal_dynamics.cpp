@@ -267,8 +267,8 @@ void WalkingController::Spatial_transform(){
     for(int i=0;i<28;i++){
         Skew_temp = DyrosMath::skew(relative_distance_[i]);
         Rotation_temp = relative_rotation_[i]*(Skew_temp.transpose());
-        if(walking_tick_ == 0)
-            cout<<"skew matrix : "<<i<<endl<<Skew_temp.transpose()<<endl;
+//        if(walking_tick_ == 0)
+//            cout<<"skew matrix : "<<i<<endl<<Skew_temp.transpose()<<endl;
 
 
         Spatial_Matrix_[i].block<3,3>(0,0) = relative_rotation_[i];

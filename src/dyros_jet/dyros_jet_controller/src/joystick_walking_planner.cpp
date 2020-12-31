@@ -344,6 +344,8 @@ void WalkingController::JoyZMPtrajectory(){
 
     unsigned int norm_size = 0;
 
+    cout<<"aaaa"<<endl;
+
     //if(current_step_num_ >= total_step_num_ - planning_step_number)
     if(joystick_input_(3) > 0){ // stop cmd on
       norm_size = (t_last_-t_start_+1)*(total_step_num_joy_-current_step_num_)+20*hz_;
@@ -356,8 +358,10 @@ void WalkingController::JoyZMPtrajectory(){
 
     JoyaddZmpOffset();
 
+    cout<<"b"<<endl;
     JoyZMPGenerator(norm_size, planning_step_number);
 
+    cout<<"c"<<endl;
     ref_zmp_.resize(norm_size,2);
     ref_zmp_ =ref_zmp_joy_;
 

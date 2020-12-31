@@ -16,9 +16,10 @@ constexpr const size_t DyrosJetModel::HW_HAND_DOF;
   
 // These should be replaced by YAML or URDF or something
 const std::string DyrosJetModel::JOINT_NAME[DyrosJetModel::HW_TOTAL_DOF] = {
+  "WaistPitch",
   "L_HipYaw","L_HipRoll","L_HipPitch","L_KneePitch","L_AnklePitch","L_AnkleRoll",
   "R_HipYaw","R_HipRoll","R_HipPitch","R_KneePitch","R_AnklePitch","R_AnkleRoll",
-  "WaistPitch","WaistYaw",
+  "WaistYaw",
   "L_ShoulderPitch","L_ShoulderRoll","L_ShoulderYaw","L_ElbowRoll","L_WristYaw","L_WristRoll","L_HandYaw",
   "R_ShoulderPitch","R_ShoulderRoll","R_ShoulderYaw","R_ElbowRoll","R_WristYaw","R_WristRoll","R_HandYaw",
   "HeadYaw", "HeadPitch", "R_Gripper", "L_Gripper"};
@@ -37,15 +38,16 @@ const std::map<string, unsigned int> JOINT_MAP = {
 */
 // Dynamixel Hardware IDs
 const int DyrosJetModel::JOINT_ID[DyrosJetModel::HW_TOTAL_DOF] = {
+  28,
   16,18,20,22,24,26,  // 6
   15,17,19,21,23,25,  // 6
-  28,27, // waist yaw - roll order  2
+  27, // waist yaw - roll order  2
   2,4,6,8,10,12,14,   // 7
   1,3,5,7,9,11,13,    // 7
   29,30,31,32};       // 4
 
 DyrosJetModel::DyrosJetModel() :
-  joint_start_index_{0+6, 6+6, 14+6, 21+6}   //left_leg_yaw, right_leg_yaw, left_arm, right_arm
+  joint_start_index_{1+6, 7+6, 14+6, 21+6}   //left_leg_yaw, right_leg_yaw, left_arm, right_arm
 {
   base_position_.setZero();
   q_.setZero();
@@ -53,7 +55,7 @@ DyrosJetModel::DyrosJetModel() :
   extencoder_init_flag_ = false;
 
   std::string desc_package_path = ros::package::getPath("dyros_jet_description");
-  std::string urdf_path = desc_package_path + "/robots/dyros_jet_robot.urdf";
+  std::string urdf_path = desc_package_path + "/robots/dyros_jet_robot_virtual.urdf";
 
   ROS_INFO("Loading DYROS JET description from = %s",urdf_path.c_str());
   RigidBodyDynamics::Addons::URDFReadFromFile(urdf_path.c_str(), &model_, true, false);
@@ -85,7 +87,7 @@ DyrosJetModel::DyrosJetModel() :
 
   for (size_t i=0; i<HW_TOTAL_DOF; i++)
   {
-    joint_name_map_[JOINT_NAME[i]] = i;
+    joint_name_map_[JOINT_NAME[i]] = i;    
   }
 }
 
@@ -133,6 +135,7 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     {
       getJacobianMatrix6DoF((EndEffector)i, &leg_jacobian_[i]);
       getJacobianMatrix18DoF((EndEffector)i, &leg_with_vlink_jacobian_[i]);
+      getVirtualJacobianMatrix7DOF((EndEffector)i, &virtual_leg_jacobian_[i]);
 
     }
     else 
@@ -159,6 +162,8 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     {
       getArmLinksJacobianMatrix(i, &arm_link_jacobian_[i-15]);
     }
+    getFull_jacobian(i, &full_jacobian_);
+//    std::cout<<"full jacobian"<<std::endl<<full_jacobian_<<std::endl;
 
   }
 
@@ -267,7 +272,17 @@ void DyrosJetModel::getTransformEachLinks // must call updateKinematics before c
   transform_matrix->linear() = RigidBodyDynamics::CalcBodyWorldOrientation
       (model_, q_virtual_, link_id_[id], false).transpose();
 }
+void DyrosJetModel::getFull_jacobian
+(unsigned int id, Eigen::Matrix<double, 6, 34> *full_jacobian)
+{
+    Eigen::MatrixXd whole_jacobian(6, MODEL_WITH_VIRTUAL_DOF);
+    whole_jacobian.setZero();
+    RigidBodyDynamics::CalcPointJacobian6D(model_, q_virtual_,link_id_[id],
+                                           Eigen::Vector3d::Zero(), whole_jacobian, false);
 
+    full_jacobian->block<3,1>(0, id) = whole_jacobian.block<3,1>(3,6+id);
+    full_jacobian->block<3,1>(3, id) = whole_jacobian.block<3,1>(0,6+id);
+}
 void DyrosJetModel::getJacobianMatrix6DoF
 (EndEffector ee, Eigen::Matrix<double, 6, 6> *jacobian)
 {
@@ -276,6 +291,7 @@ void DyrosJetModel::getJacobianMatrix6DoF
   RigidBodyDynamics::CalcPointJacobian6D(model_, q_virtual_, end_effector_id_[ee],
                                          Eigen::Vector3d::Zero(), full_jacobian, false);
 
+//  std::cout<<"full jacobioan in getJacobianMatrix6dof"<<std::endl<<full_jacobian<<std::endl;
   switch (ee)
   {
   case EE_LEFT_FOOT:
@@ -291,7 +307,32 @@ void DyrosJetModel::getJacobianMatrix6DoF
     break;
   }
 }
+void DyrosJetModel::getVirtualJacobianMatrix7DOF
+(EndEffector ee, Eigen::Matrix<double, 6, 7> *jacobian)
+{
+  Eigen::MatrixXd full_jacobian(6,MODEL_WITH_VIRTUAL_DOF);
+  full_jacobian.setZero();
+  RigidBodyDynamics::CalcPointJacobian6D(model_, q_virtual_, end_effector_id_[ee],
+                                         Eigen::Vector3d::Zero(), full_jacobian, false);
 
+//  std::cout<<"full jacobioan in getJacobianMatrix6dof"<<std::endl<<full_jacobian<<std::endl;
+  jacobian->block<3,1>(0,0) = full_jacobian.block<3,1>(3,6);
+  jacobian->block<3,1>(3,0) = full_jacobian.block<3,1>(0,6);
+  switch (ee)
+  {
+  case EE_LEFT_FOOT:
+  case EE_RIGHT_FOOT:
+    // swap
+    jacobian->block<3, 6>(0, 1) = full_jacobian.block<3, 6>(3, joint_start_index_[ee]);
+    jacobian->block<3, 6>(3, 1) = full_jacobian.block<3, 6>(0, joint_start_index_[ee]);
+    break;
+  case EE_LEFT_HAND:
+  case EE_RIGHT_HAND:
+  //*jacobian = full_jacobian.block<6, 7>(0, joint_start_index_[ee]);
+    ROS_ERROR("Arm is 7 DoF. Please call getJacobianMatrix7DoF");
+    break;
+  }
+}
 void DyrosJetModel::getJacobianMatrix7DoF
 (EndEffector ee, Eigen::Matrix<double, 6, 7> *jacobian)
 {
