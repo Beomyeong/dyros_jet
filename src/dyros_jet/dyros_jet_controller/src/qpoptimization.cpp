@@ -622,7 +622,7 @@ void WalkingController::qpIK_pelvis_13(){
 //    }
 //    desired_q_(12) = -qp_q(12)/hz_ + desired_q_not_compensated_(12);
 }
-void WalkingController::qpIK_pel_arm2(){
+void WalkingController::qpIK_pel_redundant(){
     //redundant pelvis IK + AM with arm
     if(walking_tick_== 0)
         cout<<"optimization IK with redundant pelvis DOF 13 + including w shoulder for AM"<<endl;

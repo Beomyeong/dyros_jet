@@ -356,7 +356,7 @@ public:
   void qpIK_pelvis();
   void qpIK_pelvis_13();
   void qpIK_pel_arm();
-  void qpIK_pel_arm2();
+  void qpIK_pel_redundant();
   void qp1();
   void previewQP();
   void MPCwQP();
