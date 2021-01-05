@@ -354,6 +354,9 @@ public:
   void qp2();
   void qpIK();
   void qpIK_pelvis();
+  void qpIK_pelvis_13();
+  void qpIK_pel_arm();
+  void qpIK_pel_arm2();
   void qp1();
   void previewQP();
   void MPCwQP();
@@ -641,6 +644,7 @@ private:
 
   Eigen::Isometry3d pelv_trajectory_support_; //local frame
   Eigen::Isometry3d pelv_trajectory_float_; //pelvis frame
+  Eigen::Isometry3d floating_trajectory_support_;
 
   Eigen::Isometry3d rfoot_trajectory_float_;  //pelvis frame
   Eigen::Isometry3d lfoot_trajectory_float_;
@@ -1289,6 +1293,7 @@ private:
     Eigen::Matrix<double, 6, 7> current_leg_jacobian_l_floating_;
     Eigen::Matrix<double, 6, 7> current_leg_jacobian_r_floating_;
     double          floating_joint_;
+    double          pre_floating_joint_;
     double          floating_joint_init_;
 
     /// using floating frame above the pelvis
@@ -1302,6 +1307,8 @@ private:
     Eigen::Isometry3d   floating_support_init_;
     Eigen::Isometry3d   floating_support_current_;
 
+    Eigen::Vector3d     float_left_dot_;
+    Eigen::Vector3d     float_right_dot_;
 
 
 };
