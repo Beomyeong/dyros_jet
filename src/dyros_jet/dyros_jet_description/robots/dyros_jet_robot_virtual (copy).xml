@@ -93,23 +93,19 @@
                         <body name="L_HipPitch_Link" pos="0 0 0">
                             <inertial pos="0.12203 0.00306 -0.23316" quat="0.950942 -0.0241305 0.218858 -0.21732" mass="3.28269" diaginertia="0.0478721 0.0423822 0.0109838" />
                             <joint name="L_HipPitch" pos="0 0 0" axis="0 1 0" limited="true" range="-3.14 3.14" />
-                           	 <geom name = "L_HipPitch1"  type="box" size="0.04 0.06 0.15" pos="0.15 0 -0.22"/>
-				 <geom name = "L_HipPitch2" type="box" size="0.04 0.06 0.07" pos="0.075 0 -0.14"/>
-				<geom name="L_HipPitch_Link" class="viz" mesh="hip_pitch" />
+                            <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="hip_pitch" />
                             <body name="L_KneePitch_Link" pos="0.1515 0 -0.339">
                                 <inertial pos="0.05276 -0.01856 -0.22635" quat="0.96774 0.110027 0.0714849 -0.215087" mass="2.04524" diaginertia="0.03639 0.0322497 0.00477484" />
                                 <joint name="L_KneePitch" pos="0 0 0" axis="0 1 0" limited="true" range="-3.14 3.14" />
-                                	<geom name = "L_KneePitch" type="box" size="0.04 0.06 0.15 " pos=" 0.05 -0.005 -0.22" quat="0 0 0 -0.215087"/>
-					<geom name="L_KneePitch_Link" class="viz" mesh="left_shin" />
+                                <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="left_shin" />
                                 <body name="L_AnklePitch_Link" pos="0.06 0 -0.368">
                                     <inertial pos="-0.01035 0.00568 0" quat="0.0259795 0.706629 -0.0259795 0.706629" mass="1.1845" diaginertia="0.00206163 0.00185663 0.000905687" />
                                     <joint name="L_AnklePitch" pos="0 0 0" axis="0 1 0" limited="true" range="-3.14 3.14" />
-                                    <geom name="L_AnklePitch_Link" class="viz" mesh="left_ankle_pitch" />
+                                    <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="left_ankle_pitch" />
                                     <body name="L_AnkleRoll_Link" pos="0 0 0">
                                         <inertial pos="-0.00989 0 0.07224" quat="0 0.650639 0 0.759387" mass="1.42541" diaginertia="0.00909009 0.00816768 0.0033577" />
                                         <joint name="L_AnkleRoll" pos="0 0 0" axis="1 0 0" limited="true" range="-3.14 3.14" />
-                                        <geom name="L_AnkleRoll" type="box" size="0.15 0.085 0.01" friction="1.0 0.005 0.0001" pos="0.01 0 -0.095"/>
-                                    	<geom name="L_AnkleRoll_Link" class="viz" mesh="ankle_roll" />
+                                        <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="ankle_roll" />
 					<site class="FTsensor" name="L_FT" pos="0 0 0"/>
                                     </body>
                                 </body>
@@ -120,32 +116,27 @@
                 <body name="R_HipYaw_Link" pos="0 -0.105 -0.1119">
                     <inertial pos="-0.02955 0 0.06943" quat="0.676521 -0.205718 -0.205718 0.676521" mass="1.54216" diaginertia="0.00664372 0.00472109 0.00278374" />
                     <joint name="R_HipYaw" pos="0 0 0" axis="0 0 -1" limited="true" range="-3.14 3.14" />
-                    <geom name="R_HipYaw" type="box" size="0.071 0.031 0.08" pos="0.0 0 0.05" />
-				<geom name="R_HipYaw_Link" class="viz" mesh="hip_yaw" />
+                    <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="hip_yaw" />
                     <body name="R_HipRoll_Link" pos="0 0 0">
                         <inertial pos="0.00513 0.00119 0" quat="0.502619 0.497367 -0.502619 0.497367" mass="1.16907" diaginertia="0.00199196 0.00180688 0.000879624" />
                         <joint name="R_HipRoll" pos="0 0 0" axis="1 0 0" limited="true" range="-3.14 3.14" />
-                        <geom name="R_HipRoll_Link" class="viz" mesh="hip_roll" />
+                        <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="hip_roll" />
                         <body name="R_HipPitch_Link" pos="0 0 0">
                             <inertial pos="0.11203 -0.00306 -0.23316" quat="0.950944 0.0241325 0.218858 0.217311" mass="3.28269" diaginertia="0.047872 0.0423822 0.0109839" />
                             <joint name="R_HipPitch" pos="0 0 0" axis="0 -1 0" limited="true" range="-3.14 3.14" />
-                            			<geom name="R_HipPitch1" type="box" size="0.04 0.06 0.15" pos="0.15 0 -0.22"/>
-						<geom name="R_HipPitch2" type="box" size="0.04 0.06 0.07" pos="0.075 0 -0.14"/>
-                       		<geom name="R_HipPitch_Link"class="viz" mesh="hip_pitch" />
+                            <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="hip_pitch" />
                             <body name="R_KneePitch_Link" pos="0.1515 0 -0.339">
                                 <inertial pos="0.05276 0.01856 -0.22635" quat="0.96797 -0.109968 0.0713641 0.214123" mass="2.04524" diaginertia="0.0364097 0.0322608 0.00479686" />
                                 <joint name="R_KneePitch" pos="0 0 0" axis="0 -1 0" limited="true" range="-3.14 3.14" />
-                               		 <geom name="R_KneePitch" type="box" size="0.04 0.06 0.15 " pos=" 0.05 0.01 -0.22" quat="0 0 0.2588 0"/>
-                           		 <geom name="R_KneePitch_Link" class="viz" mesh="right_shin" />
+                                <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="right_shin" />
                                 <body name="R_AnklePitch_Link" pos="0.06 0 -0.368">
                                     <inertial pos="-0.01035 0.00568 0" quat="-0.0259621 0.70663 0.0259621 0.70663" mass="1.1845" diaginertia="0.00206165 0.0018566 0.000905652" />
                                     <joint name="R_AnklePitch" pos="0 0 0" axis="0 -1 0" limited="true" range="-3.14 3.14" />
-                                    <geom name="R_AnklePitch_Link" class="viz" mesh="right_ankle_pitch" />
+                                    <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="right_ankle_pitch" />
                                     <body name="R_AnkleRoll_Link" pos="0 0 0">
                                         <inertial pos="-0.00989 0 0.07224" quat="0 0.648332 0 0.761358" mass="1.42541" diaginertia="0.00909009 0.00816768 0.0033577" />
                                         <joint name="R_AnkleRoll" pos="0 0 0" axis="1 0 0" limited="true" range="-3.14 3.14" />
-                                        <geom name="R_AnkleRoll" type="box" size="0.15 0.085 0.01" friction="1.0 0.005 0.0001" pos="0.01 0 -0.095"/>
-                                    <geom name="R_AnkleRoll_Link" class="viz" mesh="ankle_roll" />
+                                        <geom type="mesh" rgba="0.59216 0.61961 0.65098 1" mesh="ankle_roll" />
 					<site class="FTsensor" name="R_FT" pos="0 0 0"/>
                                     </body>
                                 </body>

@@ -299,7 +299,7 @@ void WalkingController::compute()
 //        solve();
 
 
-        desired_q_ = q_init_;
+//        desired_q_ = q_init_;
 
 //        for(int i=0;i<6;i++)
 //            desired_q_(i) = vars.x[i]/hz_ + desired_q_not_compensated_(i);
@@ -310,7 +310,7 @@ void WalkingController::compute()
 //        desired_q_(WA_BEGIN) = target_speed_(6)/hz_ + desired_q_not_compensated_(WA_BEGIN);
 
 
-        desired_q_(0) = DyrosMath::cubic(walking_tick_,10,100,0.0,45*DEGREE,0.0,0.0);
+//        desired_q_(0) = DyrosMath::cubic(walking_tick_,10,100,0.0,45*DEGREE,0.0,0.0);
 
 //        for(int i=0;i<7;i++){
 //           desired_q_(RA_BEGIN+i) = target_speed_(7+i)/hz_ + desired_q_not_compensated_(RA_BEGIN+i);
