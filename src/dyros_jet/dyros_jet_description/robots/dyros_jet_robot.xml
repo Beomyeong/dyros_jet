@@ -78,9 +78,9 @@
 		<body name="base_link" pos="0 0 0.0">
 		    <inertial pos="0 0 0.08027" quat="0.707107 0.707107 0 0" mass="3.90994" diaginertia="0.027242 0.0239919 0.00634116" />
 		    <joint name="WaistPitch" pos="0 0 0" axis="0 0 -1" limited="true" range="-3.14 3.14" />
-    		    <geom name = "Base" type="box" size="0.04 0.14 0.06" pos="0 0 0.085"/>
 		    <geom name = "base_link" class="viz" mesh="base_link" />
-				<site name="Pelvis_IMU" type="cylinder" size="0.005 0.005" group="4" rgba=".1 .1 .9 1"/>
+	    		    <geom name = "Base" type="box" size="0.04 0.14 0.06" pos="0 0 0.085"/>
+		  	    <site name="Pelvis_IMU" type="cylinder" size="0.005 0.005" group="4" rgba=".1 .1 .9 1"/>
 		    <body name="L_HipYaw_Link" pos="0 0.105 -0.1119">
 		        <inertial pos="-0.02955 0 0.06943" quat="0.676521 -0.205718 -0.205718 0.676521" mass="1.54216" diaginertia="0.00664372 0.00472109 0.00278374" />
 			<joint name="L_HipYaw" pos="0 0 0" axis="0 0 -1" limited="true" range="-3.14 3.14"/>
@@ -154,7 +154,7 @@
 		            </body>
 		        </body>
 		    </body>		   
-		        <body name="WaistYaw_Link" pos="0 0 0.186">
+	      		<body name="WaistYaw_Link" pos="0 0 0.186">
 		            <inertial pos="0.0038 -0.00415 0.11424" mass="14.0994" diaginertia="0.262766 0.242504 0.109346" />
 		            <joint name="WaistYaw" pos="0 0 0" axis="-1 0 0" limited="true" range="-3.14 3.14" />
 						<geom name="WaistYaw" size="0.045 0.1325 0.1125" pos="0 0 0.11" type="box" rgba="0.59216 0.61961 0.65098 1" />
@@ -210,7 +210,6 @@
 		                        <inertial pos="0.00022 -0.291 -0.20695" quat="0.499327 0.500672 -0.499327 0.500672" mass="1.75149" diaginertia="0.090836 0.0904196 0.00125935" />
 		                        <joint name="R_ShoulderYaw" pos="0 0 0" axis="0 -1 0" limited="true" range="-3.14 3.14" />
 									<geom name="R_ShoulderYaw" type="box" size="0.03 0.03 0.1" pos="0 -0.16 0" quat="0.70711 0.70711 0 0"/>
-								
 		                        <geom name="R_ShoulderYaw_Link" class="viz" mesh="R_ShoulderYaw_Link" />
 		                        <body name="R_ElbowRoll_Link" pos="0 -0.294 0">
 		                            <inertial pos="0.00013 -0.02766 0.06984" quat="0.978431 -0.206326 0.00269168 0.00972432" mass="0.83342" diaginertia="0.00592013 0.00562339 0.00105148" />
