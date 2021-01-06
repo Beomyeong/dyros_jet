@@ -373,6 +373,7 @@ public:
   void qpIK_pelvis();
   void qpIK_pelvis_13();
   void qpIK_pel_arm();
+  void qpIK_pel_full_arm();
   void qp1();
   void previewQP();
   void MPCwQP();
@@ -1209,6 +1210,9 @@ private:
 
     Eigen::VectorXd q_leg_min_;
     Eigen::VectorXd q_leg_max_;
+
+    Eigen::VectorXd q_upper_min_;
+    Eigen::VectorXd q_upper_max_;
 
 
     Eigen::Isometry3d pre_ltoe_trajectory_;

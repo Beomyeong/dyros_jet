@@ -451,8 +451,8 @@ void WalkingController::qpIK_pelvis_13(){
     Eigen::VectorXd g_vector_13(13);
 //    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,0).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(0);
 //    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,0).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(6);
-    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(1);
-    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(7);
+//    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(1);
+//    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(7);
     desired_v.segment<6>(0) = lp_;
     desired_v.segment<6>(6) = rp_;
 
@@ -470,37 +470,37 @@ void WalkingController::qpIK_pelvis_13(){
 
 
 
-    ///// for constraint vector /////
-    Eigen::Matrix<double, 23, 12> Constraint_A_23;
-    Constraint_A_23.block<4,6>(0,0) = current_leg_jacobian_l_.block<4,6>(0,0);
-    Constraint_A_23.block<4,6>(0,6) = -current_leg_jacobian_r_.block<4,6>(0,0);
+//    ///// for constraint vector /////
+//    Eigen::Matrix<double, 23, 12> Constraint_A_23;
+//    Constraint_A_23.block<4,6>(0,0) = current_leg_jacobian_l_.block<4,6>(0,0);
+//    Constraint_A_23.block<4,6>(0,6) = -current_leg_jacobian_r_.block<4,6>(0,0);
 
-    Constraint_A_23.block<1,6>(4,0) = current_leg_jacobian_l_.block<1,6>(5,0);
-    Constraint_A_23.block<1,6>(4,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
+//    Constraint_A_23.block<1,6>(4,0) = current_leg_jacobian_l_.block<1,6>(5,0);
+//    Constraint_A_23.block<1,6>(4,6) = -current_leg_jacobian_r_.block<1,6>(5,0);
 
-    if(foot_step_(current_step_num_,6) == 0){// right foot support
-        Constraint_A_23.block<6,6>(5,0).setZero();
-        Constraint_A_23.block<6,6>(5,6) = current_leg_jacobian_r_;
-    }
-    else{ // left foot support
-        Constraint_A_23.block<6,6>(5,0) = current_leg_jacobian_l_;
-        Constraint_A_23.block<6,6>(5,6).setZero();
-    }
-    Constraint_A_23.block<12,12>(11,0).setIdentity();
+//    if(foot_step_(current_step_num_,6) == 0){// right foot support
+//        Constraint_A_23.block<6,6>(5,0).setZero();
+//        Constraint_A_23.block<6,6>(5,6) = current_leg_jacobian_r_;
+//    }
+//    else{ // left foot support
+//        Constraint_A_23.block<6,6>(5,0) = current_leg_jacobian_l_;
+//        Constraint_A_23.block<6,6>(5,6).setZero();
+//    }
+//    Constraint_A_23.block<12,12>(11,0).setIdentity();
 
-    Eigen::VectorXd u_inequality(12), l_inequality(12);
+//    Eigen::VectorXd u_inequality(12), l_inequality(12);
 
-//    u_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
-//    u_inequality(4) = lp_(5) - rp_(5);
+////    u_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
+////    u_inequality(4) = lp_(5) - rp_(5);
 
-//    l_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
-//    l_inequality(4) = lp_(5) - rp_(5);
+////    l_inequality.segment<4>(0) = lp_.segment<4>(0) - rp_.segment<4>(0);
+////    l_inequality(4) = lp_(5) - rp_(5);
 
-    u_inequality.segment<6>(0) = lp_;
-    u_inequality.segment<6>(6) = rp_;
+//    u_inequality.segment<6>(0) = lp_;
+//    u_inequality.segment<6>(6) = rp_;
 
-    l_inequality.segment<6>(0) = lp_;
-    l_inequality.segment<6>(6) = rp_;
+//    l_inequality.segment<6>(0) = lp_;
+//    l_inequality.segment<6>(6) = rp_;
 
 //    if(foot_step_(current_step_num_,6) == 0){// right foot support
 //        u_inequality.segment<6>(5) = rp_;
@@ -597,28 +597,28 @@ void WalkingController::qpIK_pelvis_13(){
 //    }
 
 
-    real_t H[12*12],A[12*12],lbA[12],ubA[12],lb[12],ub[12], g[12];
+//    real_t H[12*12],A[12*12],lbA[12],ubA[12],lb[12],ub[12], g[12];
 
-    for(int j=0;j<12;j++){
-        for(int i=0;i<12;i++){
-            H[12*i+j] = H_matrix_12(i,j);
-        }
-        for(int i=0;i<12;i++){
-            A[12*i+j] = Jacobian_12(i,j);
-        }
-    }
+//    for(int j=0;j<12;j++){
+//        for(int i=0;i<12;i++){
+//            H[12*i+j] = H_matrix_12(i,j);
+//        }
+//        for(int i=0;i<12;i++){
+//            A[12*i+j] = Jacobian_12(i,j);
+//        }
+//    }
 
-    for(int i=0;i<12;i++){
-        lb[i] =-10;
-        ub[i] = 10;
+//    for(int i=0;i<12;i++){
+//        lb[i] =-10;
+//        ub[i] = 10;
 
-        g[i] = -g_vector_12(i);
-    }
+//        g[i] = -g_vector_12(i);
+//    }
 
-    for(int i=0;i<12;i++){
-        lbA[i] = l_inequality(i);
-        ubA[i] = u_inequality(i);
-    }
+//    for(int i=0;i<12;i++){
+//        lbA[i] = l_inequality(i);
+//        ubA[i] = u_inequality(i);
+//    }
 
     real_t H_13[13*13],A_13[25*13],lbA_13[25],ubA_13[25],lb_13[13],ub_13[13], g_13[13];
 
@@ -736,8 +736,7 @@ void WalkingController::qpIK_pel_arm(){
         pre_q_d(14) = q_init_(21);
     }
     else{
-        pre_q_d.segment<12>(0) = desired_q_not_compensated_.segment<12>(0);
-        pre_q_d(12) = pre_floating_joint_;
+        pre_q_d.segment<13>(0) = desired_q_not_compensated_.segment<13>(0);
         pre_q_d(13) = desired_q_not_compensated_(14);
         pre_q_d(14) = desired_q_not_compensated_(21);
     }
@@ -745,16 +744,17 @@ void WalkingController::qpIK_pel_arm(){
     double w1, w2, w3, w4;
     w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 0.3;
 
+    Eigen::Matrix<double, 15, 15> w1_15, w2_15, w3_15, w4_15;
+    w1_15.setIdentity(); w2_15.setIdentity(); w3_15.setIdentity(); w4_15.setIdentity();
+
     // setting for Jacobian including virtual joint
     Eigen::Matrix<double, 12, 13> Jacobian_12_13;
     Eigen::Matrix<double, 13, 12> Jacobian_12_13_t;
     Jacobian_12_13.setZero(); Jacobian_12_13_t.setZero();
 
-    Jacobian_12_13.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,0);
-    Jacobian_12_13.block<6,1>(0,12) = current_leg_jacobian_l_floating_.block<6,1>(0,6);
-
-    Jacobian_12_13.block<6,6>(6,6) = current_leg_jacobian_r_floating_.block<6,6>(0,0);
-    Jacobian_12_13.block<6,1>(6,12) = current_leg_jacobian_r_floating_.block<6,1>(0,6);
+    Jacobian_12_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+    Jacobian_12_13.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    Jacobian_12_13.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
     Jacobian_12_13_t = Jacobian_12_13.transpose();
 
@@ -763,7 +763,7 @@ void WalkingController::qpIK_pel_arm(){
     Eigen::Matrix<double, 13, 15> Sel_leg;
     Eigen::Matrix<double, 3, 15> Sel_virtual;
     Iden_15.setIdentity(); Sel_leg.setZero(); Sel_virtual.setZero();
-    Sel_leg.block<13,13>(0,0).setIdentity(); Sel_virtual(0,12) = 1; Sel_virtual(1,13) = 1; Sel_virtual(2,14) = 1;
+    Sel_leg.block<13,13>(0,0).setIdentity(); Sel_virtual(0,0) = 1; Sel_virtual(1,13) = 1; Sel_virtual(2,14) = 1;
 
     Eigen::Matrix<double, 1, 15> A_sel_yaw_15;
     A_sel_yaw_15.block<1,13>(0,0) = Augmented_Centroidal_Momentum_Matrix_.block<1,13>(5,0);
@@ -772,10 +772,10 @@ void WalkingController::qpIK_pel_arm(){
 
     Eigen::Matrix<double, 15, 15> H_AM_15;
     H_AM_15.setZero();
-    H_AM_15 += w1*Sel_leg.transpose()*Jacobian_12_13_t*Jacobian_12_13*Sel_leg;
-    H_AM_15 += w2*Iden_15;
-    H_AM_15 += w3*Sel_virtual.transpose()*Sel_virtual/hz_/hz_;
-    H_AM_15 += w4*A_sel_yaw_15.transpose()*A_sel_yaw_15;
+    H_AM_15 += w1_15*Sel_leg.transpose()*Jacobian_12_13_t*Jacobian_12_13*Sel_leg;
+    H_AM_15 += w2_15*Iden_15;
+    H_AM_15 += w3_15*Sel_virtual.transpose()*Sel_virtual/hz_/hz_;
+    H_AM_15 += w4_15*A_sel_yaw_15.transpose()*A_sel_yaw_15;
 
     Eigen::Vector12d desired_v;
     desired_v.segment<6>(0) = lp_;
@@ -783,15 +783,15 @@ void WalkingController::qpIK_pel_arm(){
 
 
     Eigen::Vector3d  q_vir_arm;
-    q_vir_arm(0) = q_init_(12) - pre_q_d(12);
+    q_vir_arm(0) = q_init_(0) - pre_q_d(0);
     q_vir_arm(1) = q_init_(14) - pre_q_d(13);
     q_vir_arm(2) = q_init_(21) - pre_q_d(14);
 
     // setting for g
     Eigen::VectorXd  g_AM_15(15);
     g_AM_15.setZero();
-    g_AM_15 += -w1*Sel_leg.transpose()*Jacobian_12_13_t*desired_v;
-    g_AM_15 += -w3*Sel_virtual.transpose()*q_vir_arm;
+    g_AM_15 += -w1_15*Sel_leg.transpose()*Jacobian_12_13_t*desired_v;
+    g_AM_15 += -w3_15*Sel_virtual.transpose()*q_vir_arm;
 
     //// for constraint  ////
     /// \brief Constarint_A_27_15
@@ -834,11 +834,11 @@ void WalkingController::qpIK_pel_arm(){
     u_inequality_27.segment<12>(0) = desired_v;
     l_inequality_27.segment<12>(0) = desired_v;
 
-    u_inequality_27.segment<12>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<12>(0))*hz_;
-    l_inequality_27.segment<12>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<12>(0))*hz_;
+    u_inequality_27.segment<13>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+    l_inequality_27.segment<13>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<13>(0))*hz_;
 
-    u_inequality_27(24) = (floating_joint_limit_max - pre_floating_joint_)*hz_;
-    l_inequality_27(24) = (floating_joint_limit_min - pre_floating_joint_)*hz_;
+//    u_inequality_27(12) = (floating_joint_limit_max - pre_floating_joint_)*hz_;
+//    l_inequality_27(12) = (floating_joint_limit_min - pre_floating_joint_)*hz_;
 
     u_inequality_27(25) = (3.14 - desired_q_not_compensated_(14))*hz_;
     l_inequality_27(25) = (-3.14 - desired_q_not_compensated_(14))*hz_;
@@ -894,11 +894,199 @@ void WalkingController::qpIK_pel_arm(){
     for(int i=0;i<15;i++){
         pre_q_dot_(i) = xOpt[i];
     }
-    desired_q_.segment<13>(0) = qp_q.segment<13>(0);
-    desired_q_(14) = qp_q(13);
-    desired_q_(21) = qp_q(14);
+//    desired_q_.segment<13>(0) = qp_q.segment<13>(0);
+//    desired_q_(14) = qp_q(13);
+//    desired_q_(21) = qp_q(14);
+    if(walking_tick_ ==0)
+        desired_q_not_compensated_ = q_init_;
+
+    for(int i=0;i<13;i++){
+        desired_q_(i) = xOpt[i]/hz_ + desired_q_not_compensated_(i);
+    }
+    desired_q_(14) = xOpt[13]/hz_ + desired_q_not_compensated_(LA_BEGIN);
+    desired_q_(21) = xOpt[14]/hz_ + desired_q_not_compensated_(RA_BEGIN);
+
 
     pre_floating_joint_ = floating_joint_;
+
+}
+void WalkingController::qpIK_pel_full_arm(){
+    //redundant pelvis IK + AM with arm using 14 DOF
+    if(walking_tick_== 0)
+        cout<<"optimization IK with redundant pelvis DOF 13 + including whole arm joints for AM"<<endl;
+
+    Eigen::VectorXd pre_q_d(27); // leg 12, waist 1 arm 14
+    if(walking_tick_ == 0){
+        pre_q_dot_.setZero();
+        pre_floating_joint_ = 0;
+        pre_q_d.segment<13>(0) = q_init_.segment<13>(0);
+        pre_q_d.segment<14>(13) = q_init_.segment<14>(14);
+    }
+    else{
+        pre_q_d.segment<13>(0) = desired_q_not_compensated_.segment<13>(0);
+        pre_q_d.segment<14>(13) = desired_q_not_compensated_.segment<14>(14);
+
+    }
+
+    double w1, w2, w3, w4;
+    w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 0.3;
+
+    Eigen::Matrix<double, 27, 27> w1_27, w2_27, w3_27, w4_27;
+    w1_27.setIdentity(); w2_27.setIdentity(); w3_27.setIdentity(); w4_27.setIdentity();
+
+    // setting for Jacobian including virtual joint
+    Eigen::Matrix<double, 12, 13> Jacobian_12_13;
+    Eigen::Matrix<double, 13, 12> Jacobian_12_13_t;
+    Jacobian_12_13.setZero(); Jacobian_12_13_t.setZero();
+
+    Jacobian_12_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+    Jacobian_12_13.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    Jacobian_12_13.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+    Jacobian_12_13_t = Jacobian_12_13.transpose();
+
+    // setting for H matrix
+    Eigen::Matrix<double, 27, 27> Iden_27;
+    Eigen::Matrix<double, 13, 27> Sel_leg;
+    Eigen::Matrix<double, 15, 27> Sel_upper;
+    Iden_27.setIdentity(); Sel_leg.setZero(); Sel_upper.setZero();
+    Sel_leg.block<13,13>(0,0).setIdentity(); Sel_upper(0,0) = 1; Sel_upper.block<14,14>(1,13).setIdentity();
+
+    Eigen::Matrix<double, 1, 27> A_sel_yaw_27;
+    A_sel_yaw_27.block<1,13>(0,0) = Augmented_Centroidal_Momentum_Matrix_.block<1,13>(5,0);
+    A_sel_yaw_27.block<1,14>(0,13) = Augmented_Centroidal_Momentum_Matrix_.block<1,14>(5,14);
+
+
+    Eigen::Matrix<double, 27, 27> H_AM_27;
+    H_AM_27.setZero();
+    H_AM_27 += w1_27*Sel_leg.transpose()*Jacobian_12_13_t*Jacobian_12_13*Sel_leg;
+    H_AM_27 += w2_27*Iden_27;
+    H_AM_27 += w3_27*Sel_upper.transpose()*Sel_upper/hz_/hz_;
+    H_AM_27 += w4_27*A_sel_yaw_27.transpose()*A_sel_yaw_27;
+
+    Eigen::Vector12d desired_v;
+    desired_v.segment<6>(0) = lp_;
+    desired_v.segment<6>(6) = rp_;
+
+
+    Eigen::VectorXd  q_upper_del(15);
+    q_upper_del(0) = q_init_(0) - pre_q_d(0);
+    q_upper_del.segment<14>(1) = q_init_.segment<14>(14) - pre_q_d.segment<14>(13);
+
+    // setting for g
+    Eigen::VectorXd  g_AM_27(27);
+    g_AM_27.setZero();
+    g_AM_27 += -w1_27*Sel_leg.transpose()*Jacobian_12_13_t*desired_v;
+    g_AM_27 += -w3_27*Sel_upper.transpose()*q_upper_del;
+
+    //// for constraint  ////
+    /// \brief Constarint_A_39_27
+    double floating_joint_limit_max, floating_joint_limit_min;
+    double x_stride, y_stride;
+    if(foot_step_(current_step_num_,6) ==0){ // right foot support
+        x_stride = lfoot_support_current_.translation()(0);// - rfoot_support_current_.translation()(0);
+        y_stride = lfoot_support_current_.translation()(1);// - rfoot_support_current_.translation()(1);
+
+        if(x_stride <=0 ){
+            floating_joint_limit_max = atan2(-x_stride, y_stride);
+            floating_joint_limit_min = -15*DEG2RAD;
+        }
+        else{
+            floating_joint_limit_min = atan2(-x_stride, y_stride);
+            floating_joint_limit_max = 15*DEG2RAD;
+        }
+
+    }
+    else{//left foot support
+        x_stride = rfoot_support_current_.translation()(0);// - lfoot_support_current_.translation()(0);
+        y_stride = -rfoot_support_current_.translation()(1);// - rfoot_support_current_.translation()(1);
+
+        if(x_stride <=0){
+            floating_joint_limit_max = 15*DEG2RAD;
+            floating_joint_limit_min = atan2(x_stride, y_stride);
+        }
+        else{
+            floating_joint_limit_min = -15*DEG2RAD;
+            floating_joint_limit_max = atan2(x_stride, y_stride);
+        }
+    }
+
+    Eigen::Matrix<double, 39, 27> Constarint_A_39_27;
+    Constarint_A_39_27.setZero();
+    Constarint_A_39_27.block<12,13>(0,0) = Jacobian_12_13;
+    Constarint_A_39_27.block<27,27>(12,0).setIdentity();
+
+    Eigen::VectorXd u_inequality_39(39), l_inequality_39(39);
+    u_inequality_39.segment<12>(0) = desired_v;
+    l_inequality_39.segment<12>(0) = desired_v;
+
+    u_inequality_39.segment<13>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+    l_inequality_39.segment<13>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+
+    u_inequality_39.segment<14>(25) = (q_upper_max_ - desired_q_not_compensated_.segment<14>(14));
+    l_inequality_39.segment<14>(25) = (q_upper_min_ - desired_q_not_compensated_.segment<14>(14));
+
+
+    real_t H_27[27*27], A_27[39*27], lbA_27[39], ubA_27[39], lb_27[27], ub_27[27],g_27[27];
+
+    for(int j=0;j<27;j++){
+        for(int i=0;i<27;i++){
+            H_27[27*i +j] = H_AM_27(i,j);
+        }
+        for(int i=0;i<39;i++){
+            A_27[27*i +j] = Constarint_A_39_27(i,j);
+        }
+        lb_27[j] = -10;
+        ub_27[j] = 10;
+
+        g_27[j] = g_AM_27(j);
+    }
+    for(int i=0;i<39;i++){
+        lbA_27[i] = l_inequality_39(i);
+        ubA_27[i] = u_inequality_39(i);
+    }
+
+    real_t xOpt[27];
+    QProblem example(27,39);
+
+    Options options;
+    options.initialStatusBounds =ST_LOWER;
+    options.numRefinementSteps = 1;
+    options.enableCholeskyRefactorisation = 1;
+    options.printLevel = PL_NONE;
+//    options.enableEqualities = BT_TRUE;
+
+    example.setOptions(options);
+
+    int_t nWSR = 1000;
+    example.init(H_27,g_27,A_27,lb_27,ub_27,lbA_27,ubA_27,nWSR);
+    example.getPrimalSolution(xOpt);
+
+    Eigen::Vector12d qp_q;
+    for(int i=0;i<12;i++){
+        qp_q(i) = xOpt[i]/hz_ + desired_q_not_compensated_(LF_BEGIN+i);
+    }
+
+    floating_joint_ = xOpt[12]/hz_ + pre_floating_joint_;
+    qp_q(12) = -floating_joint_;
+    qp_q(13) = xOpt[13]/hz_ + desired_q_not_compensated_(LA_BEGIN);
+    qp_q(14) = xOpt[14]/hz_ + desired_q_not_compensated_(RA_BEGIN);
+
+    for(int i=0;i<27;i++){
+        pre_q_dot_(i) = xOpt[i];
+    }
+//    desired_q_.segment<13>(0) = qp_q.segment<13>(0);
+//    desired_q_(14) = qp_q(13);
+//    desired_q_(21) = qp_q(14);
+    if(walking_tick_ ==0)
+        desired_q_not_compensated_ = q_init_;
+
+    for(int i=0;i<13;i++){
+        desired_q_(i) = xOpt[i]/hz_ + desired_q_not_compensated_(i);
+    }
+    for(int i=0;i<14;i++){
+        desired_q_(i+14) = xOpt[i+13]/hz_ + desired_q_not_compensated_(14+i);
+    }
 
 }
 void WalkingController::qpIK_test(){

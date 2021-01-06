@@ -252,8 +252,10 @@ void WalkingController::compute()
         else if (ik_mode_ == 2){
 //                    qpIK();
 //            qpIK_pelvis();
-            qpIK_pelvis_13();
+//            qpIK_pelvis_13();
 //            qpIK_pel_arm();
+            qpIK_pel_full_arm();
+
 //            qpIK_test();
         }
 
@@ -10152,6 +10154,26 @@ void WalkingController::SettingVirtualJointLimit(){
     q_leg_min_(10) = -3.14; q_leg_max_(10) = 0.0;
     q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
     q_leg_min_(12) = -3.14; q_leg_max_(12) = 3.14;
+
+    q_upper_min_.resize(14);
+    q_upper_max_.resize(14);
+
+    q_upper_min_(0) = -3.14; q_upper_max_(0) = 3.14;
+    q_upper_min_(1) = -3.14; q_upper_max_(1) = 3.14;
+    q_upper_min_(2) = -3.14; q_upper_max_(2) = 3.14;
+    q_upper_min_(3) = -3.14; q_upper_max_(3) = 3.14;
+    q_upper_min_(4) = -3.14; q_upper_max_(4) = 3.14;
+    q_upper_min_(5) = -3.14; q_upper_max_(5) = 3.14;
+    q_upper_min_(6) = -3.14; q_upper_max_(6) = 3.14;
+
+    q_upper_min_(7) = -3.14; q_upper_max_(7) = 3.14;
+    q_upper_min_(8) = -3.14; q_upper_max_(8) = 3.14;
+    q_upper_min_(9) = -3.14; q_upper_max_(9) = 3.14;
+    q_upper_min_(10) = -3.14; q_upper_max_(10) = 3.14;
+    q_upper_min_(11) = -3.14; q_upper_max_(11) = 3.14;
+    q_upper_min_(12) = -3.14; q_upper_max_(12) = 3.14;
+    q_upper_min_(13) = -3.14; q_upper_max_(13) = 3.14;
+
 }
 void WalkingController::getToeHeelTrajectory(){
     // setting the toe and heel trajectory based on support foot frame.

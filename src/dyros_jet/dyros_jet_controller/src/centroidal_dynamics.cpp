@@ -1281,7 +1281,7 @@ void WalkingController::UpdateCentroidalMomentumMatrix(){
     q_temp.setZero();
     qdot_temp.setZero();
 
-    q_temp.segment<12>(6) = desired_q_not_compensated_.segment<12>(0);
+    q_temp.segment<28>(6) = desired_q_not_compensated_.segment<28>(0);
     if(walking_tick_ == 0)
         q_temp.segment<28>(6) = current_q_.segment<28>(0);
 
