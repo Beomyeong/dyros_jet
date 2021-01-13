@@ -3,13 +3,13 @@
 
 # compile C with /usr/bin/cc
 # compile CXX with /usr/bin/c++
-C_FLAGS = -g -fPIC   -std=c++11 -ofast
+C_FLAGS = -fPIC   -std=c++11 -ofast
 
 C_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"mujoco_ros\" -Dmujoco_ros_lib_EXPORTS
 
 C_INCLUDES = -I/home/beom/catkin_ws/src/mujoco_ros_sim/mujoco_ros/include -I/home/beom/catkin_ws/src/mujoco_ros_sim/mjpro200/include -I/home/beom/catkin_ws/devel/include -I/opt/ros/kinetic/include -I/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/eigen3 
 
-CXX_FLAGS = -g -fPIC   -std=c++11 -ofast
+CXX_FLAGS = -fPIC   -std=c++11 -ofast
 
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"mujoco_ros\" -Dmujoco_ros_lib_EXPORTS
 

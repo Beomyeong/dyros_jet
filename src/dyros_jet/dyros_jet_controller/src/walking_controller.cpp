@@ -351,6 +351,7 @@ void WalkingController::compute()
         //std::cout<<"zmp_measured_:"<<zmp_measured_<<endl;
 
 
+       if(joystick_walking_flag_ == false){
         //////////////data saving in text files///////////
 //        file[0]<<walking_tick_<<"\t"<<current_step_num_<<"\t"<<zmp_desired_(0)<<"\t"<<zmp_desired_(1)<<"\t"<<foot_step_(current_step_num_, 0)<<"\t"<<foot_step_(current_step_num_, 1)<<"\t"<<
 //                 foot_step_support_frame_(current_step_num_, 0)<<"\t"<<foot_step_support_frame_(current_step_num_, 1)<<"\t"<<foot_step_support_frame_(current_step_num_, 2)<<endl;
@@ -470,7 +471,7 @@ void WalkingController::compute()
                <<"\t"<<current_torque_(6)<<"\t"<<current_torque_(7)<<"\t"<<current_torque_(8)<<"\t"<<current_torque_(9)<<"\t"<<current_torque_(10)<<"\t"<<current_torque_(11)<<endl;
 
         ///////////////////////////////////////////////
-
+    }
 
 
 //        if(joystick_walking_flag_ == true){
