@@ -742,7 +742,7 @@ void WalkingController::qpIK_pel_arm(){
     }
 
     double w1, w2, w3, w4;
-    w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 0.3;
+    w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 0.5;
 
     Eigen::Matrix<double, 15, 15> w1_15, w2_15, w3_15, w4_15;
     w1_15.setIdentity(); w2_15.setIdentity(); w3_15.setIdentity(); w4_15.setIdentity();
@@ -1589,9 +1589,9 @@ void WalkingController::qp3(){
 
     int  NL= (int) 16*hz_/10;
     NL = 320;
-    NL = (int) 20*t_total_/10;
+//    NL = (int) 20*t_total_/10;
 
-    int N = 40;
+    int N = 20;
     int interval = NL/N;
 
 //    interval = 10;
@@ -1674,8 +1674,8 @@ void WalkingController::qp3(){
 //    }
         for(int i=0;i<N;i++){
             fx_ref(i) = foot_x(walking_tick_-start_time +interval*i);
-//            fy_ref(i) = foot_y(walking_tick_-start_time +interval*i);
-            fy_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,1); // y position of foot
+            fy_ref(i) = foot_y(walking_tick_-start_time +interval*i);
+//            fy_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,1); // y position of foot
         }
 //    for(int i=0;i<N;i++){//column 0 = x, column 1 =y
 //        fx_ref(i,0) = ref_zmp_(walking_tick_ - start_time + interval*i,0); // x position of foot
@@ -1683,7 +1683,7 @@ void WalkingController::qp3(){
 //    }
 
 
-//    file[21]<<walking_tick_<<"\t"<<fx_ref(0)<<"\t"<<fx_ref(1)<<"\t"<<fy_ref(0)<<"\t"<<fy_ref(1)<<endl;
+    file[21]<<walking_tick_<<"\t"<<fx_ref(0)<<"\t"<<fx_ref(1)<<"\t"<<fy_ref(0)<<"\t"<<fy_ref(1)<<endl;
 
     Eigen::MatrixXd support_x,support_y,tempx,tempy;
     support_x.resize(N,2);
@@ -2006,9 +2006,9 @@ void WalkingController::qp3(){
                 mpc_x.getPrimalSolution(xopt);
 
                 x_d1_ = A_*x_0 + b1_*xopt[0];
-//                y_d1_ = A_*y_0 + b1_*opt_y_;
+                y_d1_ = A_*y_0 + b1_*opt_y_;
 
-//                opt_x_ = xopt[1];
+                opt_x_ = xopt[1];
 //            }
 
 //        }
@@ -2131,7 +2131,7 @@ void WalkingController::qp3(){
     ///////////////////////////////////
 
     x_p1_ = x_d1_;
-    y_p1_ = y_d1_;
+//    y_p1_ = y_d1_;
 
 
 
@@ -2140,7 +2140,7 @@ void WalkingController::qp3(){
 //           <<"\t"<<xopt_u[0]<<"\t"<<xopt_u[N]<<"\t"<<qp_res<<endl;
 ////          <<"\t"<<pux<<"\t"<<puy<<endl;//"\t"<<zmp_x<<"\t"<<zmp_y<<endl;//<<"\t"<<pux<<"\t"<<puy<<"\t"<<xopt[0]<<"\t"<<yopt[0]<<"\t"<<xopt_u[0]<<"\t"<<xopt_u[N]<<endl;//"\t"<<yopt[0]<<endl;//<<"\t"<<mpc.getObjVal()<<"\t"<<optvalue<<"\t"<<fx_ref(0)<<  endl;//<<xOpt[0]<<endl;
 ///
-    file[20]<<walking_tick_<<"\t"<<zmp_x<<"\t"<<zmp_y<<endl;//"\t"<<t_2.count()<<endl;//"\t"<<t_22.count()<<endl;
+//    file[20]<<walking_tick_<<"\t"<<zmp_x<<"\t"<<zmp_y<<endl;//"\t"<<t_2.count()<<endl;//"\t"<<t_22.count()<<endl;
 
     SupportfootComUpdate(x_p1_,y_p1_,x_p1_,y_p1_);
 
@@ -2151,22 +2151,22 @@ void WalkingController::qp3(){
       if(com_control_mode_ == true)
       {
         com_desired_(0) = x_d1_(0);
-//        com_desired_(1) = y_d1_(0);
+        com_desired_(1) = y_d1_(0);
         com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
         com_dot_desired_(0) = x_d1_(1);
-//        com_dot_desired_(1) = y_d1_(1);
+        com_dot_desired_(1) = y_d1_(1);
         com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
       }
       else
       {
         com_desired_(0) = x_d1_(0);
-//        com_desired_(1) = y_d1_(0);
+        com_desired_(1) = y_d1_(0);
         com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
         com_dot_desired_(0) = x_d1_(1);
-//        com_dot_desired_(1) = y_d1_(1);
+        com_dot_desired_(1) = y_d1_(1);
         com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
       }
@@ -3930,9 +3930,9 @@ void WalkingController::Obtain_com_pattern(ifstream& input_x,ifstream& input_y, 
 
     cout<<"obatin pattern : "<<endl;
 
-    for(int i=0;i<2958;i++){
-        input_x >> com_x(i,0) >> com_x(i,1) >> com_x(i,2)>> com_x(i,3) >> com_x(i,4) >> com_x(i,5)>>com_x(i,6)>>com_x(i,7) >> com_x(i,8)>> com_x(i,9) >> com_x(i,10)>>com_x(i,11) >> com_x(i,12);// >> com_x(i,13)>>com_x(i,14);
-        file[17]<<com_x(i,0)<<"\t"<<com_x(i,1)<<"\t"<<com_x(i,2)<<"\t"<<com_x(i,3)<<"\t"<<com_x(i,4)<<"\t"<<com_x(i,5)<<"\t"<<com_x(i,6)<<"\t"<<com_x(i,7)<<"\t"<<com_x(i,8)<<"\t"<<com_x(i,9)<<"\t"<<com_x(i,10)<<"\t"<<com_x(i,11)<<endl;
+//    for(int i=0;i<2958;i++){
+//        input_x >> com_x(i,0) >> com_x(i,1) >> com_x(i,2)>> com_x(i,3) >> com_x(i,4) >> com_x(i,5)>>com_x(i,6)>>com_x(i,7) >> com_x(i,8)>> com_x(i,9) >> com_x(i,10)>>com_x(i,11) >> com_x(i,12);// >> com_x(i,13)>>com_x(i,14);
+//        file[17]<<com_x(i,0)<<"\t"<<com_x(i,1)<<"\t"<<com_x(i,2)<<"\t"<<com_x(i,3)<<"\t"<<com_x(i,4)<<"\t"<<com_x(i,5)<<"\t"<<com_x(i,6)<<"\t"<<com_x(i,7)<<"\t"<<com_x(i,8)<<"\t"<<com_x(i,9)<<"\t"<<com_x(i,10)<<"\t"<<com_x(i,11)<<endl;
         //file[16]<<com_x(i,0)<<"\t"<<com_x(i,1)<<"\t"<<com_x(i,2)<<"\t"<<com_x(i,3)<<"\t"<<com_x(i,4)<<"\t"<<com_x(i,5)<<"\t"<<com_x(i,6)<<"\t"<<com_x(i,7)<<"\t"<<com_x(i,8)<<endl;
 
 //        if(i == 804){
@@ -3942,7 +3942,7 @@ void WalkingController::Obtain_com_pattern(ifstream& input_x,ifstream& input_y, 
 
 //            cout<<endl;
 //        }
-    }
+//    }
 
 
 
@@ -6374,6 +6374,576 @@ void WalkingController::getFoottrajectory_heel_toe(){
 
     lfoot_trajectory_support_.linear() = DyrosMath::rotateWithZ(lfoot_trajectory_euler_support_(2))*DyrosMath::rotateWithY(lfoot_trajectory_euler_support_(1))*DyrosMath::rotateWithX(lfoot_trajectory_euler_support_(0));
     rfoot_trajectory_support_.linear() = DyrosMath::rotateWithZ(rfoot_trajectory_euler_support_(2))*DyrosMath::rotateWithY(rfoot_trajectory_euler_support_(1))*DyrosMath::rotateWithX(rfoot_trajectory_euler_support_(0));
+}
+void WalkingController::qp31(){
+    //variable vector consists of only zerk possible one. using analytic method for jerk
+
+    double dt = 1.0/hz_;
+
+    int  NL= (int) 16*hz_/10;
+    NL = 320;
+    NL = (int) 20*t_total_/10;
+
+    int N = 40;
+    int interval = NL/N;
+
+//    if(walking_tick_ ==0 || walking_tick_ == t_start_){
+//        //ObtainMatrix(NL,N,dt,interval);
+//        getMPCMatrix(NL,N,dt,interval);
+//    }
+
+//    if(get_New_matrix_flag_==true){
+//      getMPCMatrix(NL,N,dt,interval);
+//      get_New_matrix_flag_ = false;
+//    }
+
+//    if(walking_tick_ == 0){
+    if(MPC_Matrix_cal_ == false){
+      getMPCMatrix(NL,N,dt,interval);
+      MPC_Matrix_cal_ = true;
+    }
+
+    if(current_step_num_ == 0)
+      zmp_start_time_ = 0.0;
+    else
+      zmp_start_time_ = t_start_;
+
+
+    Eigen::Vector3d x_0, y_0;
+    x_0.setZero(); y_0.setZero();
+    if(walking_tick_ - zmp_start_time_ == 0 && current_step_num_ ==0){
+        x_0(0) = com_support_init_(0)-0.03;
+        y_0(0) = com_support_init_(1);
+    }
+    else {
+        x_0 = x_p1_;
+        y_0 = y_p1_;
+
+//        x_0(0) = com_support_current_measured_(0);
+
+//        y_0(0) = com_support_current_measured_(1);
+//        x_0(0) = com_support_current_(0);
+
+//        y_0(0) = com_support_current_(1);
+    }
+
+//    if(walking_tick_ == 920){
+//        x_0(0) -= 0.03;
+//        x_0(1) -= 0.03;
+//    }
+
+//    x_0(0) = com_support_current_(0);
+
+    Eigen::MatrixXd p_ref;
+    p_ref.resize(N,2);
+    double start_time;
+
+    if(current_step_num_ == 0)
+      start_time = 0;
+    else
+      start_time = t_start_;
+
+    for(int i=0;i<N;i++){//column 0 = x, column 1 =y
+        p_ref(i,0) = ref_zmp_(walking_tick_ - start_time + interval*i,0); // x position of foot
+        p_ref(i,1) = ref_zmp_(walking_tick_ - start_time + interval*i,1); // y position of foot
+    }
+
+    zmp_desired_(0) = ref_zmp_(walking_tick_-start_time,0);
+    zmp_desired_(1) = ref_zmp_(walking_tick_-start_time,1);
+
+
+//    file[17]<<walking_tick_<<"\t"<<p_ref(0,0)<<"\t"<<p_ref(0,1)<<endl;
+
+
+
+    Eigen::VectorXd foot_x, foot_y;
+
+    footReferenceGenerator(foot_x, foot_y);
+
+    Eigen::VectorXd fx_ref, fy_ref;
+    fx_ref.resize(N); fy_ref.resize(N);
+
+    for(int i=0;i<N;i++){
+        fx_ref(i) = foot_x(walking_tick_-start_time +interval*i);
+        fy_ref(i) = foot_y(walking_tick_-start_time +interval*i);
+    }
+
+//    for(int i=0;i<N;i++){//column 0 = x, column 1 =y
+//        fx_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,0); // x position of foot
+//        fy_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,1); // y position of foot
+//    }
+
+//    file[21]<<walking_tick_<<"\t"<<fx_ref(0)<<"\t"<<fx_ref(1)<<"\t"<<fy_ref(0)<<"\t"<<fy_ref(1)<<endl;
+
+    Eigen::MatrixXd support_x,support_y,tempx,tempy;
+    support_x.resize(N,2);
+    support_y.resize(N,2);
+
+    GetSupportPolygon(tempx,tempy);
+
+    for(int i=0;i<N;i++){
+        support_x(i,0) = tempx(walking_tick_-start_time,0);
+        support_x(i,1) = tempx(walking_tick_-start_time,1);
+
+        support_y(i,0) = tempy(walking_tick_-start_time,0);
+        support_y(i,1) = tempy(walking_tick_-start_time,1);
+    }
+
+
+    //file[26]<<walking_tick_<<"\t"<<support_x(0,0)<<"\t"<<support_x(0,1)<<"\t"<<support_y(0,0)<<"\t"<<support_y(0,1)<<endl;
+
+//    if(walking_tick_ == t_start_){
+//        file[26]<<walking_tick_;
+//        for(int i=0;i<N;i++)
+//            //file[26]<<"\t"<<fx_ref(i);
+//            file[26]<<"\t"<<p_ref(i,0);
+//        file[26]<<endl;
+
+//        file[26]<<walking_tick_;
+//        for(int i=0;i<N;i++)
+//            //file[26]<<"\t"<<fy_ref(i);
+//            file[26]<<"\t"<<p_ref(i,1);
+//        file[26]<<endl;
+
+//    }
+
+
+
+
+    /////
+    /// \brief px_x
+    ///       zmp refernece = p_ref
+    ///
+    ///
+    Eigen::MatrixXd px_x, px_x_to_foot, py_y, py_y_to_foot;
+    px_x.resize(N,1); px_x_to_foot.resize(N,1); py_y.resize(N,1); py_y_to_foot.resize(N,1);
+    px_x = Px_*x_0;
+    py_y = Py_*y_0;
+
+    px_x_to_foot = px_x - fx_ref;
+    py_y_to_foot = py_y - fy_ref;
+
+    Eigen::VectorXd jerk_x, jerk_y;
+    jerk_x.resize(N); jerk_y.resize(N);
+    //jerk = p_temp2*(Px*x_0-p_ref);
+    //jerk = p_temp_*(px_x - p_ref);
+    Eigen::VectorXd temp_x, temp_y;
+    temp_x.resize(N);
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    ///                                                                   /////////
+    /// for using qpoases,                                                ////////
+    /// minimize zmp to foot position, velocity delta and jerk input          ////
+    ///                                                                      /////
+    ///////////////////////////////////////////////////////////////////////////////
+
+    Eigen::MatrixXd temp_margin_x, temp_margin_y;
+    calculateFootMargin(temp_margin_x,temp_margin_y);
+
+    Eigen::MatrixXd cst_x, cst_y;
+    cst_x.resize(N,2); cst_y.resize(N,2);
+
+    for(int i=0;i<N;i++){
+        cst_x(i,0) = temp_margin_x(walking_tick_-start_time+interval*i,0);
+        cst_x(i,1) = temp_margin_x(walking_tick_-start_time+interval*i,1);
+
+        cst_y(i,0) = temp_margin_y(walking_tick_-start_time+interval*i,0);
+        cst_y(i,1) = temp_margin_y(walking_tick_-start_time+interval*i,1);
+    }
+
+    Eigen::MatrixXd Px_zmp, Px_vel, Py_zmp(N,1), Py_vel(N,1);
+    Px_zmp.resize(N,1); Px_vel.resize(N,1);
+
+
+    Eigen::MatrixXd selec_v_x, selec_v_y(N,1);
+    selec_v_x.resize(N,1);
+
+    selec_v_x = Selec_delta_v_reduced_*x_0;
+    selec_v_y = Selec_delta_v_reduced_*y_0;
+
+    Px_zmp = pu_.transpose()*px_x_to_foot;
+    Px_vel = Selec_B_vi_reduced_.transpose()*selec_v_x;
+
+    Py_zmp = pu_.transpose()*py_y_to_foot;
+    Py_vel = Selec_B_vi_reduced_.transpose()*selec_v_y;
+
+
+    Eigen::MatrixXd px_input, py_input;
+    px_input.resize(N,1); py_input.resize(N,1);
+
+    px_input = alpha_x_*Px_zmp + beta_x_*Px_vel; // for delta velocity
+    py_input = alpha_y_*Py_zmp + beta_y_*Py_vel;
+
+    Eigen::MatrixXd px_variance, py_variance;
+    px_variance.resize(1,N); py_variance.resize(1,N);
+    Eigen::MatrixXd tempx_var(N,1), tempy_var(N,1);
+
+
+    Eigen::MatrixXd  gu(2*N,1);
+    gu.setZero();
+
+
+//    if(walking_tick_ ==0){
+//        for(int i=0;i<2*N;i++){
+//            for(int j=0;j<2*N;j++){
+//                file[23]<<Qu_(i,j)<<"\t";
+//            }
+//            file[23]<<endl;
+//        }
+//    }
+
+
+
+    gu.block(0,0,N,1) = px_input;
+    gu.block(N,0,N,1) = py_input;
+
+
+    real_t Qx_input[N*N], gx_input[N], lbx[N],ubx[N], Ax_input[N*N], lbAx[N],ubAx[N];
+    real_t Qy_input[N*N], gy_input[N], lby[N],uby[N], Ay_input[N*N], lbAy[N],ubAy[N];
+
+    for(int i=0;i<N;i++){
+        for(int j=0;j<N;j++){
+            Qx_input[j*N +i] = Qx_(i,j); // for delta velocity
+            Ax_input[j*N+i] = pu_(i,j); // matrix for Jerk
+
+            Ay_input[j*N+i] = pu_(i,j);
+            Qy_input[j*N+i] = Qy_(i,j);
+
+        }
+         gx_input[i] = px_input(i);
+         gy_input[i] = py_input(i);
+
+         lbx[i] = -10;
+         ubx[i] = 10;
+
+         lby[i] = -10;
+         uby[i] = 10;
+
+
+         lbAx[i] = cst_x(i,0) -px_x_to_foot(i);
+         ubAx[i] = cst_x(i,1) - px_x_to_foot(i);
+
+         lbAy[i] = cst_y(i,0) -py_y_to_foot(i);
+         ubAy[i] = cst_y(i,1) - py_y_to_foot(i);
+    }
+
+
+    real_t Qu_input[2*N*2*N], gu_input[2*N], lbu[2*N],ubu[2*N],Au_input[2*N*2*N],lbAu[2*N],ubAu[2*N];
+
+
+    for(int i=0;i<2*N;i++){
+        for(int j=0;j<2*N;j++){
+            Qu_input[j*2*N+i] = Qu_(i,j);
+            Au_input[j*2*N+i] = Au_(i,j);
+        }
+        gu_input[i] = gu(i,0);
+        lbu[i] = -10;
+        ubu[i] = 10;
+    }
+    for(int i=0;i<N;i++){
+        lbAu[i] = cst_x(i,0) - px_x_to_foot(i);
+        ubAu[i] = cst_x(i,1) - px_x_to_foot(i);
+
+        lbAu[N+i] = cst_y(i,0) - py_y_to_foot(i);
+        ubAu[N+i] = cst_y(i,1) - py_y_to_foot(i);
+    }
+
+
+//    file[22]<<walking_tick_<<"\t"<<cst_x(0,0)<<"\t"<<cst_x(0,1)<<"\t"<<cst_y(0,0)<<"\t"<<cst_y(0,1)<<endl;
+
+    /////////////////////////end of matrix for qpoases///////////////////////////////////////
+
+    int_t nV;
+    nV = N;
+//    //QProblemB mpc(nV);
+//    QProblem mpc(nV,nV);
+    Options op;
+
+    op.initialStatusBounds = ST_INACTIVE;
+    op.numRefinementSteps = 1;
+    op.enableCholeskyRefactorisation = 1;
+//    op.setToMPC();
+    op.printLevel = PL_NONE;
+////    op.enableEqualities = BT_TRUE;
+////    op.boundRelaxation = 1E-5;
+//    mpc.setOptions(op);
+    int_t nWSR = 100;
+
+//    real_t xopt[N];
+
+////    mpc.init(Qx_input,gx_input,Ax_input,lbx,ubx,lbAx,ubAx,nWSR);
+////    mpc.getPrimalSolution(xopt);
+
+////    //mpc.hotstart(g_input,lb,ub,nWSR,0);
+////    mpc.hotstart(gx_input,lbx,ubx,lbAx,ubAx,nWSR);
+////    mpc.getPrimalSolution(xopt);
+
+//    real_t yopt[N];
+//    QProblem mpc_y(nV,nV);
+//    Options op1;
+//    op1.printLevel = PL_NONE;
+//    op1.initialStatusBounds = ST_INACTIVE;
+//    op1.numRefinementSteps = 1;
+//    op1.enableCholeskyRefactorisation = 1;
+
+////    mpc_y.setOptions(op1);
+
+////    mpc_y.init(Qy_input,gy_input,Ay_input,lby,uby,lbAy,ubAy,nWSR);
+////    mpc_y.getPrimalSolution(yopt);
+
+
+////    //mpc.hotstart(g_input,lb,ub,nWSR,0);
+////    mpc_y.hotstart(gy_input,lby,uby,lbAy,ubAy,nWSR);
+////    mpc_y.getPrimalSolution(yopt);
+
+
+//    int_t nVu = 2*N;
+
+
+//    QProblem mpc_u(nVu,nVu);
+
+//    real_t xopt_u[nVu];
+
+//    mpc_u.setOptions(op);
+//    chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+//    mpc_u.init(Qu_input,gu_input,Au_input,lbu,ubu,lbAu,ubAu, nWSR);
+////    mpc_u.getPrimalSolution(xopt_u);
+
+//    mpc_u.hotstart(gu_input,lbu,ubu,lbAu,ubAu,nWSR);
+//    returnValue qp_res;
+
+//    qp_res = mpc_u.getPrimalSolution(xopt_u);
+//    chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+
+//    if(qp_res==SUCCESSFUL_RETURN)
+//    {
+//        cout<<"qp solve success!"<<std::endl;
+//    }
+//    else
+//    {
+//        cout<<"qp solve failed!"<<std::endl;
+
+//    }
+//    cout<<"compute time : "<<t_2.count()<<endl;
+
+//    x_d1_ = A_*x_0 + b1_*jerk_x(0);
+//    y_d1_ = A_*y_0 + b1_*jerk_y(0);
+//    x_d1_ = A_*x_0 + b1_*xopt[0];
+//    y_d1_ = A_*y_0 + b1_*yopt[0];
+//    x_d1_ = A_*x_0 + b1_*xopt_u[0];
+//    y_d1_ = A_*y_0 + b1_*xopt_u[N];
+
+    chrono::high_resolution_clock::time_point t_1;
+
+    if(walking_tick_ == 0){
+            int_t nVu = 2*N;
+
+
+            QProblem mpc_u(nVu,nVu);
+
+            real_t xopt_u[nVu];
+
+            mpc_u.setOptions(op);
+            t_1 = std::chrono::high_resolution_clock::now();
+            mpc_u.init(Qu_input,gu_input,Au_input,lbu,ubu,lbAu,ubAu, nWSR);
+        //    mpc_u.getPrimalSolution(xopt_u);
+
+            mpc_u.hotstart(gu_input,lbu,ubu,lbAu,ubAu,nWSR);
+            returnValue qp_res;
+
+            qp_res = mpc_u.getPrimalSolution(xopt_u);
+//            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+
+            x_d1_ = A_*x_0 + b1_*xopt_u[0];
+            y_d1_ = A_*y_0 + b1_*xopt_u[N];
+
+            opt_x_ = xopt_u[1];
+            opt_y_ = xopt_u[N+1];
+        }
+        else {
+            if(walking_tick_ % 2 == 0){
+                QProblem mpc_y(nV,nV);
+                real_t yopt[nV];
+
+                mpc_y.setOptions(op);
+
+                t_1 = std::chrono::high_resolution_clock::now();
+                mpc_y.init(Qy_input,gy_input,Ay_input,lby,uby,lbAy,ubAy,nWSR);
+                mpc_y.getPrimalSolution(yopt);
+
+
+            ////    //mpc.hotstart(g_input,lb,ub,nWSR,0);
+                mpc_y.hotstart(gy_input,lby,uby,lbAy,ubAy,nWSR);
+                mpc_y.getPrimalSolution(yopt);
+
+
+
+                x_d1_ = A_*x_0 + b1_*opt_x_;
+                y_d1_ = A_*y_0 + b1_*yopt[0];
+
+                opt_y_ = yopt[1];
+            }else
+            {
+              QProblem mpc_x(nV,nV);
+
+              mpc_x.setOptions(op);
+
+              real_t xopt[nV];
+
+              t_1 = std::chrono::high_resolution_clock::now();
+              mpc_x.init(Qx_input,gx_input,Ax_input,lbx,ubx,lbAx,ubAx,nWSR);
+              mpc_x.getPrimalSolution(xopt);
+
+                //mpc.hotstart(g_input,lb,ub,nWSR,0);
+              mpc_x.hotstart(gx_input,lbx,ubx,lbAx,ubAx,nWSR);
+              mpc_x.getPrimalSolution(xopt);
+
+
+              x_d1_ = A_*x_0 + b1_*xopt[0];
+              y_d1_ = A_*y_0 + b1_*opt_y_;
+
+              opt_x_ = xopt[1];
+            }
+
+        }
+    chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+
+
+    //    Eigen::VectorXd x_opt(N), y_opt(N);
+    //    for(int i=0;i<N;i++){
+    //        x_opt(i) = xopt_u[i];
+    //        y_opt(i) = xopt_u[i+N];
+    //    }
+
+    Eigen::MatrixXd boundarycheck;
+    boundarycheck.resize(N,1);
+
+//    for(int i=0;i<N;i++)
+//        boundarycheck(i) = xopt[i];
+
+//    boundarycheck = pu_*boundarycheck;
+
+//    if(walking_tick_ ==0||walking_tick_ ==t_start_){
+//        for(int i=0;i<N;i++){
+//            file[27]<<lbA[i]<<"\t"<<ubA[i]<<"\t"<<boundarycheck(i)<<endl;
+
+//        }
+//    }
+///////////////////////////////////////////
+    /// check
+    ///
+    Eigen::VectorXd temp1, temp2, temp3;
+    temp1.resize(N,1); temp2.resize(N,1); temp3.resize(N,1);
+
+//    temp1 = px_x_to_foot + pu_*jerk_x;
+//    temp2 = selec_delta_v_*x_0 + selec_bv_*jerk_x;
+//    temp3 = jerk_x;
+
+    Eigen::Matrix<double, 1, 1> optvalue;
+
+    //optvalue = 0.5*alpha_*temp1.transpose()*temp1 + 0.5*beta_*temp2.transpose()*temp2 + 0.5*gamma_*jerk_x.transpose()*jerk_x;
+
+    Eigen::Matrix<double, 1, 3>c;
+    c(0) = 1.0; c(1) = 0.0; c(2) = -zc_/GRAVITY;
+    double zmp_x, zmp_y;
+
+
+
+    zmp_x = c*x_d1_;
+    zmp_y = c*y_d1_;
+
+    ///////////////////////////////////
+
+    x_p1_ = x_d1_;
+    y_p1_ = y_d1_;
+
+
+//    file[25]<<walking_tick_<<"\t"<<x_d1_(0)<<"\t"<<x_d1_(1)<<"\t"<<x_d1_(2)<<"\t"<<y_d1_(0)<<"\t"<<y_d1_(1)<<"\t"<<y_d1_(2)
+////           <<"\t"<<jerk_x(0)<<"\t"<<jerk_y(0)<<endl;
+//           <<"\t"<<xopt_u[0]<<"\t"<<xopt_u[N]<<"\t"<<qp_res<<endl;
+////          <<"\t"<<pux<<"\t"<<puy<<endl;//"\t"<<zmp_x<<"\t"<<zmp_y<<endl;//<<"\t"<<pux<<"\t"<<puy<<"\t"<<xopt[0]<<"\t"<<yopt[0]<<"\t"<<xopt_u[0]<<"\t"<<xopt_u[N]<<endl;//"\t"<<yopt[0]<<endl;//<<"\t"<<mpc.getObjVal()<<"\t"<<optvalue<<"\t"<<fx_ref(0)<<  endl;//<<xOpt[0]<<endl;
+///
+//    file[20]<<walking_tick_<<"\t"<<zmp_x<<"\t"<<zmp_y<<"\t"<<t_2.count()<<endl;
+
+    SupportfootComUpdate();
+
+    xs_ = x_p1_;
+    ys_ = y_p1_;
+
+//    if(current_step_num_ != total_step_num_-1){
+      if(com_control_mode_ == true)
+      {
+        com_desired_(0) = x_d1_(0);
+        com_desired_(1) = y_d1_(0);
+        com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+
+        com_dot_desired_(0) = x_d1_(1);
+        com_dot_desired_(1) = y_d1_(1);
+        com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+
+      }
+      else
+      {
+        com_desired_(0) = x_d1_(0);
+        com_desired_(1) = y_d1_(0);
+        com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+
+        com_dot_desired_(0) = x_d1_(1);
+        com_dot_desired_(1) = y_d1_(1);
+        com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+
+      }
+
+//    }
+
+
+}
+void WalkingController::SupportfootComUpdate(){
+//    if (walking_tick_ == t_start_+t_total_-1 && current_step_num_ != total_step_num_-1)
+  if (walking_tick_ ==t_last_ && current_step_num_ != total_step_num_-1)
+    {
+      Eigen::Vector3d com_pos_prev;
+      Eigen::Vector3d com_pos;
+      Eigen::Vector3d com_vel_prev;
+      Eigen::Vector3d com_vel;
+      Eigen::Vector3d com_acc_prev;
+      Eigen::Vector3d com_acc;
+
+      Eigen::Matrix3d temp_rot;
+      Eigen::Vector3d temp_pos;
+
+      temp_rot = DyrosMath::rotateWithZ(-foot_step_support_frame_(current_step_num_,5));
+      for(int i=0; i<3; i++)
+        temp_pos(i) = foot_step_support_frame_(current_step_num_,i);
+
+      //file[26]<<walking_tick_<<"\t"<<x_1_(0)<<"\t"<<x_1_(1)<<"\t"<<x_1_(2)<<endl;
+
+      com_pos_prev(0) = x_p1_(0);
+      com_pos_prev(1) = y_p1_(0);
+      com_pos = temp_rot*(com_pos_prev - temp_pos);
+
+      com_vel_prev(0) = x_p1_(1);
+      com_vel_prev(1) = y_p1_(1);
+      com_vel_prev(2) = 0.0;
+      com_vel = temp_rot*com_vel_prev;
+
+      com_acc_prev(0) = x_p1_(2);
+      com_acc_prev(1) = y_p1_(2);
+      com_acc_prev(2) = 0.0;
+      com_acc = temp_rot*com_acc_prev;
+
+      x_p1_(0) = com_pos(0);
+      x_p1_(1) = com_vel(0);
+      x_p1_(2) = com_acc(0);
+
+      y_p1_(0) = com_pos(1);
+      y_p1_(1) = com_vel(1);
+      y_p1_(2) = com_acc(1);
+
+      //file[27]<<walking_tick_<<"\t"<<x_1_(0)<<"\t"<<x_1_(1)<<"\t"<<x_1_(2)<<endl;
+    }
 }
 
 }

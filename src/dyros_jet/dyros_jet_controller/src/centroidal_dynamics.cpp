@@ -110,14 +110,14 @@ void WalkingController::relative_link_trans_matrix(Eigen::Isometry3d* transform_
 //    }
 //    file[14]<<endl;
 
-    if(walking_tick_ ==0){
-        cout<<"relative distance in link trans matrix function "<<endl;
-        for(int i=0;i<29;i++)
-            cout<<i<<"th relative distance "<<endl<<relative_distance_[i]<<endl;
+//    if(walking_tick_ ==0){
+//        cout<<"relative distance in link trans matrix function "<<endl;
+//        for(int i=0;i<29;i++)
+//            cout<<i<<"th relative distance "<<endl<<relative_distance_[i]<<endl;
 
-//        for(int i=0;i<20;i++)
-//            cout<<i<<"th relative rotation " <<endl<<relative_rotation_[i]<<endl;
-    }
+////        for(int i=0;i<20;i++)
+////            cout<<i<<"th relative rotation " <<endl<<relative_rotation_[i]<<endl;
+//    }
 
 }
 void WalkingController::relative_link_trans_matrix2(Eigen::Isometry3d* transform_matrix){

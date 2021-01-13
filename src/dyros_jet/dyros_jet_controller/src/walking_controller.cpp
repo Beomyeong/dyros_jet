@@ -73,21 +73,35 @@ void WalkingController::compute()
 //            MovingZMPtrajectory();
 
 //            if(current_step_num_ == 0 || current_step_num_ >total_step_num_ -2){
-//                getComTrajectory();
+                chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+                getComTrajectory();
+                chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+
+                file[20]<<walking_tick_<<"\t"<<t_2.count();
+
 //            }
 //            else {
-//                if(heel_toe_mode_ ==false)
-                    getComTrajectory();
-//                if(heel_toe_mode_ == true)
+////                if(heel_toe_mode_ ==false)
+////                    getComTrajectory();
+////                if(heel_toe_mode_ == true)
+                    t_1 = std::chrono::high_resolution_clock::now();
+//                    qp31();
                     qp3();
-//            }
-//            if(ik_mode_ !=2 || current_step_num_ == total_step_num_-1){
+                    t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
+                    file[20]<<"\t"<<t_2.count();
+//            }
+//            else if(ik_mode_ !=2 || current_step_num_ == total_step_num_-1){
+
+//                if(walking_tick_ == t_start_)
+//                    cout<<"preview"<<endl;
 //                getComTrajectory();
 //    //            getComTrajectory_MJ();
 
 //            }
 //            else if(ik_mode_ ==2 && current_step_num_ != total_step_num_-1){
+//                if(walking_tick_ == t_start_)
+//                    cout<<"mpc"<<endl;
 //                qp3();
 //            }
 
@@ -98,7 +112,7 @@ void WalkingController::compute()
               comHeight();
 //            getCOMvelocity();
 
-            getCOMestimation();
+//            getCOMestimation();
             getPelvTrajectory();
 
 //          if(ik_mode_==2)
@@ -112,7 +126,7 @@ void WalkingController::compute()
 
       }
 
-        CalculateCenterOfMassSupportBody();
+//        CalculateCenterOfMassSupportBody();
 
        ZMP_2(l_ft_,r_ft_,lfoot_trajectory_support_.translation(),rfoot_trajectory_support_.translation(),ZMP_2_);
 
@@ -250,13 +264,17 @@ void WalkingController::compute()
           }
         }
         else if (ik_mode_ == 2){
+            chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
 //                    qpIK();
 //            qpIK_pelvis();
 //            qpIK_pelvis_13();
-//            qpIK_pel_arm();
-            qpIK_pel_full_arm();
+            qpIK_pel_arm();
+//            qpIK_pel_full_arm();
 
 //            qpIK_test();
+            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+
+            file[20]<<"\t"<<t_2.count()<<endl;
         }
 
 //        desired_q_(WA_BEGIN) = -floating_joint_;
@@ -461,13 +479,13 @@ void WalkingController::compute()
              <<"\t"<<lfoot_float_current_euler_(0)*RAD2DEG<<"\t"<<lfoot_float_current_euler_(1)*RAD2DEG<<"\t"<<lfoot_float_current_euler_(2)*RAD2DEG
                 <<"\t"<<rfoot_float_current_euler_(0)*RAD2DEG<<"\t"<<rfoot_float_current_euler_(1)*RAD2DEG<<"\t"<<rfoot_float_current_euler_(2)*RAD2DEG
               <<endl;
-        file[21]<<walking_tick_<<"\t"<<current_q_dot_(0)<<"\t"<<current_q_dot_(1)<<"\t"<<current_q_dot_(2)<<"\t"<<current_q_dot_(3)<<"\t"<<current_q_dot_(4)<<"\t"<<current_q_dot_(5)
-               <<"\t"<<current_q_dot_(6)<<"\t"<<current_q_dot_(7)<<"\t"<<current_q_dot_(8)<<"\t"<<current_q_dot_(9)<<"\t"<<current_q_dot_(10)<<"\t"<<current_q_dot_(11)
-              <<"\t"<<current_q_dot_(LA_BEGIN)<<"\t"<<current_q_dot_(LA_BEGIN+1)<<"\t"<<current_q_dot_(LA_BEGIN+2)<<"\t"<<current_q_dot_(LA_BEGIN+3)<<"\t"<<current_q_dot_(LA_BEGIN+4)<<"\t"<<current_q_dot_(LA_BEGIN+5)<<"\t"<<current_q_dot_(LA_BEGIN+6)
-                <<"\t"<<current_q_dot_(RA_BEGIN)<<"\t"<<current_q_dot_(RA_BEGIN+1)<<"\t"<<current_q_dot_(RA_BEGIN+2)<<"\t"<<current_q_dot_(RA_BEGIN+3)<<"\t"<<current_q_dot_(RA_BEGIN+4)<<"\t"<<current_q_dot_(RA_BEGIN+5)<<"\t"<<current_q_dot_(RA_BEGIN+6)
-              <<"\t"<<E_con(0)<<"\t"<<E_con(1)<<"\t"<<E_con(2)<<"\t"<<E_con(3)<<"\t"<<E_con(4)<<"\t"<<E_con(5)
-                <<"\t"<<E_con(6)<<"\t"<<E_con(7)<<"\t"<<E_con(8)<<"\t"<<E_con(9)<<"\t"<<E_con(10)<<"\t"<<E_con(11)
-              <<"\t"<<E_con_total<<endl;
+//        file[21]<<walking_tick_<<"\t"<<current_q_dot_(0)<<"\t"<<current_q_dot_(1)<<"\t"<<current_q_dot_(2)<<"\t"<<current_q_dot_(3)<<"\t"<<current_q_dot_(4)<<"\t"<<current_q_dot_(5)
+//               <<"\t"<<current_q_dot_(6)<<"\t"<<current_q_dot_(7)<<"\t"<<current_q_dot_(8)<<"\t"<<current_q_dot_(9)<<"\t"<<current_q_dot_(10)<<"\t"<<current_q_dot_(11)
+//              <<"\t"<<current_q_dot_(LA_BEGIN)<<"\t"<<current_q_dot_(LA_BEGIN+1)<<"\t"<<current_q_dot_(LA_BEGIN+2)<<"\t"<<current_q_dot_(LA_BEGIN+3)<<"\t"<<current_q_dot_(LA_BEGIN+4)<<"\t"<<current_q_dot_(LA_BEGIN+5)<<"\t"<<current_q_dot_(LA_BEGIN+6)
+//                <<"\t"<<current_q_dot_(RA_BEGIN)<<"\t"<<current_q_dot_(RA_BEGIN+1)<<"\t"<<current_q_dot_(RA_BEGIN+2)<<"\t"<<current_q_dot_(RA_BEGIN+3)<<"\t"<<current_q_dot_(RA_BEGIN+4)<<"\t"<<current_q_dot_(RA_BEGIN+5)<<"\t"<<current_q_dot_(RA_BEGIN+6)
+//              <<"\t"<<E_con(0)<<"\t"<<E_con(1)<<"\t"<<E_con(2)<<"\t"<<E_con(3)<<"\t"<<E_con(4)<<"\t"<<E_con(5)
+//                <<"\t"<<E_con(6)<<"\t"<<E_con(7)<<"\t"<<E_con(8)<<"\t"<<E_con(9)<<"\t"<<E_con(10)<<"\t"<<E_con(11)
+//              <<"\t"<<E_con_total<<endl;
         file[32]<<walking_tick_<<"\t"<<lfoot_trajectory_euler_float_(0)*RAD2DEG<<"\t"<<lfoot_trajectory_euler_float_(1)*RAD2DEG<<"\t"<<lfoot_trajectory_euler_float_(2)*RAD2DEG
                <<"\t"<<rfoot_trajectory_euler_float_(0)*RAD2DEG<<"\t"<<rfoot_trajectory_euler_float_(1)*RAD2DEG<<"\t"<<rfoot_trajectory_euler_float_(2)*RAD2DEG
               <<"\t"<<lfoot_trajectory_euler_support_(0)*RAD2DEG<<"\t"<<lfoot_trajectory_euler_support_(1)*RAD2DEG<<"\t"<<lfoot_trajectory_euler_support_(2)*RAD2DEG
@@ -1597,6 +1615,338 @@ void WalkingController::calculateFootStepTotal()
 //      file[28]<<walking_tick_<<"\t"<<i<<"\t"<<foot_step_(i,0)<<"\t"<<foot_step_(i,1)<<"\t"<<foot_step_(i,2)<<"\t"<<foot_step_(i,3)<<"\t"<<foot_step_(i,4)<<"\t"<<foot_step_(i,5)<<"\t"<<foot_step_(i,6)<<endl;
 //  }
 }
+void WalkingController::calculateFootStepTotal_MJ()
+{
+  double initial_rot = 0.0;
+  double final_rot = 0.0;
+  double initial_drot = 0.0;
+  double final_drot = 0.0;
+
+  initial_rot = atan2(target_y_, target_x_); // GUI 명령에서 받아오는 값으로 회전 각도 계산.
+
+  if(initial_rot > 0.0) // 반시계 방향으로 회전, GUI 에서는 이것만 됨.
+    initial_drot = 10*DEG2RAD;
+  else // 시계 방향으로 회전.
+    initial_drot = -10*DEG2RAD;
+
+  unsigned int initial_total_step_number = initial_rot/initial_drot; // 처음 실제 회전해야하는 각도 / 10deg , 정수만 추려냄.
+  double initial_residual_angle = initial_rot - initial_total_step_number*initial_drot; // 정수만 추려낸 나머지 회전해야 하는 각도.
+
+  final_rot = target_theta_ - initial_rot; // 원하는 회전 각도가 없으면, 처음각도에 음수만 붙이면 다시 원상태로 돌릴 수 있음.
+  if(final_rot > 0.0)
+    final_drot = 10*DEG2RAD; // 반시계 방향 회전.
+  else
+    final_drot = -10*DEG2RAD; // 시계 방향 회전.
+
+  unsigned int final_total_step_number = final_rot/final_drot; // 마지막 실제 회전해야 하는 각도 / 10deg, 정수만 추려냄.
+  double final_residual_angle = final_rot - final_total_step_number*final_drot; // 정수만 추려낸 나머지 회전해야 하는 각도.
+  double length_to_target = sqrt(target_x_*target_x_ + target_y_*target_y_); // 목표까지의 최종 거리.
+  double dlength = step_length_x_;
+
+  //////////// 명주 추가
+  double first_step_length = 0.1;
+  double initial_step_number = 0; double clength = 0;
+  initial_step_number = (dlength - first_step_length) / 0.05;
+  int initial_step_number_i = initial_step_number + 0.0001;
+
+  for(int i = 0; i < initial_step_number_i; i++)
+  {
+    clength = clength + first_step_length;
+    first_step_length += 0.05;
+  }
+
+  //unsigned int middle_total_step_number = length_to_target/dlength; // 목표 최종 거리를 Step 보폭으로 나눈 정수로 표현한 스텝 갯수.
+  unsigned int middle_total_step_number = initial_step_number_i + (int)((length_to_target - clength)/dlength); // 3 + (0.55)/ 0.25
+  //double middle_residual_length = length_to_target - middle_total_step_number*dlength; // 나머지 거리.
+  double middle_residual_length = (length_to_target - clength) - dlength * (middle_total_step_number - initial_step_number_i);
+  ///////////
+  //cout << length_to_target << "," << middle_total_step_number << "," << middle_residual_length << "," << dlength << endl;
+  if(length_to_target == 0) // 제자리 걸음
+  {
+    middle_total_step_number = 10; //walking on the spot 10 times
+    dlength = 0;
+  }
+  ////// 목표 x, y 변위, 설정된 step length를 이용해서 middle_total_step number를 구함.
+
+  unsigned int number_of_foot_step;
+
+  int del_size;
+
+  del_size = 1;
+  number_of_foot_step = initial_total_step_number*del_size + middle_total_step_number*del_size + final_total_step_number*del_size;
+
+  if(initial_total_step_number != 0 || abs(initial_residual_angle) >= 0.0001) // 회전이 있는 경우.
+  {
+    if(initial_total_step_number % 2 == 0) // 회전해야 하는 Step 수가 짝수 일 경우.
+      number_of_foot_step = number_of_foot_step + 2*del_size; // 예를 들어, 45도 회전일 경우, initial_total_step_number = 4, 5번째 발이 목표에 오고, 6번째 발이 5번째 발과 맞춰짐
+    else // 회전해야 하는 Step 수가 홀수 일 경우
+    {
+      if(abs(initial_residual_angle)>= 0.0001) // 회전해야 하는 Step 수가 홀수면서 나머지 회전 해야하는 각도가 남았을 경우, 기존에서 3 Step 추가
+        number_of_foot_step = number_of_foot_step + 3*del_size; // 예를 들어, 15도 회전일 경우, initial_total_step_number = 1, 2번째 발이 목표에 오고 3번째 발이 2번쨰 발과 맞춰짐, 마지막 발은 제자리.
+      else
+        number_of_foot_step = number_of_foot_step + del_size; // 회전해야 하는 Step 수가 홀수면서 나머지 회전 해야하는 각도가 남지 않았을 경우, 기존에서 1 Step (반대 발) 추가
+    }
+  }
+
+  if(middle_total_step_number != 0 || abs(middle_residual_length)>=0.0001) //제자리 걸음이 아닌 경우.
+  {
+    if(middle_total_step_number % 2 == 0) // 목표거리가 Step 길이의 짝수배 일 경우. 예를 들어 목표 길이가 1.2m 인 경우 middle_total_step_number는 6임. 6번째 목표에 맞춰지고 7번째 발이 6번째 발 옆에, 8번째 발은 제자리걸음.
+      number_of_foot_step = number_of_foot_step + 2*del_size; // 첫 발이 오른발인 경우 마지막 Swing이 왼발이고, 오른발은 마지막 Swing 발 바로 옆에 위치, 왼발은 다시한번 제자리 step
+    else // 목표거리가 Step 길이의 홀수배 일 경우
+    {
+      if(abs(middle_residual_length)>= 0.0001)
+        number_of_foot_step = number_of_foot_step + 3*del_size; // 예를 들어 목표 길이가 1.1m 인 경우, middle_total_step_number = 5, 나머지 10cm 때문에 6번째 발이 절반 Swing, 7번재 Swing발이 바로 옆에 위치, 8번째 발이 마지막 제자리 step, 더해져 8이됨.
+      else
+        number_of_foot_step = number_of_foot_step + del_size; // 예를 들어 목표 길이가 1m 인 경우 middle_total_step_number는 5임. 거기서 마지막 Swing 발이 이전 Swing발 바로 옆에 위치, 1이 더해져 6이 됨. (목표 변위에는 영향 없음.)
+    }
+  }
+
+  if(final_total_step_number != 0 || abs(final_residual_angle) >= 0.0001) // 마지막으로 다시 로봇의 방향을 되돌리는 회전이 있는 경우.
+  {
+    if(abs(final_residual_angle) >= 0.0001) // 나머지 회전 각도가 남았을 경우.
+      number_of_foot_step = number_of_foot_step + 2*del_size; // 최종적으로 2 step 더해줌.
+    else
+      number_of_foot_step = number_of_foot_step + del_size; // 나머지 회전 각도가 남지 않았을 경우, 한걸음만 추가.
+  }
+
+  // 여기까지 발걸음 개수 계산.
+
+  foot_step_.resize(number_of_foot_step, 7);
+  foot_step_.setZero();
+  foot_step_support_frame_.resize(number_of_foot_step, 7);
+  foot_step_support_frame_.setZero();
+
+  int index = 0;
+  int temp, temp2, temp3, is_right;
+
+  if(is_right_foot_swing_ == true)
+    is_right = 1;
+  else
+    is_right = -1;
+
+
+  temp = -is_right; //right foot will be first swingfoot
+  temp2 = -is_right;
+  temp3 = -is_right;
+
+
+  if(initial_total_step_number != 0 || abs(initial_residual_angle) >= 0.0001) // 회전이 있는 경우.
+  {
+    for (int i =0 ; i < initial_total_step_number; i++) // 45도 회전하면, index가 0 ~ 3이므로 4발자국을 먼저 찍는 것.
+    {
+      temp *= -1;
+      foot_step_(index,0) = temp*0.127794*sin((i+1)*initial_drot); // 10도씩 회전 시키는데, 회전 했을때의 X방향 좌표.
+      foot_step_(index,1) = -temp*0.127794*cos((i+1)*initial_drot); // 10도씩 회전 시킬때, 회전 했을때의 Y방향 좌표.
+      foot_step_(index,5) = (i+1)*initial_drot; // Z방향 10도 돌린 Foot step.
+      foot_step_(index,6) = 0.5 + 0.5*temp; // 오른 발이 Swing 일때는, 1.
+      index++;
+    }
+
+    if(temp == is_right)
+    {
+      if(abs(initial_residual_angle) >= 0.0001) // 예를 들어 15 deg 회전이면, 첫번째 오른 Swing 발이 10deg, 두번째 왼 Swing 발이 15deg, 세번째 오른 Swing발이 15도, 나머지 제자리.
+      {
+        temp *= -1;
+
+        foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+        foot_step_(index,6) = 0.5 + 0.5*temp;
+        index++;
+
+        temp *= -1;
+
+        foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot+initial_residual_angle);
+        foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+        foot_step_(index,6) = 0.5 + 0.5*temp;
+        index++;
+
+        temp *= -1;
+
+        foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot+initial_residual_angle);
+        foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+        foot_step_(index,6) = 0.5 + 0.5*temp;
+        index++;
+
+      }
+      else
+      {
+        temp *= -1;
+
+        foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot + initial_residual_angle);
+        foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+        foot_step_(index,6) = 0.5 + 0.5*temp;
+        index++;
+      }
+    }
+    else if(temp == -is_right) // 여분으로 움직여야 할 각도가 있고 시작을 오른 발 Swing으로 할 때.
+    {
+      temp *= -1;
+
+      foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle); // 나머지 각도 채워줌.
+      foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot + initial_residual_angle);
+      foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+      foot_step_(index,6) = 0.5 + 0.5*temp;
+      index ++;
+
+      temp *= -1;
+
+      foot_step_(index,0) = temp*0.127794*sin((initial_total_step_number)*initial_drot + initial_residual_angle); // 반대 발도 나머지 각도 채워줌.
+      foot_step_(index,1) = -temp*0.127794*cos((initial_total_step_number)*initial_drot + initial_residual_angle);
+      foot_step_(index,5) = (initial_total_step_number)*initial_drot + initial_residual_angle;
+      foot_step_(index,6) = 0.5 + 0.5*temp;
+      index ++;
+    }
+  }
+  unsigned int temp_mj = 0; double mlength = 0.1;
+
+  if(middle_total_step_number != 0 || abs(middle_residual_length) >= 0.0001)
+  {
+    for (int i = 0 ; i < middle_total_step_number; i++) // 예를 들어 1m 면, middle_total_step_number = 5,
+    {
+      temp2 *= -1; // Swing발이 오른발이면 temp는 1.
+
+      if(temp_mj < initial_step_number_i)
+      {
+        foot_step_(index,0) = cos(initial_rot)*(mlength*(1)) + temp2*sin(initial_rot)*(0.127794); // Z방향으로 initial_rot 만큼 회전 시켰을 때, X방향 좌표.
+        foot_step_(index,1) = sin(initial_rot)*(mlength*(1)) - temp2*cos(initial_rot)*(0.127794); // Z방향으로 initial_rot 만큼 회전 시켰을 때, Y방향 좌표.
+        mlength = 0.1 + mlength + 0.05*(i+1);
+      }
+      else if(temp_mj >= initial_step_number_i)
+      {
+        foot_step_(index,0) = cos(initial_rot)*(mlength*(1)) + temp2*sin(initial_rot)*(0.127794); // Z방향으로 initial_rot 만큼 회전 시켰을 때, X방향 좌표.
+        foot_step_(index,1) = sin(initial_rot)*(mlength*(1)) - temp2*cos(initial_rot)*(0.127794); // Z방향으로 initial_rot 만큼 회전 시켰을 때, Y방향 좌표.
+        mlength += dlength ;
+      }
+
+      foot_step_(index,5) = initial_rot;
+      foot_step_(index,6) = 0.5 + 0.5*temp2;
+      index ++;
+      temp_mj ++;
+    }
+
+    if(temp2 == is_right)
+    {
+      if(abs(middle_residual_length) >= 0.0001) // 예를 들어 목표가 1.1m이면 20cm 보폭으로 나눴을 때 10cm의 나머지 거리가 생김.
+      { // 3 Step 모두 같은 발자국 위치를 가짐.
+        temp2 *= -1; // temp를 -1로 바꿈 (왼발을 Swing 발로)
+
+        //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+        //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+        foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,5) = initial_rot;
+        foot_step_(index,6) = 0.5 + 0.5*temp2; // 0 -> 오른 발이 Support foot.
+
+        //나머지 거리만큼 왼발로 감. 목표치를 만족 시킴.
+        index++;
+
+        temp2 *= -1; // temp를 1로 바꿈 (오른발을 Swing 발로)
+
+        //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+        //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+        foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,5) = initial_rot;
+        foot_step_(index,6) = 0.5 + 0.5*temp2;
+        index++;
+
+        temp2 *= -1; // 제자리 Step.
+
+        //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+        //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+        foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,5) = initial_rot;
+        foot_step_(index,6) = 0.5 + 0.5*temp2;
+        index++;
+      }
+      else // 예를 들어 1m이면 20cm 보폭으로 나눴을때 나머지가 없기 때문에,
+      {
+        temp2 *= -1; // 왼발을 Swing 발로 바꿔주고, 제자리에서 Step. (residual_length가 0이기 때문에)
+
+        //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+        //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+        foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+        foot_step_(index,5) = initial_rot;
+        foot_step_(index,6) = 0.5 + 0.5*temp2; // 왼발이 Swing 발이기 때문에 temp는 -1, 그러므로 foot_step(i,6) = 0
+        index++;
+      }
+    }
+    else if(temp2 == -is_right) // 끝이 왼발 swing으로 끝났을 때.
+    {
+      temp2 *= -1; // temp를 1로 바꿔주고 (오른쪽 발 Swing)
+
+      //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+      //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+      foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+      foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+      foot_step_(index,5) = initial_rot;
+      foot_step_(index,6) = 0.5 + 0.5*temp2;
+      index++;
+
+      temp2 *= -1;
+      // 제자리 Step.
+      //foot_step_(index,0) = cos(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) + temp2*sin(initial_rot)*(0.127794);
+      //foot_step_(index,1) = sin(initial_rot)*(mlength*(middle_total_step_number) + middle_residual_length) - temp2*cos(initial_rot)*(0.127794);
+      foot_step_(index,0) = cos(initial_rot)*(mlength + middle_residual_length - dlength) + temp2*sin(initial_rot)*(0.127794);
+      foot_step_(index,1) = sin(initial_rot)*(mlength + middle_residual_length - dlength) - temp2*cos(initial_rot)*(0.127794);
+      foot_step_(index,5) = initial_rot;
+      foot_step_(index,6) = 0.5 + 0.5*temp2;
+      index++;
+    }
+  }
+
+  double final_position_x = cos(initial_rot)*(mlength + middle_residual_length - dlength); // 최종적으로 도착한 목적지의 X 좌표.
+  double final_position_y = sin(initial_rot)*(mlength + middle_residual_length - dlength); // 최종적으로 도착한 목적지의 Y 좌표.
+
+  if(final_total_step_number != 0 || abs(final_residual_angle) >= 0.0001) // 최종적으로 로봇을 원래 방향대로 회전 해야 할 경우.
+  {
+    for(int i = 0 ; i < final_total_step_number; i++)
+    {
+      temp3 *= -1; // temp를 1로 만듬 (오른발 Swing), 예를 들어 45도 회전해야 한다고 하면, 4번 회전 먼저 하고
+
+      foot_step_(index,0) = final_position_x + temp3*0.127794*sin((i+1)*final_drot + initial_rot);
+      foot_step_(index,1) = final_position_y - temp3*0.127794*cos((i+1)*final_drot + initial_rot);
+      foot_step_(index,5) = (i+1)*final_drot + initial_rot;
+      foot_step_(index,6) = 0.5 + 0.5*temp3;
+      index++;
+    }
+
+    if(abs(final_residual_angle) >= 0.0001) // 남은 각도는 10deg 미만이기 때문에 한번에 감.
+    {
+      temp3 *= -1; // 두 Step의 발자국 위치는 같고 첫 Step 먼저 목표에 위치하고 두번째 Step이 다음으로 위치.
+
+      foot_step_(index,0) = final_position_x + temp3*0.127794*sin(target_theta_);
+      foot_step_(index,1) = final_position_y - temp3*0.127794*cos(target_theta_);
+      foot_step_(index,5) = target_theta_;
+      foot_step_(index,6) = 0.5 + 0.5*temp3;
+      index++;
+
+      temp3 *= -1;
+
+      foot_step_(index,0) = final_position_x + temp3*0.127794*sin(target_theta_);
+      foot_step_(index,1) = final_position_y - temp3*0.127794*cos(target_theta_);
+      foot_step_(index,5) = target_theta_;
+      foot_step_(index,6) = 0.5 + 0.5*temp3;
+      index++;
+    }
+    else
+    { // 여분의 각도가 없다면, 반대발은 그냥 제자리 걸음 한번.
+      temp3 *= -1;
+
+      foot_step_(index,0) = final_position_x + temp3*0.127794*sin(target_theta_);
+      foot_step_(index,1) = final_position_y - temp3*0.127794*cos(target_theta_);
+      foot_step_(index,5) = target_theta_;
+      foot_step_(index,6) = 0.5 + 0.5*temp3;
+      index++;
+    }
+  }
+}
 
 void WalkingController::calculateFootStepSeparate()
 {
@@ -2077,7 +2427,8 @@ void WalkingController::updateInitialState()
   {
     thread_tick_ = 0;
 
-    calculateFootStepTotal();
+//    calculateFootStepTotal();
+    calculateFootStepTotal_MJ();
 
 //    for(int i=0;i<5;i++){
 //        foot_step_.row(i+1) = foot_step_.row(0);
@@ -3003,7 +3354,7 @@ void WalkingController::getComTrajectory()
   }
 
 //  x_p1_ = xs_;
-//  y_p1_ = ys_;
+  y_p1_ = ys_;
   double start_time;
 
   if(current_step_num_ == 0)
@@ -10139,7 +10490,7 @@ void WalkingController::SettingVirtualJointLimit(){
     q_leg_max_.resize(13);
     q_leg_min_.resize(13);
 
-    q_leg_min_(0) = -30*DEG2RAD; q_leg_max_(0) = 30*DEG2RAD;
+    q_leg_min_(0) = -45*DEG2RAD; q_leg_max_(0) = 45*DEG2RAD;
 
     q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
     q_leg_min_(2) = -3.14; q_leg_max_(2) = 3.14;

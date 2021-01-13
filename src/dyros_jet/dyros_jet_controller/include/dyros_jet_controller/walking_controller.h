@@ -243,6 +243,7 @@ public:
   void calculateFootStepTotal();
   void calculateFootStepSeparate();
   void usingFootStepPlanner();
+  void calculateFootStepTotal_MJ();
 
   //functions for getZMPTrajectory()
   void floatToSupportFootstep();
@@ -407,6 +408,9 @@ public:
 
   void getRobotState_MJ();
   void CalculateCenterOfMassSupportBody();
+
+  void SupportfootComUpdate();
+  void qp31();
 
 private:
 
