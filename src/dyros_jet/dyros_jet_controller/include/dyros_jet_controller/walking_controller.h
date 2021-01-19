@@ -977,6 +977,7 @@ private:
   Eigen::Vector6d                        average_spatial_velocity_;
 
   Eigen::Vector3d                       current_Angular_momentum_;
+  Eigen::Vector3d                       pre_current_Angular_momentum_;
 
   Eigen::Vector3d                       relative_link_distance_[29];
   Eigen::Matrix3d                       relative_link_rotation_[29];

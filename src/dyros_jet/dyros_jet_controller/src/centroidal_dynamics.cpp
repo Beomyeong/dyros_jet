@@ -1281,8 +1281,8 @@ void WalkingController::UpdateCentroidalMomentumMatrix(){
     q_temp.setZero();
     qdot_temp.setZero();
 
-    q_temp.segment<28>(6) = desired_q_not_compensated_.segment<28>(0);
-    if(walking_tick_ == 0)
+//    q_temp.segment<28>(6) = desired_q_not_compensated_.segment<28>(0);
+//    if(walking_tick_ == 0)
         q_temp.segment<28>(6) = current_q_.segment<28>(0);
 
     Eigen::Matrix<double, 3, 28> LMM_rbdl;
@@ -1301,5 +1301,11 @@ void WalkingController::UpdateCentroidalMomentumMatrix(){
     Augmented_Centroidal_Momentum_Matrix_.block<3,28>(0,0) = LMM_rbdl;
     Augmented_Centroidal_Momentum_Matrix_.block<3,28>(3,0) = AMM_rbdl;
 
+    qdot_temp.segment<28>(6) = current_q_dot_.segment<28>(0);
+
+    model_.updateKinematics(q_temp,qdot_temp);
+    current_Angular_momentum_ = model_.getCurrentComAngularMomentum();
+
+    file[27]<<walking_tick_<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)<<endl;
 }
 }

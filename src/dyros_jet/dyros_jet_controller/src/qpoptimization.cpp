@@ -734,6 +734,7 @@ void WalkingController::qpIK_pel_arm(){
         pre_q_d.segment<13>(0) = q_init_.segment<13>(0);
         pre_q_d(13) = q_init_(14);
         pre_q_d(14) = q_init_(21);
+        pre_current_Angular_momentum_.setZero();
     }
     else{
         pre_q_d.segment<13>(0) = desired_q_not_compensated_.segment<13>(0);
@@ -742,10 +743,11 @@ void WalkingController::qpIK_pel_arm(){
     }
 
     double w1, w2, w3, w4;
-    w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 0.5;
+    w1 = 1; w2 = 0.1; w3 = 0.3; w4 = 1.0;
 
     Eigen::Matrix<double, 15, 15> w1_15, w2_15, w3_15, w4_15;
     w1_15.setIdentity(); w2_15.setIdentity(); w3_15.setIdentity(); w4_15.setIdentity();
+    w3_15*= 0.5;
 
     // setting for Jacobian including virtual joint
     Eigen::Matrix<double, 12, 13> Jacobian_12_13;
@@ -792,6 +794,7 @@ void WalkingController::qpIK_pel_arm(){
     g_AM_15.setZero();
     g_AM_15 += -w1_15*Sel_leg.transpose()*Jacobian_12_13_t*desired_v;
     g_AM_15 += -w3_15*Sel_virtual.transpose()*q_vir_arm;
+    g_AM_15 += w4_15*A_sel_yaw_15.transpose()*pre_current_Angular_momentum_(2);
 
     //// for constraint  ////
     /// \brief Constarint_A_27_15
@@ -846,7 +849,7 @@ void WalkingController::qpIK_pel_arm(){
     u_inequality_27(26) = (3.14 - desired_q_not_compensated_(21))*hz_;
     l_inequality_27(26) = (-3.14 - desired_q_not_compensated_(21))*hz_;
 
-    real_t H_15[15*15], A_15[27*15], lbA_15[27], ubA_15[27], lb_15[15], ub_15[15],g_15[15];
+    real_t H_15[15*15], A_15[28*15], lbA_15[28], ubA_15[28], lb_15[15], ub_15[15],g_15[15];
 
     for(int j=0;j<15;j++){
         for(int i=0;i<15;i++){
@@ -855,6 +858,7 @@ void WalkingController::qpIK_pel_arm(){
         for(int i=0;i<27;i++){
             A_15[15*i +j] = Constarint_A_27_15(i,j);
         }
+        A_15[15*27 +j] = A_sel_yaw_15(0,j);
         lb_15[j] = -10;
         ub_15[j] = 10;
 
@@ -864,9 +868,11 @@ void WalkingController::qpIK_pel_arm(){
         lbA_15[i] = l_inequality_27(i);
         ubA_15[i] = u_inequality_27(i);
     }
+    lbA_15[27] =0;
+    ubA_15[27] = 0;
 
     real_t xOpt[15];
-    QProblem example(15,27);
+    QProblem example(15,28);
 
     Options options;
     options.initialStatusBounds =ST_LOWER;
@@ -908,6 +914,7 @@ void WalkingController::qpIK_pel_arm(){
 
 
     pre_floating_joint_ = floating_joint_;
+    pre_current_Angular_momentum_ = current_Angular_momentum_;
 
 }
 void WalkingController::qpIK_pel_full_arm(){
@@ -933,6 +940,7 @@ void WalkingController::qpIK_pel_full_arm(){
 
     Eigen::Matrix<double, 27, 27> w1_27, w2_27, w3_27, w4_27;
     w1_27.setIdentity(); w2_27.setIdentity(); w3_27.setIdentity(); w4_27.setIdentity();
+//    w1_27.setZero();
 
     // setting for Jacobian including virtual joint
     Eigen::Matrix<double, 12, 13> Jacobian_12_13;
@@ -1027,27 +1035,32 @@ void WalkingController::qpIK_pel_full_arm(){
     l_inequality_39.segment<14>(25) = (q_upper_min_ - desired_q_not_compensated_.segment<14>(14));
 
 
-    real_t H_27[27*27], A_27[39*27], lbA_27[39], ubA_27[39], lb_27[27], ub_27[27],g_27[27];
+//    real_t H_27[27*27], A_27[39*27], lbA_27[39], ubA_27[39], lb_27[27], ub_27[27],g_27[27];
+    real_t H_27[27*27], A_27[27*27], lbA_27[27], ubA_27[27], lb_27[27], ub_27[27],g_27[27];
 
     for(int j=0;j<27;j++){
         for(int i=0;i<27;i++){
             H_27[27*i +j] = H_AM_27(i,j);
         }
-        for(int i=0;i<39;i++){
-            A_27[27*i +j] = Constarint_A_39_27(i,j);
+//        for(int i=0;i<39;i++){
+        for(int i=0;i<27;i++){
+//            A_27[27*i +j] = Constarint_A_39_27(i,j);
+            A_27[27*i +j] = Constarint_A_39_27(i+12,j);
         }
         lb_27[j] = -10;
         ub_27[j] = 10;
 
         g_27[j] = g_AM_27(j);
     }
-    for(int i=0;i<39;i++){
-        lbA_27[i] = l_inequality_39(i);
-        ubA_27[i] = u_inequality_39(i);
+//    for(int i=0;i<39;i++){
+    for(int i=0;i<27;i++){
+        lbA_27[i] = l_inequality_39(i+12);
+        ubA_27[i] = u_inequality_39(i+12);
     }
 
     real_t xOpt[27];
-    QProblem example(27,39);
+//    QProblem example(27,39);
+    QProblem example(27,27);
 
     Options options;
     options.initialStatusBounds =ST_LOWER;

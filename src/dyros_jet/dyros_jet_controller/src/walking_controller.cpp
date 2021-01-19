@@ -800,7 +800,7 @@ void WalkingController::getRobotState()
       {
         q_temp.segment<28>(6) =   desired_q_not_compensated_.segment<28>(0);
 //          q_temp.segment<28>(6) =   desired_q_not_compensated_.segment<28>(0);
-      }      
+      }
       qdot_temp.segment<28>(6) = current_q_dot_.segment<28>(0);
 
 //      if(walking_tick_ == 0){
@@ -842,9 +842,9 @@ void WalkingController::getRobotState()
       Eigen::Vector3d CAM_virtual;
       CAM_virtual = E_0_v*current_Angular_momentum_;
 
-      file[27]<<walking_tick_<<"\t"<<CMM_temp(0)<<"\t"<<CMM_temp(1)<<"\t"<<CMM_temp(2)<<"\t"<<CMM_temp(3)<<"\t"<<CMM_temp(4)<<"\t"<<CMM_temp(5)
-             <<"\t"<<linear_momentum(0)<<"\t"<<linear_momentum(1)<<"\t"<<linear_momentum(2)<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)
-            <<"\t"<<angular_momentum_virtual(0)<<"\t"<<angular_momentum_virtual(1)<<"\t"<<angular_momentum_virtual(2)<<endl;
+//      file[27]<<walking_tick_<<"\t"<<CMM_temp(0)<<"\t"<<CMM_temp(1)<<"\t"<<CMM_temp(2)<<"\t"<<CMM_temp(3)<<"\t"<<CMM_temp(4)<<"\t"<<CMM_temp(5)
+//             <<"\t"<<linear_momentum(0)<<"\t"<<linear_momentum(1)<<"\t"<<linear_momentum(2)<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)
+//            <<"\t"<<angular_momentum_virtual(0)<<"\t"<<angular_momentum_virtual(1)<<"\t"<<angular_momentum_virtual(2)<<endl;
 //      Eigen::Vector3d Linear_momentum_times_mass;
 //      Linear_momentum_times_mass = 50.3581*Linear_momentum_temp;
 //      com_velocity = model_.getCurrentComDot();
