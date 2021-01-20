@@ -264,7 +264,7 @@ void WalkingController::compute()
           }
         }
         else if (ik_mode_ == 2){
-            chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+//            chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
 //                    qpIK();
 //            qpIK_pelvis();
 //            qpIK_pelvis_13();
@@ -272,9 +272,9 @@ void WalkingController::compute()
 //            qpIK_pel_full_arm();
 
 //            qpIK_test();
-            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+//            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
-            file[20]<<"\t"<<t_2.count()<<endl;
+//            file[20]<<"\t"<<t_2.count()<<endl;
         }
 
 //        desired_q_(WA_BEGIN) = -floating_joint_;
@@ -4658,8 +4658,8 @@ void WalkingController::computeJacobianControl(Eigen::Isometry3d float_lleg_tran
 
 
      Eigen::Vector6d q_lfoot_dot,q_rfoot_dot;
-     q_lfoot_dot=current_leg_jacobian_l_inv*(lp_ + 5*lp_clik_);
-     q_rfoot_dot=current_leg_jacobian_r_inv*(rp_ + 5*rp_clik_);
+     q_lfoot_dot=current_leg_jacobian_l_inv*(lp_);// + 5*lp_clik_);
+     q_rfoot_dot=current_leg_jacobian_r_inv*(rp_);// + 5*rp_clik_);
 
 //     q_lfoot_dot = current_left_heel_jacobian_.inverse()*(lheel_p_ + 5*lheel_clik_);
 //     q_rfoot_dot = current_right_heel_jacobian_.inverse()*(rheel_p_ + 5*rheel_clik_);

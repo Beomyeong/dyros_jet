@@ -747,7 +747,12 @@ void WalkingController::qpIK_pel_arm(){
 
     Eigen::Matrix<double, 15, 15> w1_15, w2_15, w3_15, w4_15;
     w1_15.setIdentity(); w2_15.setIdentity(); w3_15.setIdentity(); w4_15.setIdentity();
+//    w2_15*= 0.3;
     w3_15*= 0.5;
+    if(current_step_num_ == total_step_num_-1){
+        w3_15.setIdentity();
+        w4_15 *= 0.2;
+    }
 
     // setting for Jacobian including virtual joint
     Eigen::Matrix<double, 12, 13> Jacobian_12_13;
@@ -785,9 +790,13 @@ void WalkingController::qpIK_pel_arm(){
 
 
     Eigen::Vector3d  q_vir_arm;
-    q_vir_arm(0) = q_init_(0) - pre_q_d(0);
-    q_vir_arm(1) = q_init_(14) - pre_q_d(13);
-    q_vir_arm(2) = q_init_(21) - pre_q_d(14);
+//    q_vir_arm(0) = q_init_(0) - pre_q_d(0);
+//    q_vir_arm(1) = q_init_(14) - pre_q_d(13);
+//    q_vir_arm(2) = q_init_(21) - pre_q_d(14);
+    q_vir_arm(0) = q_init_(0) - current_q_(0);
+    q_vir_arm(1) = q_init_(14) -current_q_(14);
+    q_vir_arm(2) = q_init_(21) - current_q_(21);
+
 
     // setting for g
     Eigen::VectorXd  g_AM_15(15);
