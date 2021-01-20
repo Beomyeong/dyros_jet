@@ -224,6 +224,7 @@ public:
 
   //functions for getFootStep()
   void calculateFootStepTotal();
+  void calculateFootStepTotal_MJ();
   void calculateFootStepSeparate();
   void usingFootStepPlanner();
 
