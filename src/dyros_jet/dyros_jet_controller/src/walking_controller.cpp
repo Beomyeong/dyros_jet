@@ -3348,7 +3348,8 @@ void WalkingController::getPelvTrajectory()
     }
 
     // kp = Cubic(abs(_COM_desired(0)-_COM_real_support(0)),0.0,0.05,1.0,0.0,3.0,0.0);
-    pelv_trajectory_support_.translation()(2) = com_desired_(2); //_T_Trunk_support.translation()(2) + kp*(_COM_desired(2) - _COM_real_support(2));
+    pelv_trajectory_support_.translation()(2) = pelv_suppprt_start_.translation()(2);
+//    pelv_trajectory_support_.translation()(2) = com_desired_(2); //_T_Trunk_support.translation()(2) + kp*(_COM_desired(2) - _COM_real_support(2));
 //    pelv_trajectory_support_.translation()(2) = pelv_support_current_.translation()(2) + 1.5*(com_desired_(2) - pelv_support_current_.translation()(2));
 //    pelv_trajectory_support_.translation()(2) = pelv_suppprt_start_.translation()(2) + kp*(com_desired_(2)- com_support_current_(2));
   }
@@ -4949,7 +4950,7 @@ void WalkingController::hipCompensator(bool left_support)
 //  double left_hip_angle = 4.5*DEG2RAD, right_hip_angle = 4.0*DEG2RAD, left_hip_angle_first_step = 4.5*DEG2RAD, right_hip_angle_first_step = 4.0*DEG2RAD,
 //      left_hip_angle_temp = 0.0, right_hip_angle_temp = 0.0, temp_time = 0.1*hz_, left_pitch_angle = 0.0*DEG2RAD; // for real robot
 
-    double left_hip_angle = 2.0*DEG2RAD, right_hip_angle = 2.0*DEG2RAD, left_hip_angle_first_step = 2.0*DEG2RAD, right_hip_angle_first_step = 2.0*DEG2RAD,
+    double left_hip_angle = 1.50*DEG2RAD, right_hip_angle = 1.5*DEG2RAD, left_hip_angle_first_step = 1.5*DEG2RAD, right_hip_angle_first_step = 1.5*DEG2RAD,
 
         left_hip_angle_temp = 0.0, right_hip_angle_temp = 0.0, temp_time = 0.1*hz_, left_pitch_angle = 0.0*DEG2RAD;// for simulation
 
