@@ -2178,7 +2178,7 @@ void WalkingController::qp3(){
       if(com_control_mode_ == true)
       {
         com_desired_(0) = x_d1_(0);
-        com_desired_(1) = y_d1_(0);
+//        com_desired_(1) = y_d1_(0);
         com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
         com_dot_desired_(0) = x_d1_(1);
@@ -2189,11 +2189,11 @@ void WalkingController::qp3(){
       else
       {
         com_desired_(0) = x_d1_(0);
-        com_desired_(1) = y_d1_(0);
+//        com_desired_(1) = y_d1_(0);
         com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
         com_dot_desired_(0) = x_d1_(1);
-        com_dot_desired_(1) = y_d1_(1);
+//        com_dot_desired_(1) = y_d1_(1);
         com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
       }
