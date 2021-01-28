@@ -2782,7 +2782,7 @@ void WalkingController::updateInitialState()
         model_.updateKinematics(q_temp,qdot_temp);
 
 
-    q_init_ = current_q_;
+//    q_init_ = current_q_;
     lfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(0));
     rfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(1));
 

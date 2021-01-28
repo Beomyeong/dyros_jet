@@ -434,14 +434,17 @@ void WalkingController::qpIK_pelvis_13(){
 
     Jacobian_12_13_t = Jacobian_12_13.transpose();
 
-    Eigen::Matrix<double, 13, 13> Iden_13,  Selec_floating, Selec_square;
+    Eigen::Matrix<double, 13, 13> Iden_13,  Selec_floating;
+    Eigen::Matrix<double, 1,13> Selec_square;
     Iden_13.setIdentity();   Selec_floating.setZero();
     Selec_floating(0,0) = 1;
+    Selec_square.setZero();
+    Selec_square(0,0) = 1;
 
-    Selec_square = Selec_floating.transpose()*Selec_floating;
+//    Selec_square = Selec_floating.transpose()*Selec_floating;
 
     Eigen::Matrix<double, 13, 13> H_matrix_13;
-    H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + w2_13*Iden_13 + w3_13*Selec_square/hz_/hz_;
+    H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + w2_13*Iden_13 + w3_13*Selec_square.transpose()*Selec_square/hz_/hz_;
 
     Eigen::Matrix<double, 12, 12> H_matrix_12;
     H_matrix_12 = w1*Jacobian_12_t*Jacobian_12 + w2*Iden_12;
@@ -466,7 +469,7 @@ void WalkingController::qpIK_pelvis_13(){
     }
 
     w2_13.setZero();
-    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square/hz_*(-q_init_.segment<13>(0) + pre_q_d);
+    g_vector_13 = -w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) - w3_13*Selec_square.transpose()/hz_*(-q_init_(0) + current_q_(0));
 
 
 
@@ -748,11 +751,11 @@ void WalkingController::qpIK_pel_arm(){
     Eigen::Matrix<double, 15, 15> w1_15, w2_15, w3_15, w4_15;
     w1_15.setIdentity(); w2_15.setIdentity(); w3_15.setIdentity(); w4_15.setIdentity();
 //    w2_15*= 0.3;
-    w3_15*= 0.5;
-    if(current_step_num_ == total_step_num_-1){
-        w3_15.setIdentity();
-        w4_15 *= 0.2;
-    }
+//    w3_15*= 0.5;
+//    if(current_step_num_ == total_step_num_-1){
+//        w3_15.setIdentity();
+//        w4_15 *= 0.2;
+//    }
 
     // setting for Jacobian including virtual joint
     Eigen::Matrix<double, 12, 13> Jacobian_12_13;
@@ -798,12 +801,14 @@ void WalkingController::qpIK_pel_arm(){
     q_vir_arm(2) = q_init_(21) - current_q_(21);
 
 
+//    if(current_step_num_ == total_step_num_ -1)
+//        w3_15(0,0) = 2;
     // setting for g
     Eigen::VectorXd  g_AM_15(15);
     g_AM_15.setZero();
     g_AM_15 += -w1_15*Sel_leg.transpose()*Jacobian_12_13_t*desired_v;
     g_AM_15 += -w3_15*Sel_virtual.transpose()*q_vir_arm;
-    g_AM_15 += w4_15*A_sel_yaw_15.transpose()*pre_current_Angular_momentum_(2);
+    g_AM_15 += w4_15*A_sel_yaw_15.transpose()*current_Angular_momentum_(2);
 
     //// for constraint  ////
     /// \brief Constarint_A_27_15
@@ -858,7 +863,7 @@ void WalkingController::qpIK_pel_arm(){
     u_inequality_27(26) = (3.14 - desired_q_not_compensated_(21))*hz_;
     l_inequality_27(26) = (-3.14 - desired_q_not_compensated_(21))*hz_;
 
-    real_t H_15[15*15], A_15[28*15], lbA_15[28], ubA_15[28], lb_15[15], ub_15[15],g_15[15];
+    real_t H_15[15*15], A_15[27*15], lbA_15[27], ubA_15[27], lb_15[15], ub_15[15],g_15[15];
 
     for(int j=0;j<15;j++){
         for(int i=0;i<15;i++){
@@ -877,11 +882,11 @@ void WalkingController::qpIK_pel_arm(){
         lbA_15[i] = l_inequality_27(i);
         ubA_15[i] = u_inequality_27(i);
     }
-    lbA_15[27] =0;
-    ubA_15[27] = 0;
+//    lbA_15[27] =0;
+//    ubA_15[27] = 0;
 
     real_t xOpt[15];
-    QProblem example(15,28);
+    QProblem example(15,27);
 
     Options options;
     options.initialStatusBounds =ST_LOWER;
