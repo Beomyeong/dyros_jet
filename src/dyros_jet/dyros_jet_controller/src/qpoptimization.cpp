@@ -5943,30 +5943,30 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     A_dsp1.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_dsp1(i+11) = (q_leg_min_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp1(i+11) = (q_leg_max_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
     A_lifting.block<12,12>(6,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_lifting(i+6) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_lifting(i+6) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_lifting(i+6) = (q_leg_min_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_lifting(i+6) = (q_leg_max_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_landing.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_landing(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_landing(i+11) = (q_leg_min_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_landing(i+11) = (q_leg_max_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_dsp2.block<12,12>(12,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_dsp2(i+12) = (q_leg_min_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp2(i+12) = (q_leg_max_(i+1) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
@@ -5984,8 +5984,17 @@ void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d 
     if(walking_tick_ == 0 || walking_tick_ == t_start_ || walking_tick_ == t_start_+t_total_-t_double2_-t_rest_last_  ){
         lp.topRows<3>() = (-lfoot_float_current_.translation()+lfoot_trajectory_float_.translation());
         rp.topRows<3>() = (-rfoot_float_current_.translation()+rfoot_trajectory_float_.translation());
-//        lp.topRows<3>().setZero();
-//        rp.topRows<3>().setZero();
+        if(walking_tick_ == 0){
+            lp.topRows<3>().setZero();
+            rp.topRows<3>().setZero();
+        }
+
+        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+        cout<<"lfoot current "<<endl<<lfoot_float_current_.translation()<<endl;
+        cout<<"lfoot desired " <<endl<<lfoot_trajectory_float_.translation()<<endl;
+        cout<<"rfoot current "<<endl<<rfoot_float_current_.translation()<<endl;
+        cout<<"rfoot desired " <<endl<<rfoot_trajectory_float_.translation()<<endl;
+        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
     }
     else{
       lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());

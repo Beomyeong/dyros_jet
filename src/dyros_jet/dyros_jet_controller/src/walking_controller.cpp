@@ -268,10 +268,10 @@ void WalkingController::compute()
 //                    qpIK();
 //            qpIK_pelvis();
 //            qpIK_pelvis_13();
-            qpIK_pel_arm();
+//            qpIK_pel_arm();
 //            qpIK_pel_full_arm();
 
-//            qpIK_test();
+            qpIK_test();
 //            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
 //            file[20]<<"\t"<<t_2.count()<<endl;
@@ -4685,11 +4685,11 @@ void WalkingController::computeJacobianControl(Eigen::Isometry3d float_lleg_tran
 //     cout<<"jacobian 7 : "<<endl<<current_leg_jacobian_l_floating_<<endl;
 
      Eigen::Vector6d q_lfoot_dot,q_rfoot_dot;
-     q_lfoot_dot=current_leg_jacobian_l_inv*(lp_);// + 5*lp_clik_);
-     q_rfoot_dot=current_leg_jacobian_r_inv*(rp_);// + 5*rp_clik_);
+//     q_lfoot_dot=current_leg_jacobian_l_inv*(lp_);// + 5*lp_clik_);
+//     q_rfoot_dot=current_leg_jacobian_r_inv*(rp_);// + 5*rp_clik_);
 
-//     q_lfoot_dot = current_left_heel_jacobian_.inverse()*(lheel_p_ + 5*lheel_clik_);
-//     q_rfoot_dot = current_right_heel_jacobian_.inverse()*(rheel_p_ + 5*rheel_clik_);
+     q_lfoot_dot = current_left_heel_jacobian_.inverse()*(lheel_p_ + 5*lheel_clik_);
+     q_rfoot_dot = current_right_heel_jacobian_.inverse()*(rheel_p_ + 5*rheel_clik_);
 
 //     q_lfoot_dot = current_left_toe_jacobian_.inverse() * (ltoe_p_ + 5*ltoe_clik_);
 //     q_rfoot_dot = current_right_toe_jacobian_.inverse() * (rtoe_p_ + 5*rtoe_clik_);
@@ -9105,6 +9105,15 @@ void WalkingController::calculateFootEdgeJaco(){
     current_right_heel_jacobian_ = product_right_heel*current_leg_jacobian_r_;
 
 
+    if(walking_tick_ == 0){
+        cout<<"left jacobian"<<endl<<current_leg_jacobian_l_<<endl;
+        cout<<"left toe jacobian"<<endl<<current_left_toe_jacobian_<<endl;
+        cout<<"left hel jacobian"<<endl<<current_left_heel_jacobian_<<endl;
+
+        cout<<"right jacobian"<<endl<<current_leg_jacobian_r_<<endl;
+        cout<<"right toe jacobian"<<endl<<current_right_toe_jacobian_<<endl;
+        cout<<"right hel jacobian"<<endl<<current_right_heel_jacobian_<<endl;
+    }
     Eigen::Matrix6d ltoe_jaco_inv,rtoe_jaco_inv, lheel_jaco_inv, rheel_jaco_inv;
     ltoe_jaco_inv = current_left_toe_jacobian_.inverse();
     rtoe_jaco_inv = current_right_toe_jacobian_.inverse();
@@ -10551,6 +10560,14 @@ void WalkingController::SettingVirtualJointLimit(){
     q_upper_min_(11) = -3.14; q_upper_max_(11) = 3.14;
     q_upper_min_(12) = -3.14; q_upper_max_(12) = 3.14;
     q_upper_min_(13) = -3.14; q_upper_max_(13) = 3.14;
+
+    /// for heel toe joint limit
+
+    q_leg_min_(3) = -40*DEG2RAD; q_leg_max_(3) = 25*DEG2RAD;
+    q_leg_min_(5) = -45*DEG2RAD; q_leg_max_(5) = -20*DEG2RAD;
+
+    q_leg_min_(9) = -25*DEG2RAD; q_leg_max_(9) = 40*DEG2RAD;
+    q_leg_min_(11) = 20*DEG2RAD; q_leg_max_(11) = 45*DEG2RAD;
 
 }
 void WalkingController::getToeHeelTrajectory(){
