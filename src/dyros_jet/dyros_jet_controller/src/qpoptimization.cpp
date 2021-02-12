@@ -469,7 +469,7 @@ void WalkingController::qpIK_pelvis_13(){
     }
 
     w2_13.setZero();
-    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square.transpose()/hz_*(-q_init_(0) + current_q_(0));
+    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square.transpose()/hz_*(-q_init_(0) + pre_q_d(0));
 
 
 
@@ -646,6 +646,8 @@ void WalkingController::qpIK_pelvis_13(){
     else {
         ub_13[0] = 0.1;
     }
+    lb_13[0] = pre_pel_yaw_(1);
+    ub_13[0] = pre_pel_yaw_(1);
 //    lb_13[12] = -5;
 //    ub_13[12] = 5;
     for(int i=0;i<25;i++){
@@ -7282,7 +7284,7 @@ void WalkingController::future_trajectory_update(int N_smpl,int interval){
         file[39]<<"\t"<<future_lfoot_trajectory_support_(i,2);
         file[40]<<"\t"<<future_rfoot_trajectory_support_(i,2);
         file[43]<<"\t"<<future_com_y_mpc_(i,0);
-        file[36]<<"\t"<<future_pel_yaw3_(i);
+        file[36]<<"\t"<<future_pel_yaw2_(i);
     }
     file[17]<<endl;
     file[23]<<endl;
@@ -7396,7 +7398,7 @@ void WalkingController::MPC_pel_yaw(){
 
     Eigen::MatrixXd  future_pel_err;
     future_pel_err.resize(N,1); future_pel_err.setZero();
-    future_pel_err = future_pel_yaw3_ - pel_yaw_model;
+    future_pel_err = future_pel_yaw2_ - pel_yaw_model;
 
     g_pel_ = -alpha_pel_*B_pel_.transpose()*future_pel_err;
 
@@ -7544,6 +7546,20 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
              if(walking_int< t_start_real_ +t_double1_){
                  future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
                  future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
+
+                 if(current_step_num_ == 0){
+                     future_pel_yaw2_(i) = 0;
+                 }
+                 else{
+                     if(foot_step_(current_step_num_,6) == 1)//left foot support
+                     {
+                         future_pel_yaw2_(i) = 10*DEG2RAD;
+                     }
+                     else{
+                         future_pel_yaw2_(i) = -10*DEG2RAD;
+                     }
+                 }
+
              }
              else if(walking_int >= t_start_real_+t_double1_ && walking_int < t_start_+t_total_-t_double2_-t_rest_last_)
              {
@@ -7556,9 +7572,17 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0) // the period for lifting the right foot
                      {
                          future_rfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,0,foot_height_,0.0,0.0);
+                         if(current_step_num_ == 0){
+                             future_pel_yaw2_(i) = 0;
+                         }
+                         else{
+                                 future_pel_yaw2_(i) = 10*DEG2RAD;
+                         }
                      }
                      else{
                          future_rfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,t_start_+t_total_-t_rest_last_-t_double2_,foot_height_,first_foot(2),0.0,0.0);
+
+                         future_pel_yaw2_(i) = -10*DEG2RAD;
                      }
                  }
                  else {//right foot support
@@ -7570,31 +7594,42 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0) // the period for lifting the right foot
                      {
                          future_lfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,0,foot_height_,0.0,0.0);
+                         if(current_step_num_ == 0){
+                             future_pel_yaw2_(i) = 0;
+                         }
+                         else{
+                                 future_pel_yaw2_(i) = -10*DEG2RAD;
+                         }
                      }
                      else{
                          future_lfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,t_start_+t_total_-t_rest_last_-t_double2_,foot_height_,first_foot(2),0.0,0.0);
+                         future_pel_yaw2_(i) = 10*DEG2RAD;
                      }
                  }
+//                 future_pel_yaw2_(i) =0;
 
              }
              else{
                  if(foot_step_(current_step_num_,6) ==1){//left foot support
                      future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
                      future_rfoot_trajectory_support_.row(i) = first_foot;
+
+                     future_pel_yaw2_(i) = -10*DEG2RAD;
                  }
                  else{
                      future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
                      future_lfoot_trajectory_support_.row(i) = first_foot;
+                     future_pel_yaw2_(i) = 10*DEG2RAD;
                  }
              }
 
-             if(foot_step_(current_step_num_,6) == 1)//left foot support
-             {
-                 future_pel_yaw2_(i) = -10*DEG2RAD;
-             }
-             else{
-                 future_pel_yaw2_(i) = 10*DEG2RAD;
-             }
+//             if(foot_step_(current_step_num_,6) == 1)//left foot support
+//             {
+//                 future_pel_yaw2_(i) = -10*DEG2RAD;
+//             }
+//             else{
+//                 future_pel_yaw2_(i) = 10*DEG2RAD;
+//             }
              if(walking_int <= 600)
                  future_pel_yaw2_(i) = 0;
          }
@@ -7609,12 +7644,14 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
 //                         future_rfoot_trajectory_support_.row(i) = foot_step_support_frame_.block<3,1>(current_step_num_,0);
                          future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
                          future_rfoot_trajectory_support_.row(i) = first_foot; //// real support foot
+
                      }
                      else{//right foot support
 //                         future_rfoot_trajectory_support_.row(i) = foot_step_support_frame_.block<3,1>(current_step_num_-1,0);
 //                         future_lfoot_trajectory_support_.row(i) = foot_step_support_frame_.block<3,1>(current_step_num_,0);
                          future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
                          future_lfoot_trajectory_support_.row(i) = first_foot; //// real support foot
+
                      }
 //                     future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
 //                     future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
@@ -7665,13 +7702,31 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                          future_rfoot_trajectory_support_.row(i) = second_foot;
                      }
                  }
-                 if(foot_step_(current_step_num_,6) == 1)//left foot support
-                 {
-                     future_pel_yaw2_(i) = 10*DEG2RAD;
+
+                 if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+                     if(foot_step_(current_step_num_,6) ==1){
+                         future_pel_yaw2_(i) = -10*DEG2RAD;
+                     }
+                     else{
+                         future_pel_yaw2_(i) = 10*DEG2RAD;
+                     }
+
                  }
                  else{
-                     future_pel_yaw2_(i) = -10*DEG2RAD;
+                     if(foot_step_(current_step_num_,6) ==1){
+                         future_pel_yaw2_(i) = 10*DEG2RAD;
+                     }
+                     else{
+                         future_pel_yaw2_(i) = -10*DEG2RAD;
+                     }
                  }
+//                 if(foot_step_(current_step_num_,6) == 1)//left foot support
+//                 {
+//                     future_pel_yaw2_(i) = 10*DEG2RAD;
+//                 }
+//                 else{
+//                     future_pel_yaw2_(i) = -10*DEG2RAD;
+//                 }
              }
              if(N_third_ != 0){
                  walking_int -= t_total_;
@@ -7730,21 +7785,40 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                              future_lfoot_trajectory_support_.row(i) = third_foot;
                          }
                      }
-                     if(foot_step_(current_step_num_,6) == 1)//left foot support
-                     {
-                         future_pel_yaw2_(i) = -10*DEG2RAD;
+
+                     if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+                         if(foot_step_(current_step_num_,6) ==1){
+                             future_pel_yaw2_(i) = +10*DEG2RAD;
+                         }
+                         else{
+                             future_pel_yaw2_(i) = -10*DEG2RAD;
+                         }
+
                      }
                      else{
-                         future_pel_yaw2_(i) = 10*DEG2RAD;
+                         if(foot_step_(current_step_num_,6) ==1){
+                             future_pel_yaw2_(i) = -10*DEG2RAD;
+                         }
+                         else{
+                             future_pel_yaw2_(i) = 10*DEG2RAD;
+                         }
                      }
+//                     if(foot_step_(current_step_num_,6) == 1)//left foot support
+//                     {
+//                         future_pel_yaw2_(i) = -10*DEG2RAD;
+//                     }
+//                     else{
+//                         future_pel_yaw2_(i) = 10*DEG2RAD;
+//                     }
                  }
              }
 
          }
      }
 
-    int check_t;
-//    check_t = N_first + N_second +N_third;
+
+
+     pre_future_pel_yaw2_ = future_pel_yaw2_(N_smpl-1);
 
     file[12]<<walking_tick_;//<<"\t"<<t_last_<<"\t"<<total_step_num_<<"\t"<<current_step_num_<<"\t"<<N_first<<"\t"<<N_second<<"\t"<<N_third<<"\t"<<endl;
     for(int i=0;i<N_smpl;i++){

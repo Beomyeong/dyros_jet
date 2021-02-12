@@ -1400,6 +1400,7 @@ private:
     Eigen::VectorXd     future_pel_yaw3_;
     Eigen::VectorXd     pre_future_pel_yaw3_;
     Eigen::VectorXd     future_pel_yaw2_;
+    double              pre_future_pel_yaw2_;
 
     int              N_first_;
     int              N_second_;
