@@ -832,6 +832,21 @@ static Eigen::Matrix6d floating_pelv_rotation_6_matrix(double virtual_joint){
 
     return result;
 }
+//static double pelvis_theta_cal(double a, double b, double c){
+//    double theta_output;
 
+//    double x, y;
+
+//    x = (-sqrt(-pow(a,2)*pow(b,2)+pow(b,4)+pow(b,2)*pow(c,2))-a*c)/(pow(b,2)+pow(c,2));
+//    y = (c*sqrt(-pow(b,2)*(pow(a,2)-pow(b,2)-pow(c,2)))/(pow(b,2) + pow(c,2)) + (a*pow(c,2))/(pow(b,2)+pow(c,2)) -a ) / ( b );
+
+
+//    theta_output = atan(y/x);
+
+//    std::cout<<" y : "<<y<<",  x  : "<<x<<", calcuated theta : "<<theta_output<<std::endl;
+//    return theta_output;
+
+//}
 }
+
 #endif

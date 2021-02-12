@@ -804,11 +804,11 @@ void WalkingController::Centroidal_Momentum_Matrix(){
 //    }
 //    file[36]<<endl;
 
-    if(walking_tick_ == 500){
-        for(int i=0;i<29;i++){
-            file[36]<<i<<"\t"<<Centroidal_Momentum_Matrix_[i](0)<<"\t"<<Centroidal_Momentum_Matrix_[i](1)<<"\t"<<Centroidal_Momentum_Matrix_[i](2)<<"\t"<<Centroidal_Momentum_Matrix_[i](3)<<"\t"<<Centroidal_Momentum_Matrix_[i](4)<<"\t"<<Centroidal_Momentum_Matrix_[i](5)<<endl;
-        }
-    }
+//    if(walking_tick_ == 500){
+//        for(int i=0;i<29;i++){
+//            file[36]<<i<<"\t"<<Centroidal_Momentum_Matrix_[i](0)<<"\t"<<Centroidal_Momentum_Matrix_[i](1)<<"\t"<<Centroidal_Momentum_Matrix_[i](2)<<"\t"<<Centroidal_Momentum_Matrix_[i](3)<<"\t"<<Centroidal_Momentum_Matrix_[i](4)<<"\t"<<Centroidal_Momentum_Matrix_[i](5)<<endl;
+//        }
+//    }
 
     Centroidal_Momentum_[28].setZero();
     for(int i=0;i<28;i++){
@@ -1114,15 +1114,15 @@ void WalkingController::Centroidal_Dynamics(){
 //    }
 
 
-    if(walking_tick_ == 0){
-        for(int i=0;i<29;i++){
-            file[29]<<i<<"\t"<<link_transform_[i].translation()(0)<<"\t"<<link_transform_[i].translation()(1)<<"\t"<<link_transform_[i].translation()(2)
-                   <<"\t"<<relative_link_distance_[i](0)<<"\t"<<relative_link_distance_[i](1)<<"\t"<<relative_link_distance_[i](2)<<endl;
-            file[28]<<i<<"\t"<<link_transform_[i].linear()(0,0)<<"\t"<<link_transform_[i].linear()(0,1)<<"\t"<<link_transform_[i].linear()(0,2)<<"\t"<<relative_link_rotation_[i](0,0)<<"\t"<<relative_link_rotation_[i](0,1)<<"\t"<<relative_link_rotation_[i](0,2)<<endl
-                   <<i<<"\t"<<link_transform_[i].linear()(1,0)<<"\t"<<link_transform_[i].linear()(1,1)<<"\t"<<link_transform_[i].linear()(1,2)<<"\t"<<relative_link_rotation_[i](1,0)<<"\t"<<relative_link_rotation_[i](1,1)<<"\t"<<relative_link_rotation_[i](1,2)<<endl
-                     <<i<<"\t"<<link_transform_[i].linear()(2,0)<<"\t"<<link_transform_[i].linear()(2,1)<<"\t"<<link_transform_[i].linear()(2,2)<<"\t"<<relative_link_rotation_[i](2,0)<<"\t"<<relative_link_rotation_[i](2,1)<<"\t"<<relative_link_rotation_[i](2,2)<<endl;
-        }
-    }
+//    if(walking_tick_ == 0){
+//        for(int i=0;i<29;i++){
+//            file[29]<<i<<"\t"<<link_transform_[i].translation()(0)<<"\t"<<link_transform_[i].translation()(1)<<"\t"<<link_transform_[i].translation()(2)
+//                   <<"\t"<<relative_link_distance_[i](0)<<"\t"<<relative_link_distance_[i](1)<<"\t"<<relative_link_distance_[i](2)<<endl;
+//            file[28]<<i<<"\t"<<link_transform_[i].linear()(0,0)<<"\t"<<link_transform_[i].linear()(0,1)<<"\t"<<link_transform_[i].linear()(0,2)<<"\t"<<relative_link_rotation_[i](0,0)<<"\t"<<relative_link_rotation_[i](0,1)<<"\t"<<relative_link_rotation_[i](0,2)<<endl
+//                   <<i<<"\t"<<link_transform_[i].linear()(1,0)<<"\t"<<link_transform_[i].linear()(1,1)<<"\t"<<link_transform_[i].linear()(1,2)<<"\t"<<relative_link_rotation_[i](1,0)<<"\t"<<relative_link_rotation_[i](1,1)<<"\t"<<relative_link_rotation_[i](1,2)<<endl
+//                     <<i<<"\t"<<link_transform_[i].linear()(2,0)<<"\t"<<link_transform_[i].linear()(2,1)<<"\t"<<link_transform_[i].linear()(2,2)<<"\t"<<relative_link_rotation_[i](2,0)<<"\t"<<relative_link_rotation_[i](2,1)<<"\t"<<relative_link_rotation_[i](2,2)<<endl;
+//        }
+//    }
 
 
 

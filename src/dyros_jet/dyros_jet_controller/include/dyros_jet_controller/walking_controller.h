@@ -51,7 +51,7 @@ using namespace dyros_jet_controller;
 
 #define DEGREE	(0.01745329251994329576923690768489)
 
-const int FILE_CNT =  37 ;
+const int FILE_CNT =  44 ;
 
 const std::string FILE_NAMES[FILE_CNT] =
 {
@@ -74,26 +74,33 @@ const std::string FILE_NAMES[FILE_CNT] =
   "/home/beom/data/walking/14_cubiczmppattern_.txt",
   "/home/beom/data/walking/15_mpc_com_.txt",
   "/home/beom/data/walking/16_h_matrix.txt",
-  "/home/beom/data/walking/17_constarint.txt",
+  "/home/beom/data/walking/17_future_pel_yaw.txt",
   "/home/beom/data/walking/18_A_eq.txt",
   "/home/beom/data/walking/19_b_eq.txt",
   "/home/beom/data/walking/20_ZMP_of_MPC.txt",
   "/home/beom/data/walking/21_q_dot.txt",
   "/home/beom/data/walking/22_c_temp.txt",
-  "/home/beom/data/walking/23_selec_s.txt",
-  "/home/beom/data/walking/24_pumatrix.txt",
-  "/home/beom/data/walking/25_com_x.txt",
+  "/home/beom/data/walking/23_future_comx.txt",
+  "/home/beom/data/walking/24_future_l_xfoot_.txt",
+  "/home/beom/data/walking/25_future_r_xfoot.txt",
   "/home/beom/data/walking/26_support_polygon.txt",
   "/home/beom/data/walking/27_com after.txt",
   "/home/beom/data/walking/28_foot_step.txt",
-  "/home/beom/data/walking/29_foot_step_support.txt",
+  "/home/beom/data/walking/29_future_comy.txt",
   "/home/beom/data/walking/30_zmp_calculated_zmp_measured.txt",
   "/home/beom/data/walking/31_comdesired.txt",
   "/home/beom/data/walking/32_footori.txt",
   "/home/beom/data/walking/33_zmp_.txt",
   "/home/beom/data/walking/34_torque_.txt",
   "/home/beom/data/walking/35_zmp_swing_leg_.txt",
-  "/home/beom/data/walking/36_com_swing_leg_.txt"
+  "/home/beom/data/walking/36_com_swing_leg_.txt",
+  "/home/beom/data/walking/37_future_l_yfoot_.txt",
+  "/home/beom/data/walking/38_future_r_yfoot_.txt",
+  "/home/beom/data/walking/39_future_l_zfoot_.txt",
+  "/home/beom/data/walking/40_future_r_zfoot_.txt",
+  "/home/beom/data/walking/41_future_comz_.txt",
+  "/home/beom/data/walking/42_mpc_com_y.txt",
+  "/home/beom/data/walking/43_future_mpc_com_y.txt"
 
 
 };
@@ -410,7 +417,21 @@ public:
   void CalculateCenterOfMassSupportBody();
 
   void SupportfootComUpdate();
+  void FutureFoottrajectory(int N_smpl, int T_int);
+  void FuturePelv_theta_update(int N_smpl, Eigen::VectorXd& future_pelvis_yaw);
+  void FuturePelv_theta_update1(int N_smpl, Eigen::VectorXd& future_pelvis_yaw);
+  void future_L_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);  
+  void future_R_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);
+  void future_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);
   void qp31();
+  void MPC_pel_yaw();
+  void get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, double dt, int interval);
+  double pelvis_theta_cal(double a, double b, double c);
+
+  void MPC_com();
+  void MPC_Matrix_Update(int sampling_n, double dt, int interval);
+  void future_trajectory_update(int N_smpl,int interval);
+
 
 private:
 
@@ -1046,6 +1067,8 @@ private:
   Eigen::MatrixXd Selec_delta_a_reduced_;
   Eigen::MatrixXd B_ai_reduced_;
   Eigen::MatrixXd A_ai_reduced_;
+  Eigen::MatrixXd PA_reduced_;
+  Eigen::MatrixXd PB_reduced_;
 
   Eigen::MatrixXd Av_variance_;
   Eigen::MatrixXd bv_variance_;
@@ -1333,6 +1356,55 @@ private:
     Eigen::Isometry3d   floating_support_current_;
     Eigen::Isometry3d   floating_trajectory_support_;
 
+    Eigen::MatrixXd     future_lfoot_trajectory_support_;
+    Eigen::MatrixXd     future_rfoot_trajectory_support_;
+
+    Eigen::MatrixXd     future_com_;
+    Eigen::MatrixXd     future_lhip_;
+    Eigen::MatrixXd     future_rhip_;
+    Eigen::VectorXd     future_pel_yaw_;
+
+    Eigen::Matrix2d     a_pel_;
+    Eigen::Vector2d     b_pel_;
+
+    Eigen::MatrixXd     A_pel_;
+    Eigen::MatrixXd     B_pel_;
+
+    Eigen::MatrixXd     Q_pel_;
+    Eigen::VectorXd     g_pel_;
+
+    double              alpha_pel_;
+    double              beta_pel_;
+
+    Eigen::Vector2d     pre_pel_yaw_;
+
+    Eigen::MatrixXd     Qu_inverse_;
+
+    Eigen::Matrix3d     a_mpc_;
+    Eigen::Vector3d     b_mpc_;
+
+    Eigen::MatrixXd     Px_mpc_;
+    Eigen::MatrixXd     Pu_mpc_;
+
+    Eigen::MatrixXd     Pzx_mpc_;
+    Eigen::MatrixXd     Pzu_mpc_;
+
+    Eigen::MatrixXd     Q_mpc_;
+
+    Eigen::Vector3d     pre_mpc_x_;
+    Eigen::Vector3d     pre_mpc_y_;
+    Eigen::Vector3d     mpc_x_;
+    Eigen::Vector3d     mpc_y_;
+    Eigen::MatrixXd     future_com_y_mpc_;
+    Eigen::MatrixXd     future_com_x_mpc_;
+    Eigen::VectorXd     future_pel_yaw3_;
+    Eigen::VectorXd     pre_future_pel_yaw3_;
+    Eigen::VectorXd     future_pel_yaw2_;
+
+    int              N_first_;
+    int              N_second_;
+    int              N_third_;
+    int              N_total_;
 
 };
 
