@@ -418,19 +418,19 @@ public:
 
   void SupportfootComUpdate();
   void FutureFoottrajectory(int N_smpl, int T_int);
-  void FuturePelv_theta_update(int N_smpl, Eigen::VectorXd& future_pelvis_yaw);
-  void FuturePelv_theta_update1(int N_smpl, Eigen::VectorXd& future_pelvis_yaw);
-  void future_L_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);  
-  void future_R_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);
-  void future_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw);
+
+
   void qp31();
   void MPC_pel_yaw();
   void get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, double dt, int interval);
-  double pelvis_theta_cal(double a, double b, double c);
+
 
   void MPC_com();
   void MPC_Matrix_Update(int sampling_n, double dt, int interval);
   void future_trajectory_update(int N_smpl,int interval);
+  void FutureSingularityCheck(int N_smpl, int interval);
+  void FuturePelYawReference();
+  void CalculateFuturePelAngle();
 
 
 private:
@@ -1378,6 +1378,7 @@ private:
 
     Eigen::Vector2d     pre_pel_yaw_;
 
+    ///////// COM generator with MPC revision //////////////
     Eigen::MatrixXd     Qu_inverse_;
 
     Eigen::Matrix3d     a_mpc_;
@@ -1386,10 +1387,18 @@ private:
     Eigen::MatrixXd     Px_mpc_;
     Eigen::MatrixXd     Pu_mpc_;
 
+    Eigen::MatrixXd     Pax_mpc_;
+    Eigen::MatrixXd     Pau_mpc_;
+
     Eigen::MatrixXd     Pzx_mpc_;
     Eigen::MatrixXd     Pzu_mpc_;
 
-    Eigen::MatrixXd     Q_mpc_;
+    Eigen::MatrixXd     Qx_mpc_;
+    Eigen::MatrixXd     Qy_mpc_;
+
+    double              alpha_mpc_;
+    double              beta_mpc_;
+    double              gamma_mpc_;
 
     Eigen::Vector3d     pre_mpc_x_;
     Eigen::Vector3d     pre_mpc_y_;
@@ -1400,12 +1409,24 @@ private:
     Eigen::VectorXd     future_pel_yaw3_;
     Eigen::VectorXd     pre_future_pel_yaw3_;
     Eigen::VectorXd     future_pel_yaw2_;
-    double              pre_future_pel_yaw2_;
 
-    int              N_first_;
-    int              N_second_;
-    int              N_third_;
-    int              N_total_;
+    double              pre_future_pel_yaw2_;
+    double              pre_future_pel_ref_;
+
+    int                 N_first_;
+    int                 N_second_;
+    int                 N_third_;
+    int                 N_total_;
+    bool                future_singular_;
+
+    int                 N_;
+    int                 interval_;
+
+    double              first_pel_yaw_ref_;
+    double              second_pel_yaw_ref_;
+    double              third_pel_yaw_ref_;
+
+    Eigen::VectorXd     future_pel_yaw_ref_;
 
 };
 

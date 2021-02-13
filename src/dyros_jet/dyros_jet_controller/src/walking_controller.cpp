@@ -90,6 +90,9 @@ void WalkingController::compute()
                     MPC_com();
                     t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
+
+                        FuturePelYawReference();
+                        MPC_pel_yaw();
                     file[20]<<"\t"<<t_2.count();
 //            }
 //            else if(ik_mode_ !=2 || current_step_num_ == total_step_num_-1){

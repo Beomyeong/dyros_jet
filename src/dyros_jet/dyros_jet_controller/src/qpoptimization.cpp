@@ -548,9 +548,9 @@ void WalkingController::qpIK_pelvis_13(){
         }
     }
 
-    if(walking_tick_ == t_start_){
-        cout<<" floating joint min : "<<floating_joint_limit_min<<"\t"<< "floating joint max : "<<floating_joint_limit_max<<endl;
-    }
+//    if(walking_tick_ == t_start_){
+//        cout<<" floating joint min : "<<floating_joint_limit_min<<"\t"<< "floating joint max : "<<floating_joint_limit_max<<endl;
+//    }
 
 
 //    floating_joint_limit_max = 20*DEG2RAD;
@@ -709,7 +709,7 @@ void WalkingController::qpIK_pelvis_13(){
        desired_q_(i) = xOpt[i]/hz_ + desired_q_not_compensated_(i);
    }
 
-   file[12]<<walking_tick_<<"\t"<<foot_step_(current_step_num_,6)<<"\t"<<x_stride<<"\t"<<y_stride<<"\t"<<floating_joint_limit_min<<"\t"<<floating_joint_limit_max<<"\t"<<floating_joint_<<endl;
+//   file[12]<<walking_tick_<<"\t"<<foot_step_(current_step_num_,6)<<"\t"<<x_stride<<"\t"<<y_stride<<"\t"<<floating_joint_limit_min<<"\t"<<floating_joint_limit_max<<"\t"<<floating_joint_<<endl;
 
    pre_floating_joint_ = floating_joint_;
 
@@ -5732,14 +5732,14 @@ void WalkingController::SupportFootReference(Eigen::VectorXd& support_x, Eigen::
         }
     }
 
-    file[12]<<walking_tick_;
-    for(int i=0;i<N;i++)
-        file[12]<<"\t"<<support_x(i);
-    file[12]<<endl;
-    file[12]<<walking_tick_;
-    for(int i=0;i<N;i++)
-        file[12]<<"\t"<<support_y(i);
-    file[12]<<endl;
+//    file[12]<<walking_tick_;
+//    for(int i=0;i<N;i++)
+//        file[12]<<"\t"<<support_x(i);
+//    file[12]<<endl;
+//    file[12]<<walking_tick_;
+//    for(int i=0;i<N;i++)
+//        file[12]<<"\t"<<support_y(i);
+//    file[12]<<endl;
 
 //    file[12]<<walking_tick_<<"\t"<<num_current_foot<<"\t"<<num_next_foot<<"\t"<<num_last_foot<<endl;
 }
@@ -6968,6 +6968,8 @@ void WalkingController::MPC_com(){
     int interval = NL/N;
 
     if(walking_tick_ == 0){
+        N_ = N;
+        interval_ = interval;
         MPC_Matrix_Update(N,dt,interval);
     }
 
@@ -7008,11 +7010,12 @@ void WalkingController::MPC_com(){
         y_0 = pre_mpc_y_;
     }
 
-    Eigen::VectorXd     future_y, future_x;
-    future_y.resize(N); future_x.resize(N);
+    Eigen::VectorXd     future_y, future_x, future_ax;
+    future_y.resize(N); future_x.resize(N); future_ax.resize(N);
 
     future_x = Pzx_mpc_*x_0;
     future_y = Pzx_mpc_*y_0;
+    future_ax = Pax_mpc_*x_0;
 
     Eigen::VectorXd    zmp_y_err, zmp_x_err;
     zmp_x_err.resize(N); zmp_x_err.setZero();
@@ -7025,9 +7028,9 @@ void WalkingController::MPC_com(){
     gx_input(N); gx_input.setZero();
     gy_input(N); gy_input.setZero();
 
-    double alpha = 1;
-    gx_input = -alpha*Pzu_mpc_.transpose()*zmp_x_err;
-    gy_input = -alpha*Pzu_mpc_.transpose()*zmp_y_err;
+
+    gx_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_x_err + gamma_mpc_*dt*dt*Pau_mpc_.transpose()*future_ax;
+    gy_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_y_err;
 
     Eigen::VectorXd     zmp_x_min, zmp_x_max, zmp_y_min, zmp_y_max;
     zmp_x_min.resize(N); zmp_x_min.setZero();
@@ -7048,21 +7051,21 @@ void WalkingController::MPC_com(){
     zmp_y_min = zmp_y_ref - zmp_y_margin;
     zmp_y_max = zmp_y_ref + zmp_y_margin;
 
-    file[21]<<walking_tick_;
-    for(int i=0;i<N;i++){
-        file[21]<<"\t"<<zmp_x_ref(i);
-    }
-    file[21]<<endl;
-    file[21]<<walking_tick_;
-    for(int i=0;i<N;i++){
-        file[21]<<"\t"<<zmp_x_min(i);
-    }
-    file[21]<<endl;
-    file[21]<<walking_tick_;
-    for(int i=0;i<N;i++){
-        file[21]<<"\t"<<zmp_x_max(i);
-    }
-    file[21]<<endl;
+    //    file[21]<<walking_tick_;
+    //    for(int i=0;i<N;i++){
+    //        file[21]<<"\t"<<zmp_x_ref(i);
+    //    }
+    //    file[21]<<endl;
+    //    file[21]<<walking_tick_;
+    //    for(int i=0;i<N;i++){
+    //        file[21]<<"\t"<<zmp_x_min(i);
+    //    }
+    //    file[21]<<endl;
+    //    file[21]<<walking_tick_;
+    //    for(int i=0;i<N;i++){
+    //        file[21]<<"\t"<<zmp_x_max(i);
+    //    }
+    //    file[21]<<endl;
 
     Eigen::VectorXd    zmp_x_max_err, zmp_x_min_err, zmp_y_max_err, zmp_y_min_err;
     zmp_x_max_err.resize(N); zmp_x_max_err.setZero();
@@ -7080,10 +7083,10 @@ void WalkingController::MPC_com(){
 
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
-            Qx_mpc[N*j + i] = Q_mpc_(i,j);
+            Qx_mpc[N*j + i] = Qx_mpc_(i,j);
             Ax_mpc[N*j + i] = Pzu_mpc_(i,j);
 
-            Qy_mpc[N*j + i] = Q_mpc_(i,j);
+            Qy_mpc[N*j + i] = Qy_mpc_(i,j);
             Ay_mpc[N*j + i] = Pzu_mpc_(i,j);
         }
 
@@ -7200,7 +7203,10 @@ void WalkingController::MPC_com(){
         future_com_y_mpc_(i) = future_com_y(3*i,0);
     }
 
-    future_trajectory_update(N,interval);
+//    if(walking_tick_ == t_start_ ||walking_tick_ == 0)
+//        FutureSingularityCheck(N,interval);
+
+//        future_trajectory_update(N,interval);
 
     file[42]<<walking_tick_<<"\t"<<pre_mpc_x_(0)<<"\t"<<pre_mpc_x_(1)<<"\t"<<pre_mpc_x_(2)<<"\t"<<pre_mpc_y_(0)<<"\t"<<pre_mpc_y_(1)<<"\t"<<pre_mpc_y_(2);
     for(int i=0;i<N;i++){
@@ -7211,97 +7217,97 @@ void WalkingController::MPC_com(){
 }
 void WalkingController::future_trajectory_update(int N_smpl,int interval){
 
-    FutureFoottrajectory(N_smpl,interval);
+//    FutureFoottrajectory(N_smpl,interval);
 
-    if(walking_tick_ == 0){
-        future_com_.resize(N_smpl,3); future_lhip_.resize(N_smpl,3); future_rhip_.resize(N_smpl,3);
-        future_com_.setZero(); future_lhip_.setZero(); future_rhip_.setZero();
-        future_pel_yaw_.resize(N_smpl); future_pel_yaw_.setZero();
-    }
+//    if(walking_tick_ == 0){
+//        future_com_.resize(N_smpl,3); future_lhip_.resize(N_smpl,3); future_rhip_.resize(N_smpl,3);
+//        future_com_.setZero(); future_lhip_.setZero(); future_rhip_.setZero();
+//        future_pel_yaw_.resize(N_smpl); future_pel_yaw_.setZero();
+//    }
 
-    for(int i=0;i<N_smpl;i++){
-        future_com_(i,0) = future_com_x_mpc_(i);
-        future_com_(i,1) = future_com_y_mpc_(i);
-        future_com_(i,2) = com_desired_(2)-0.1119;
+//    for(int i=0;i<N_smpl;i++){
+//        future_com_(i,0) = future_com_x_mpc_(i);
+//        future_com_(i,1) = future_com_y_mpc_(i);
+//        future_com_(i,2) = com_desired_(2)-0.1119;
 
-//                        future_lhip_(i,1) = future_com_y(3*i,0) + 0.105;
-//                        future_rhip_(i,1) = future_com_y(3*i,0) - 0.105;
+////                        future_lhip_(i,1) = future_com_y(3*i,0) + 0.105;
+////                        future_rhip_(i,1) = future_com_y(3*i,0) - 0.105;
 
-//                        future_com_(i,1) = future_com_y_mpc_(i,0);
+////                        future_com_(i,1) = future_com_y_mpc_(i,0);
 
-        future_lhip_(i,1) = future_com_(i,1) + 0.105;
-        future_rhip_(i,1) = future_com_(i,1) - 00.105;
-    }
-
-
-    future_lhip_.col(0) = future_com_.col(0);
-    future_rhip_.col(0) = future_com_.col(0);
-
-    future_lhip_.col(2) = future_com_.col(2);
-    future_rhip_.col(2) = future_com_.col(2);
-
-//                    Eigen::MatrixXd future_lhip_lankle, future_rhip_rankle;
-//                    future_lhip_lankle.resize(N,3); future_rhip_rankle.resize(N,3);
-
-//                    future_lhip_lankle = future_lfoot_trajectory_support_ - future_com_lhip;
-//                    future_rhip_rankle = future_rfoot_trajectory_support_ - future_com_rhip;
-
-//                    file[17]<<walking_tick_;
-//                    file[18]<<walking_tick_;
-
-//                    for(int i=0;i<N;i++){
-//                        file[17]<<"\t"<<future_lhip_lankle.row(i).norm();
-//                        file[18]<<"\t"<<future_rhip_rankle.row(i).norm();
-//                    }
-//                    file[17]<<endl;
-//                    file[18]<<endl;
-
-//                    if(current_step_num_ == 3 or current_step_num_ == 4)
-            FuturePelv_theta_update(N_smpl,future_pel_yaw_);
-            FuturePelv_theta_update1(N_smpl,future_pel_yaw3_);
-
-    file[17]<<walking_tick_;
-    file[23]<<walking_tick_;
-    file[24]<<walking_tick_;
-    file[25]<<walking_tick_;
-    file[29]<<walking_tick_;
-    file[37]<<walking_tick_;
-    file[38]<<walking_tick_;
-    file[39]<<walking_tick_;
-    file[40]<<walking_tick_;
-    file[41]<<walking_tick_;
-    file[43]<<walking_tick_;
-    file[36]<<walking_tick_;
-    for(int i=0;i<N_smpl;i++){
-        file[17]<<"\t"<<future_pel_yaw_(i);
-        file[23]<<"\t"<<future_com_(i,0);
-        file[29]<<"\t"<<future_com_(i,1);
-        file[41]<<"\t"<<future_com_(i,2);
-        file[24]<<"\t"<<future_lfoot_trajectory_support_(i,0);
-        file[25]<<"\t"<<future_rfoot_trajectory_support_(i,0);
-        file[37]<<"\t"<<future_lfoot_trajectory_support_(i,1);
-        file[38]<<"\t"<<future_rfoot_trajectory_support_(i,1);
-        file[39]<<"\t"<<future_lfoot_trajectory_support_(i,2);
-        file[40]<<"\t"<<future_rfoot_trajectory_support_(i,2);
-        file[43]<<"\t"<<future_com_y_mpc_(i,0);
-        file[36]<<"\t"<<future_pel_yaw2_(i);
-    }
-    file[17]<<endl;
-    file[23]<<endl;
-    file[29]<<endl;
-    file[24]<<endl;
-    file[25]<<endl;
-    file[37]<<endl;
-    file[38]<<endl;
-    file[39]<<endl;
-    file[40]<<endl;
-    file[41]<<endl;
-    file[43]<<endl;
-    file[36]<<endl;
+//        future_lhip_(i,1) = future_com_(i,1) + 0.105;
+//        future_rhip_(i,1) = future_com_(i,1) - 00.105;
+//    }
 
 
+//    future_lhip_.col(0) = future_com_.col(0);
+//    future_rhip_.col(0) = future_com_.col(0);
 
-    MPC_pel_yaw();
+//    future_lhip_.col(2) = future_com_.col(2);
+//    future_rhip_.col(2) = future_com_.col(2);
+
+////                    Eigen::MatrixXd future_lhip_lankle, future_rhip_rankle;
+////                    future_lhip_lankle.resize(N,3); future_rhip_rankle.resize(N,3);
+
+////                    future_lhip_lankle = future_lfoot_trajectory_support_ - future_com_lhip;
+////                    future_rhip_rankle = future_rfoot_trajectory_support_ - future_com_rhip;
+
+////                    file[17]<<walking_tick_;
+////                    file[18]<<walking_tick_;
+
+////                    for(int i=0;i<N;i++){
+////                        file[17]<<"\t"<<future_lhip_lankle.row(i).norm();
+////                        file[18]<<"\t"<<future_rhip_rankle.row(i).norm();
+////                    }
+////                    file[17]<<endl;
+////                    file[18]<<endl;
+
+////                    if(current_step_num_ == 3 or current_step_num_ == 4)
+//            FuturePelv_theta_update(N_smpl,future_pel_yaw_);
+//            FuturePelv_theta_update1(N_smpl,future_pel_yaw3_);
+
+//    file[17]<<walking_tick_;
+//    file[23]<<walking_tick_;
+//    file[24]<<walking_tick_;
+//    file[25]<<walking_tick_;
+//    file[29]<<walking_tick_;
+//    file[37]<<walking_tick_;
+//    file[38]<<walking_tick_;
+//    file[39]<<walking_tick_;
+//    file[40]<<walking_tick_;
+//    file[41]<<walking_tick_;
+//    file[43]<<walking_tick_;
+//    file[36]<<walking_tick_;
+//    for(int i=0;i<N_smpl;i++){
+//        file[17]<<"\t"<<future_pel_yaw_(i);
+//        file[23]<<"\t"<<future_com_(i,0);
+//        file[29]<<"\t"<<future_com_(i,1);
+//        file[41]<<"\t"<<future_com_(i,2);
+//        file[24]<<"\t"<<future_lfoot_trajectory_support_(i,0);
+//        file[25]<<"\t"<<future_rfoot_trajectory_support_(i,0);
+//        file[37]<<"\t"<<future_lfoot_trajectory_support_(i,1);
+//        file[38]<<"\t"<<future_rfoot_trajectory_support_(i,1);
+//        file[39]<<"\t"<<future_lfoot_trajectory_support_(i,2);
+//        file[40]<<"\t"<<future_rfoot_trajectory_support_(i,2);
+//        file[43]<<"\t"<<future_com_y_mpc_(i,0);
+//        file[36]<<"\t"<<future_pel_yaw2_(i);
+//    }
+//    file[17]<<endl;
+//    file[23]<<endl;
+//    file[29]<<endl;
+//    file[24]<<endl;
+//    file[25]<<endl;
+//    file[37]<<endl;
+//    file[38]<<endl;
+//    file[39]<<endl;
+//    file[40]<<endl;
+//    file[41]<<endl;
+//    file[43]<<endl;
+//    file[36]<<endl;
+
+
+
+//    MPC_pel_yaw();
 
 
 }
@@ -7350,24 +7356,42 @@ void WalkingController::MPC_Matrix_Update(int sampling_n, double dt, int interva
         }
     }
 
-    cout<<"px_mpc"<<endl<<Px_mpc_<<endl;
-    cout<<"pu_mpc"<<endl<<Pu_mpc_<<endl;
-    cout<<"pzx_mpc"<<endl<<Pzx_mpc_<<endl;
-    cout<<"pzu_mpc"<<endl<<Pzu_mpc_<<endl;
+//    cout<<"px_mpc"<<endl<<Px_mpc_<<endl;
+//    cout<<"pu_mpc"<<endl<<Pu_mpc_<<endl;
+//    cout<<"pzx_mpc"<<endl<<Pzx_mpc_<<endl;
+//    cout<<"pzu_mpc"<<endl<<Pzu_mpc_<<endl;
 
+    Pax_mpc_.resize(sampling_n,3); Pax_mpc_.setZero();
+    Pau_mpc_.resize(sampling_n,sampling_n); Pau_mpc_.setZero();
+
+    for(int i =0;i<sampling_n;i++){
+        Pax_mpc_.row(i) = Px_mpc_.row(3*i+2);
+        Pau_mpc_.row(i) = Pu_mpc_.row(3*i+2);
+    }
+
+//    cout<<"Pax matrix : "<<endl<<Pax_mpc_<<endl;
+//    cout<<"Pau matrix : "<<endl<<Pau_mpc_<<endl;
 
     Eigen::MatrixXd pu_t_pu;
     pu_t_pu.resize(sampling_n,sampling_n); pu_t_pu.setZero();
 
     pu_t_pu = Pzu_mpc_.transpose()*Pzu_mpc_;
 
+    Eigen::MatrixXd pau_t_pau;
+    pau_t_pau.resize(sampling_n,sampling_n); pau_t_pau.setZero();
+
+    pau_t_pau = Pau_mpc_.transpose()*Pau_mpc_;
+
     Eigen::MatrixXd Iden_sampling_n;
     Iden_sampling_n.resize(sampling_n,sampling_n); Iden_sampling_n.setIdentity();
 
-    double alpha = 1.0; double beta = 0.000001;
-    Q_mpc_.resize(sampling_n,sampling_n); Q_mpc_.setZero();
+    alpha_mpc_ = 1.0; beta_mpc_ = 0.000001; gamma_mpc_ = 0.001;
+    Qx_mpc_.resize(sampling_n,sampling_n); Qx_mpc_.setZero();
+    Qy_mpc_.resize(sampling_n,sampling_n); Qy_mpc_.setZero();
 
-    Q_mpc_ = alpha*pu_t_pu + beta*Iden_sampling_n;
+    Qx_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n + gamma_mpc_*pau_t_pau*dt*dt;
+
+    Qy_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n;
 
 
 }
@@ -7398,7 +7422,7 @@ void WalkingController::MPC_pel_yaw(){
 
     Eigen::MatrixXd  future_pel_err;
     future_pel_err.resize(N,1); future_pel_err.setZero();
-    future_pel_err = future_pel_yaw2_ - pel_yaw_model;
+    future_pel_err = future_pel_yaw_ref_ - pel_yaw_model;
 
     g_pel_ = -alpha_pel_*B_pel_.transpose()*future_pel_err;
 
@@ -7547,18 +7571,18 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                  future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
                  future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
 
-                 if(current_step_num_ == 0){
-                     future_pel_yaw2_(i) = 0;
-                 }
-                 else{
-                     if(foot_step_(current_step_num_,6) == 1)//left foot support
-                     {
-                         future_pel_yaw2_(i) = 10*DEG2RAD;
-                     }
-                     else{
-                         future_pel_yaw2_(i) = -10*DEG2RAD;
-                     }
-                 }
+//                 if(current_step_num_ == 0){
+//                     future_pel_yaw2_(i) = 0;
+//                 }
+//                 else{
+////                     if(foot_step_(current_step_num_,6) == 1)//left foot support
+////                     {
+////                         future_pel_yaw2_(i) = 10*DEG2RAD;
+////                     }
+////                     else{
+////                         future_pel_yaw2_(i) = -10*DEG2RAD;
+////                     }
+//                 }
 
              }
              else if(walking_int >= t_start_real_+t_double1_ && walking_int < t_start_+t_total_-t_double2_-t_rest_last_)
@@ -7572,17 +7596,17 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0) // the period for lifting the right foot
                      {
                          future_rfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,0,foot_height_,0.0,0.0);
-                         if(current_step_num_ == 0){
-                             future_pel_yaw2_(i) = 0;
-                         }
-                         else{
-                                 future_pel_yaw2_(i) = 10*DEG2RAD;
-                         }
+//                         if(current_step_num_ == 0){
+//                             future_pel_yaw2_(i) = 0;
+//                         }
+//                         else{
+//                                 future_pel_yaw2_(i) = 10*DEG2RAD;
+//                         }
                      }
                      else{
                          future_rfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,t_start_+t_total_-t_rest_last_-t_double2_,foot_height_,first_foot(2),0.0,0.0);
 
-                         future_pel_yaw2_(i) = -10*DEG2RAD;
+//                         future_pel_yaw2_(i) = -10*DEG2RAD;
                      }
                  }
                  else {//right foot support
@@ -7594,16 +7618,16 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0) // the period for lifting the right foot
                      {
                          future_lfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,0,foot_height_,0.0,0.0);
-                         if(current_step_num_ == 0){
-                             future_pel_yaw2_(i) = 0;
-                         }
-                         else{
-                                 future_pel_yaw2_(i) = -10*DEG2RAD;
-                         }
+//                         if(current_step_num_ == 0){
+//                             future_pel_yaw2_(i) = 0;
+//                         }
+//                         else{
+//                                 future_pel_yaw2_(i) = -10*DEG2RAD;
+//                         }
                      }
                      else{
                          future_lfoot_trajectory_support_(i,2) = DyrosMath::cubic(walking_int,t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0,t_start_+t_total_-t_rest_last_-t_double2_,foot_height_,first_foot(2),0.0,0.0);
-                         future_pel_yaw2_(i) = 10*DEG2RAD;
+//                         future_pel_yaw2_(i) = 10*DEG2RAD;
                      }
                  }
 //                 future_pel_yaw2_(i) =0;
@@ -7614,12 +7638,12 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      future_lfoot_trajectory_support_.row(i) = lfoot_support_init_.translation();
                      future_rfoot_trajectory_support_.row(i) = first_foot;
 
-                     future_pel_yaw2_(i) = -10*DEG2RAD;
+//                     future_pel_yaw2_(i) = -10*DEG2RAD;
                  }
                  else{
                      future_rfoot_trajectory_support_.row(i) = rfoot_support_init_.translation();
                      future_lfoot_trajectory_support_.row(i) = first_foot;
-                     future_pel_yaw2_(i) = 10*DEG2RAD;
+//                     future_pel_yaw2_(i) = 10*DEG2RAD;
                  }
              }
 
@@ -7703,23 +7727,23 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                      }
                  }
 
-                 if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
-                     if(foot_step_(current_step_num_,6) ==1){
-                         future_pel_yaw2_(i) = -10*DEG2RAD;
-                     }
-                     else{
-                         future_pel_yaw2_(i) = 10*DEG2RAD;
-                     }
+//                 if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+//                     if(foot_step_(current_step_num_,6) ==1){
+//                         future_pel_yaw2_(i) = -10*DEG2RAD;
+//                     }
+//                     else{
+//                         future_pel_yaw2_(i) = 10*DEG2RAD;
+//                     }
 
-                 }
-                 else{
-                     if(foot_step_(current_step_num_,6) ==1){
-                         future_pel_yaw2_(i) = 10*DEG2RAD;
-                     }
-                     else{
-                         future_pel_yaw2_(i) = -10*DEG2RAD;
-                     }
-                 }
+//                 }
+//                 else{
+//                     if(foot_step_(current_step_num_,6) ==1){
+//                         future_pel_yaw2_(i) = 10*DEG2RAD;
+//                     }
+//                     else{
+//                         future_pel_yaw2_(i) = -10*DEG2RAD;
+//                     }
+//                 }
 //                 if(foot_step_(current_step_num_,6) == 1)//left foot support
 //                 {
 //                     future_pel_yaw2_(i) = 10*DEG2RAD;
@@ -7786,23 +7810,23 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
                          }
                      }
 
-                     if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
-                         if(foot_step_(current_step_num_,6) ==1){
-                             future_pel_yaw2_(i) = +10*DEG2RAD;
-                         }
-                         else{
-                             future_pel_yaw2_(i) = -10*DEG2RAD;
-                         }
+//                     if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+//                         if(foot_step_(current_step_num_,6) ==1){
+//                             future_pel_yaw2_(i) = +10*DEG2RAD;
+//                         }
+//                         else{
+//                             future_pel_yaw2_(i) = -10*DEG2RAD;
+//                         }
 
-                     }
-                     else{
-                         if(foot_step_(current_step_num_,6) ==1){
-                             future_pel_yaw2_(i) = -10*DEG2RAD;
-                         }
-                         else{
-                             future_pel_yaw2_(i) = 10*DEG2RAD;
-                         }
-                     }
+//                     }
+//                     else{
+//                         if(foot_step_(current_step_num_,6) ==1){
+//                             future_pel_yaw2_(i) = -10*DEG2RAD;
+//                         }
+//                         else{
+//                             future_pel_yaw2_(i) = 10*DEG2RAD;
+//                         }
+//                     }
 //                     if(foot_step_(current_step_num_,6) == 1)//left foot support
 //                     {
 //                         future_pel_yaw2_(i) = -10*DEG2RAD;
@@ -7818,13 +7842,13 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
 
 
 
-     pre_future_pel_yaw2_ = future_pel_yaw2_(N_smpl-1);
+//     pre_future_pel_yaw2_ = future_pel_yaw2_(N_smpl-1);
 
-    file[12]<<walking_tick_;//<<"\t"<<t_last_<<"\t"<<total_step_num_<<"\t"<<current_step_num_<<"\t"<<N_first<<"\t"<<N_second<<"\t"<<N_third<<"\t"<<endl;
-    for(int i=0;i<N_smpl;i++){
-        file[12]<<"\t"<<future_pel_yaw2_(i);
-    }
-    file[12]<<endl;
+//    file[12]<<walking_tick_;//<<"\t"<<t_last_<<"\t"<<total_step_num_<<"\t"<<current_step_num_<<"\t"<<N_first<<"\t"<<N_second<<"\t"<<N_third<<"\t"<<endl;
+//    for(int i=0;i<N_smpl;i++){
+//        file[12]<<"\t"<<future_pel_yaw2_(i);
+//    }
+//    file[12]<<endl;
 //    file[17]<<walking_tick_;
 //    file[18]<<walking_tick_;
 //    for(int i=0;i<N_smpl;i++){
@@ -7835,7 +7859,33 @@ void WalkingController::FutureFoottrajectory(int N_smpl, int T_int){
 //    file[18]<<endl;
 
 }
-void WalkingController::FuturePelv_theta_update1(int N_smpl, Eigen::VectorXd &future_pelvis_yaw){
+
+void WalkingController::FutureSingularityCheck(int N_smpl, int interval){
+
+    FutureFoottrajectory(N_smpl, interval);
+
+    if(walking_tick_ == 0){
+        future_com_.resize(N_smpl,3); future_lhip_.resize(N_smpl,3); future_rhip_.resize(N_smpl,3);
+        future_com_.setZero(); future_lhip_.setZero(); future_rhip_.setZero();
+        future_pel_yaw_.resize(N_smpl); future_pel_yaw_.setZero();
+    }
+
+    for(int i=0;i<N_smpl;i++){
+        future_com_(i,0) = future_com_x_mpc_(i);
+        future_com_(i,1) = future_com_y_mpc_(i);
+        future_com_(i,2) = com_desired_(2)-0.1119;
+
+        future_lhip_(i,1) = future_com_(i,1) + 0.105;
+        future_rhip_(i,1) = future_com_(i,1) - 0.105;
+    }
+
+    future_lhip_.col(0) = future_com_.col(0);
+    future_rhip_.col(0) = future_com_.col(0);
+
+    future_lhip_.col(2) = future_com_.col(2);
+    future_rhip_.col(2) = future_com_.col(2);
+
+    future_singular_ = false;
     Eigen::MatrixXd  future_lhip_lankle, future_rhip_rankle;
     future_lhip_lankle.resize(N_smpl,3); future_rhip_rankle.resize(N_smpl,3);
     future_lhip_lankle.setZero(); future_rhip_rankle.setZero();
@@ -7843,295 +7893,122 @@ void WalkingController::FuturePelv_theta_update1(int N_smpl, Eigen::VectorXd &fu
     future_lhip_lankle = future_lfoot_trajectory_support_ - future_lhip_;
     future_rhip_rankle = future_rfoot_trajectory_support_ - future_rhip_;
 
-    double leg_max = 0.7442;
+     double leg_max = 0.7442;
 
-    double l_pel = 0.105;
+     for(int i=0;i<N_smpl;i++){
+         if(future_lhip_lankle.row(i).norm() >= leg_max || future_rhip_rankle.row(i).norm() >= leg_max){
+             if(future_singular_ == false)
+                future_singular_ = true;
+
+             cout<<"singularity occurs, lhip to l ankle  "<<future_lhip_lankle.row(i).norm()<<"rhip to rankle  : "<<future_rhip_rankle.row(i).norm()<<endl;
+         }
+     }
+
+     cout<<" future singularity : "<<future_singular_<<endl;
 
 
-    double pel_yaw_temp;
+}
+void WalkingController::FuturePelYawReference(){
+
 
     if(walking_tick_ == 0){
-        future_pelvis_yaw.resize(N_smpl);   future_pelvis_yaw.setZero();
-        pre_future_pel_yaw3_.resize(N_smpl);   pre_future_pel_yaw3_.setZero();
-
+        future_pel_yaw_ref_.resize(N_); future_pel_yaw_ref_.setZero();
+        pre_future_pel_ref_ = 0; first_pel_yaw_ref_ = 0; second_pel_yaw_ref_ = 0; third_pel_yaw_ref_ = 0;
     }
-    else{
-        future_pelvis_yaw(0) = pre_future_pel_yaw3_(1);
+
+    if(walking_tick_ == t_start_ || walking_tick_ == 0)
+        CalculateFuturePelAngle();
+
+    int walking_int;
+
+    for(int i=0;i<N_total_;i++){
+        walking_int = walking_tick_+interval_*i;
+        if(i<N_first_){
+             if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+                  future_pel_yaw_ref_(i) = pre_future_pel_ref_;
+             }
+             else{
+                 future_pel_yaw_ref_(i) = first_pel_yaw_ref_;
+             }          
+
+            if(N_second_ != 0){
+                walking_int -=t_total_;
+
+                if(i>=N_first_ && i<(N_first_+ N_second_)){
+
+                    if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+                        future_pel_yaw_ref_(i) = first_pel_yaw_ref_;
+                    }
+                    else{
+                        future_pel_yaw_ref_(i) = second_pel_yaw_ref_;
+                    }
+
+                }
+                if(N_third_ != 0){
+                    walking_int -=t_total_;
+                    if(i>= (N_first_ + N_second_) && i < N_total_){
+                        if(walking_int < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/2.0){
+                            future_pel_yaw_ref_(i) = second_pel_yaw_ref_;
+                        }
+                        else{
+                            future_pel_yaw_ref_(i) = third_pel_yaw_ref_;
+                        }
+                    }
+                }// end of N_third loop
+            }// edn of N_second loop
+        }//end of N_first loop
+    }// end of for loop
+
+
+
+    file[12]<<walking_tick_;
+    for(int i=0;i<N_total_;i++){
+        file[12]<<"\t"<<future_pel_yaw_ref_(i);
     }
-    double pel_yaw_max;
+    file[12]<<endl;
+}
+void WalkingController::CalculateFuturePelAngle(){
+    FutureSingularityCheck(N_,interval_);
 
-    pel_yaw_max = 0;
-//    pel_yaw_max = pre_future_pel_yaw3_(1);
+    double l_pel = 0.105;
 
-    for(int i=0;i<N_smpl;i++){
-        if(future_lhip_lankle.row(i).norm() >= leg_max || future_rhip_rankle.row(i).norm() >= leg_max){
-             future_PelvisYawModeling(future_lfoot_trajectory_support_.row(i),future_rfoot_trajectory_support_.row(i),future_com_.row(i),pel_yaw_temp);
-             cout<<walking_tick_<<", number "<<i<<",  leg length is maximum, the distance between two feets is : "<<future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0)<<"pel yaw angle "<<pel_yaw_temp<<endl;
-//             future_pelvis_yaw(i) = pel_yaw_temp;
-        }
-        else {
-//            future_pelvis_yaw(i) = future_pelvis_yaw(i-1);
-        }
+    pre_future_pel_ref_ = first_pel_yaw_ref_;
 
-        if(pel_yaw_temp>=0){
-            if(pel_yaw_temp > pel_yaw_max)
-                pel_yaw_max = pel_yaw_temp;
+    if(future_singular_ == true){
+        double sin_temp1, sin_temp2, sin_temp3;
+        sin_temp1 = ((foot_step_(current_step_num_,0)- foot_step_(current_step_num_-1,0))- 0.25)/(2*l_pel);
+        sin_temp2 = ((foot_step_(current_step_num_+1,0)- foot_step_(current_step_num_,0))- 0.25)/(2*l_pel);
+        sin_temp3 = ((foot_step_(current_step_num_+2,0)- foot_step_(current_step_num_+1,0))- 0.25)/(2*l_pel);
+
+
+        if(foot_step_(current_step_num_,6) == 1)//left foot
+        {
+            first_pel_yaw_ref_ =  atan2(-sin_temp1,sqrt(1-pow(sin_temp1,2)));
+            second_pel_yaw_ref_ =  atan2(sin_temp2,sqrt(1-pow(sin_temp2,2)));
+            third_pel_yaw_ref_ =  atan2(-sin_temp3,sqrt(1-pow(sin_temp3,2)));
         }
         else{
-            if(pel_yaw_temp < pel_yaw_max)
-                pel_yaw_max = pel_yaw_temp;
+            first_pel_yaw_ref_ =  atan2(sin_temp1,sqrt(1-pow(sin_temp1,2)));
+            second_pel_yaw_ref_ =  atan2(-sin_temp2,sqrt(1-pow(sin_temp2,2)));
+            third_pel_yaw_ref_ =  atan2(sin_temp3,sqrt(1-pow(sin_temp3,2)));
         }
 
+        if(sin_temp1<0)
+            first_pel_yaw_ref_ = 0;
+        if(sin_temp2<0)
+            second_pel_yaw_ref_ = 0;
+        if(sin_temp3<0)
+            third_pel_yaw_ref_ = 0;
 
-        if(i<N_first_){
-            for(int i=0;i<N_first_;i++)
-                future_pelvis_yaw(i) = pel_yaw_max;
-        }
-        if(N_second_ != 0){
-            if(i >= N_first_ && i<(N_first_ + N_second_ )){
-                for(int i=N_first_;i<N_first_ + N_second_;i++)
-                    future_pelvis_yaw(i) = pel_yaw_max;
-            }
-        }
-        if(N_third_ != 0){
-            if(i>=(N_first_ + N_second_) && i < N_smpl){
-                for(int i=N_first_ + N_second_;i<N_smpl ;i++)
-                    future_pelvis_yaw(i) = pel_yaw_max;
+        cout<<walking_tick_<<", step # "<<current_step_num_<<"pre future pel : "<<pre_future_pel_ref_<<"  first pel yaw ref : "<<first_pel_yaw_ref_<<", second pel yaw ref "<<second_pel_yaw_ref_<<",  third pel yaw ref : "<<third_pel_yaw_ref_<<endl;
 
-            }
-        }
-
-    }
-    pre_future_pel_yaw3_ = future_pelvis_yaw;
-}
-void WalkingController::FuturePelv_theta_update(int N_smpl, Eigen::VectorXd& future_pelvis_yaw){
-
-   Eigen::MatrixXd  future_lhip_lankle, future_rhip_rankle;
-   future_lhip_lankle.resize(N_smpl,3); future_rhip_rankle.resize(N_smpl,3);
-   future_lhip_lankle.setZero(); future_rhip_rankle.setZero();
-
-   future_lhip_lankle = future_lfoot_trajectory_support_ - future_lhip_;
-   future_rhip_rankle = future_rfoot_trajectory_support_ - future_rhip_;
-
-//   Eigen::VectorXd  future_pelvis_yaw;
-//   future_pelvis_yaw.resize(N_smpl); future_pelvis_yaw.setZero();
-
-   double leg_max = 0.7442;
-   double z;
-   if(foot_step_(current_step_num_,6) ==1 )// left foot support
-        z= future_com_(0,2) - future_lfoot_trajectory_support_(0,2);
-   else {
-       z = future_com_(0,2) - future_rfoot_trajectory_support_(0,2);
-   }
-   double l_pel = 0.105;
-   double pel_l_yaw_temp, pel_r_yaw_temp;
-
-   double x_temp;
-   pel_l_yaw_temp = 0; pel_r_yaw_temp = 0;
-
-   if(walking_tick_ == 0)
-       future_pelvis_yaw(0) = 0.0;
-   else {
-       future_pelvis_yaw(0) = pre_pel_yaw_(0);
-   }
-
-   for(int i=0;i<N_smpl;i++){
-//       cout<<"norm : "<<future_lhip_lankle.row(i).norm()<<", sqrt :  "<<sqrt(pow(future_lhip_lankle(i,0),2) + pow(future_lhip_lankle(i,1),2) +pow(future_lhip_lankle(i,2),2))<<endl;
-       /*
-        * if(future_lhip_lankle.row(i).norm() >= leg_max){
-//           if(future_lfoot_trajectory_support_(i,0) > future_rfoot_trajectory_support_(i,0)){
-//              x_temp = sqrt(pow(leg_max,2) - pow(future_lhip_lankle(i,2),2));
-//              pel_l_yaw_temp = asin((future_lhip_lankle(i,0)-x_temp)/l_pel);
-//           }
-
-           future_L_PelvisYawModeling(future_lfoot_trajectory_support_.row(i), future_rfoot_trajectory_support_.row(i),future_com_.row(i),pel_l_yaw_temp);
-//           if(future_lfoot_trajectory_support_(i,0) > future_rfoot_trajectory_support_(i,0)){
-//               pel_l_yaw_temp = atan2(future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0),future_lfoot_trajectory_support_(i,1) - future_rfoot_trajectory_support_(i,1));
-//           }
-//           else{
-//               pel_l_yaw_temp = atan2(future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0),future_lfoot_trajectory_support_(i,1) - future_rfoot_trajectory_support_(i,1));
-//           }
-
-
-          cout<<walking_tick_<<", "<<i<<"  lfoot streched : "<<future_lhip_lankle.row(i).norm()<<", x temp : "<<x_temp<<" x distance : "<<(future_lhip_lankle(i,0)-x_temp)<<", l pel :"<<l_pel<<", pelvis yaw angle : "<<pel_l_yaw_temp<<endl<<endl;
-
-//          if(pel_l_yaw_temp == NAN){
-//              pel_l_yaw_temp = future_pelvis_yaw(i-1);
-//              cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!pel l yaw temp is nan so new pel l yaw : "<<pel_l_yaw_temp<<endl;
-//          }
-
-          if(pel_l_yaw_temp == 100)
-              pel_l_yaw_temp = future_pelvis_yaw(i-1);
-
-           future_pelvis_yaw(i) = pel_l_yaw_temp;
-       }
-       else if(future_rhip_rankle.row(i).norm() >= leg_max){
-           future_R_PelvisYawModeling(future_lfoot_trajectory_support_.row(i), future_rfoot_trajectory_support_.row(i),future_com_.row(i),pel_r_yaw_temp);
-
-//           if(future_rfoot_trajectory_support_(i,0) > future_lfoot_trajectory_support_(i,0)){
-//              x_temp = sqrt(pow(leg_max,2) - pow(future_rhip_rankle(i,2),2));
-//              pel_r_yaw_temp = asin((future_rhip_rankle(i,0)-x_temp)/l_pel);
-//           }
-           cout<<walking_tick_<<", "<<i<<" rfoot streched : "<<future_rhip_rankle.row(i).norm()<<", x temp : "<<x_temp<<" x distance : "<<(future_rhip_rankle(i,0)-x_temp)<<", l pel :"<<l_pel<<", pelvis yaw angle  : "<<pel_r_yaw_temp<<endl<<endl;
-
-//           if(future_lfoot_trajectory_support_(i,0) > future_rfoot_trajectory_support_(i,0)){
-//               pel_l_yaw_temp = atan2(future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0),future_lfoot_trajectory_support_(i,1) - future_rfoot_trajectory_support_(i,1));
-//           }
-//           else{
-//               pel_l_yaw_temp = atan2(future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0),future_lfoot_trajectory_support_(i,1) - future_rfoot_trajectory_support_(i,1));
-//           }
-
-//           if(pel_r_yaw_temp == NAN){
-//               pel_r_yaw_temp = future_pelvis_yaw(i-1);
-//               cout<<"pel r yaw temp is nan so new pel l yaw : "<<pel_r_yaw_temp<<endl;
-//           }
-
-           if(pel_r_yaw_temp == 100)
-               pel_r_yaw_temp = future_pelvis_yaw(i-1);
-
-           future_pelvis_yaw(i) = pel_r_yaw_temp;
-       }
-       */
-       if(future_lhip_lankle.row(i).norm() >= leg_max || future_rhip_rankle.row(i).norm() >= leg_max){
-            future_PelvisYawModeling(future_lfoot_trajectory_support_.row(i),future_rfoot_trajectory_support_.row(i),future_com_.row(i),pel_l_yaw_temp);
-            cout<<walking_tick_<<", number "<<i<<",  leg length is maximum, the distance between two feets is : "<<future_lfoot_trajectory_support_(i,0) - future_rfoot_trajectory_support_(i,0)<<"pel yaw angle "<<pel_l_yaw_temp<<endl;
-            future_pelvis_yaw(i) = pel_l_yaw_temp;
-       }
-       else {
-           future_pelvis_yaw(i) = future_pelvis_yaw(i-1);
-       }
-
-//       if(pel_r_yaw_temp == NAN)
-//           pel_r_yaw_temp = future_pelvis_yaw(i-1);
-
-//       if(pel_l_yaw_temp == NAN)
-//           pel_l_yaw_temp = future_pelvis_yaw(i-1);
-
-//       if(abs(pel_l_yaw_temp) > abs(pel_r_yaw_temp)){
-//           future_pelvis_yaw(i) = pel_l_yaw_temp;
-////           if(pel_l_yaw_temp == NAN)
-////               future_pelvis_yaw(i) = future_pelvis_yaw(i-1);
-//       }
-//       else if(abs(pel_l_yaw_temp) <= abs(pel_r_yaw_temp)){
-//           future_pelvis_yaw(i) = pel_r_yaw_temp;
-
-//       }
-   }
-
-//   for(int i=0;i<N_smpl;i++){
-//       if(future_lhip_lankle.row(1).norm() >= leg_max){
-//           if(future_com_(i,0) <= future_lfoot_trajectory_support_(i,0)){
-//              pel_l_yaw_temp = asin((future_lfoot_trajectory_support_(i,0) - future_com_(i,0) - sqrt(pow(leg_max,2) - pow(z,2)))/l_pel);
-//           }
-//           future_pelvis_yaw(i) = pel_l_yaw_temp;
-//       }
-//       else if (future_rhip_rankle.row(1).norm() >= leg_max) {
-//           if(future_com_(i,0) <= future_rfoot_trajectory_support_(i,0)){
-//              pel_r_yaw_temp = asin((future_rfoot_trajectory_support_(i,0) - future_com_(i,0) - sqrt(pow(leg_max,2) - pow(z,2)))/l_pel);
-//           }
-//           future_pelvis_yaw(i) = pel_r_yaw_temp;
-
-//       }
-//   }
-
-}
-void WalkingController::future_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw){
-    double leg_max = 0.7442;
-    double l_pel = 0.105;
-
-//    double constant_a, constant_b, constant_c;
-
-    double sin_temp1;//, sin_temp2;
-
-    if(future_Lfoot(0) > future_Rfoot(0)){
-        sin_temp1 = ((future_Lfoot(0) - future_Rfoot(0))-0.25)/(2*l_pel);
     }
     else{
-        sin_temp1 = -(future_Rfoot(0) - future_Lfoot(0) - 0.25)/(2*l_pel);
+        first_pel_yaw_ref_ = 0;
+        second_pel_yaw_ref_  =0;
+        third_pel_yaw_ref_ = 0;
     }
-
-    pelvis_yaw = atan2(sin_temp1,sqrt(1-pow(sin_temp1,2)));
 }
-void WalkingController::future_L_PelvisYawModeling(Eigen::Vector3d future_Lfoot, Eigen::Vector3d future_Rfoot, Eigen::Vector3d future_com, double &pelvis_yaw){
-//    double z = future_com(0,2);
-//    double z = future_com(2) - future_Lfoot(2);
-    double z;
-
-    if(foot_step_(current_step_num_,6) == 1)//left foot support
-        z = future_com(2) - future_Lfoot(2);
-    else {
-        z = future_com(2) - future_rfoot_trajectory_support_(0,2);
-    }
-
-    double leg_max = 0.7442;
-    double l_pel = 0.105;
-
-    double constant_a, constant_b, constant_c;
-
-//    if(future_Lfoot(0) >= future_com(0)){
-//        constant_a = -pow(leg_max,2) + pow(z,2) + pow((future_Lfoot(0) - future_com(0)),2) + pow((future_Lfoot(1) - future_com(1)),2) + pow(l_pel,2);
-//        constant_b = 2*l_pel*abs(future_Lfoot(0) - future_com(0));
-//        constant_c = -2*l_pel*abs(future_Lfoot(1) - future_com(1));
-//    }
-//    else{
-//        constant_a = -pow(leg_max,2) + pow(z,2) + pow(future_com(0) - future_Lfoot(0),2) + pow(future_Lfoot(1) - future_com(1),2) + pow(l_pel,2);
-//        constant_b = 2*l_pel*(future_com(0) - future_Lfoot(0));
-//        constant_c = -2*l_pel*(future_Lfoot(1) - future_com(1));
-//    }
-    if(future_Lfoot(0) > future_Rfoot(0) ){
-        constant_a = -pow(leg_max,2) + pow(future_com(2) - future_Lfoot(2),2) + pow(future_Lfoot(0) - future_com(0),2) + pow(future_Lfoot(1) - future_com(1),2) + pow(l_pel,2);
-        constant_b = -2*l_pel*(future_Lfoot(0) - future_com(0));
-        constant_c = -2*l_pel*(future_Lfoot(1) - future_com(1));
-    }
-    else{
-        constant_a = -pow(leg_max,2) + pow(future_com(2) - future_Lfoot(2),2) + pow(-future_Lfoot(0) + future_com(0),2) + pow(future_Lfoot(1) - future_com(1),2) + pow(l_pel,2);
-        constant_b = -2*l_pel*(future_Lfoot(0) - future_com(0));
-        constant_c = -2*l_pel*(future_Lfoot(1) - future_com(1));
-    }
-
-   double hip_foot;
-   hip_foot =  pow(future_Lfoot(1) - (future_com(1) + 0.105),2) + pow(future_Lfoot(0) - future_com(0),2);
-   double hip_foot_max;
-   hip_foot_max = pow(leg_max,2) - pow(future_com(2) - future_Lfoot(2),2);
-
-   cout<<" futue hip to foot in x-y plane : "<<hip_foot<<", future hip foot max : "<<hip_foot_max<<", support foot "<<foot_step_(current_step_num_,6)<<endl;
-    pelvis_yaw = pelvis_theta_cal(constant_a,constant_b,constant_c);
-    cout<<"future com  : "<<future_com(0)<<", "<<future_com(1)<<", "<<future_com(2)<<", future lfoot  : "<<future_Lfoot(0)<<", "<<future_Lfoot(1)<<", "<<future_Lfoot(2)<<", future RFoot : "<<future_Rfoot(0)<<", "<<future_Rfoot(1)<<", "<<future_Rfoot(2)<<endl;
-
-    cout<<"pelvis yaw angle at left : "<<pelvis_yaw<<endl;
-
-}
-double WalkingController::pelvis_theta_cal(double a, double b, double c){
-    double theta_output;
-
-    double x, y;
-
-    x = (-sqrt(-pow(a,(double)2.0)*pow(b,(double)2.0)+pow(b,(double)4.0)+pow(b,(double)2.0)*pow(c,(double)2.0))-a*c)/(pow(b,(double)2.0)+pow(c,(double)2.0));
-    y = (c*sqrt(-pow(b,(double)2.0)*(pow(a,(double)2.0)-pow(b,(double)2.0)-pow(c,(double)2.0)))/(pow(b,(double)2.0) + pow(c,(double)2.0)) + (a*pow(c,(double)2.0))/(pow(b,2.0)+pow(c,(double)2.0)) -a ) / ( b );
-
-
-    double temp_x = -pow(a,2.0)*pow(b,2.0)+pow(b,4.0)+pow(b,2.0)*pow(c,2.0);
-    double tmep_x1 = -(a*a)*(b*b) + (b*b*b*b) + (b*b)*(c*c);
-    theta_output = atan2(y,x);
-
-    double ax,ay;
-    ax = a-c;
-    ay = sqrt(-pow(a,2) + pow(b,2) + pow(c,2))-b;
-    double theta_test1, theta_test2;
-    theta_test1 = atan2(ay,ax);
-
-    ay = - sqrt(-pow(a,2) + pow(b,2) + pow(c,2))-b;
-    theta_test2 = atan2(ay,ax);
-
-    temp_x = -pow(a,2) + pow(b,2) + pow(c,2);
-    if(temp_x <0)
-        theta_test1 = 100;
-
-    cout<<"a : "<<a<<",  b : "<<b<<",  c : "<<c<<", a^2 :"<<pow(a,2)<<", b^2 : "<<pow(b,2)<<", c^2 :"<<pow(c,2)<<", tempx : "<<temp_x<<", tempx1 : "<<tmep_x1<<" y : "<<y<<",  x  : "<<x<<", calcuated theta : "<<theta_output<<", theta test 1 : "<<theta_test1<<", theta test2 : "<<theta_test2<<endl;
-    return theta_test1;
-
-}
-
 }
 
 
