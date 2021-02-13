@@ -431,6 +431,8 @@ public:
   void FutureSingularityCheck(int N_smpl, int interval);
   void FuturePelYawReference();
   void CalculateFuturePelAngle();
+  void QP_momentum();
+
 
 
 private:

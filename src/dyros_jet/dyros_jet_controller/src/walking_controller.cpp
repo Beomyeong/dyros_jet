@@ -272,6 +272,7 @@ void WalkingController::compute()
 //                    qpIK();
 //            qpIK_pelvis();
             qpIK_pelvis_13();
+            QP_momentum();
 //            qpIK_pel_arm();
 //            qpIK_pel_full_arm();
 

@@ -727,6 +727,7 @@ void WalkingController::qpIK_pelvis_13(){
 //    }
 //    desired_q_(12) = -qp_q(12)/hz_ + desired_q_not_compensated_(12);
 }
+
 void WalkingController::qpIK_pel_arm(){
     //redundant pelvis IK + AM with arm
     if(walking_tick_== 0)
@@ -918,6 +919,74 @@ void WalkingController::qpIK_pel_arm(){
 
 
     pre_floating_joint_ = floating_joint_;
+
+}
+
+void WalkingController::QP_momentum(){
+    if(walking_tick_ == 0)
+        cout<<" QP for momentum "<<endl;
+
+    double w1, w2, w3;
+    w1 = 1; w2 = 0.1; w3 = 1;
+
+    Eigen::Matrix<double, 1, 2> A_sel_yaw;
+    A_sel_yaw.setZero();
+    A_sel_yaw.block<1,1>(0,0) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,14);
+    A_sel_yaw.block<1,1>(0,1) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,21);
+
+    Eigen::Matrix<double, 2, 2> Iden;
+    Iden.setIdentity();
+
+    Eigen::Matrix<double, 2, 2> A_t_A;
+    A_t_A  = A_sel_yaw.transpose()*A_sel_yaw;
+
+    Eigen::Matrix<double, 2, 2> Q_mat;
+
+    Q_mat = w1*A_t_A + w2*Iden + w3/hz_/hz_*Iden;
+
+    double h_lower;
+    h_lower = Augmented_Centroidal_Momentum_Matrix_.block<1,13>(5,0)*pre_q_dot_.segment<13>(0);
+
+//    cout<<"h lower " <<h_lower<<endl;
+
+    Eigen::Vector2d q_err;
+    q_err(0) = q_init_(14) - current_q_(14);
+    q_err(1) = q_init_(21) - current_q_(21);
+
+    Eigen::Vector2d     g_vector;
+    g_vector = w1*A_sel_yaw.transpose()*h_lower - w3/hz_*q_err;
+
+
+    real_t H_momentum[2*2],g_momentum[2], lb_momentum[2], ub_momentum[2];
+
+    for(int i=0;i<2;i++){
+        for(int j=0;j<2;j++){
+            H_momentum[2*j +i] = Q_mat(i,j);
+        }
+        g_momentum[i] = g_vector(i);
+
+        lb_momentum[i] = -10;
+        ub_momentum[i] = 10;
+    }
+
+    real_t q_upp[2];
+    QProblemB   qp_momentum(2);
+
+    Options opt_momentum;
+    opt_momentum.initialStatusBounds = ST_LOWER;
+    opt_momentum.numRefinementSteps = 1;
+    opt_momentum.enableCholeskyRefactorisation = 1;
+    opt_momentum.printLevel = PL_NONE;
+
+    qp_momentum.setOptions(opt_momentum);
+
+    int_t nWSR = 1000;
+    qp_momentum.init(H_momentum,g_momentum,lb_momentum,ub_momentum,nWSR);
+    qp_momentum.getPrimalSolution(q_upp);
+
+
+    desired_q_(14) = q_upp[0]/hz_ + desired_q_not_compensated_(LA_BEGIN);
+    desired_q_(21) = q_upp[1]/hz_ + desired_q_not_compensated_(RA_BEGIN);
 
 }
 void WalkingController::qpIK_pel_full_arm(){
