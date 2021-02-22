@@ -74,7 +74,7 @@ void WalkingController::compute()
 
 //            if(current_step_num_ == 0 || current_step_num_ >total_step_num_ -2){
                 chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
-//                getComTrajectory();
+                getComTrajectory();
                 chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
                 file[20]<<walking_tick_<<"\t"<<t_2.count();
@@ -86,7 +86,7 @@ void WalkingController::compute()
 ////                if(heel_toe_mode_ == true)
                     t_1 = std::chrono::high_resolution_clock::now();
 //                    qp31();
-//                    qp3();
+                    qp3();
                     MPC_com();
                     t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
@@ -2454,14 +2454,14 @@ void WalkingController::updateInitialState()
     q_init_ = current_q_;
     desired_q_not_compensated_ = current_q_;
 
-    cout<<"init q "<<endl<<q_init_<<endl;
+//    cout<<"init q "<<endl<<q_init_<<endl;
     desired_leg_q_dot_.setZero();
     lfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(0));
     rfoot_float_init_ = model_.getCurrentTransform((DyrosJetModel::EndEffector)(1));
     com_float_init_ = model_.getCurrentCom();
 
     floating_joint_init_ = floating_joint_;
-    cout<<"lfoot from pelvis : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
+//    cout<<"lfoot from pelvis : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
     // at the virtual coordinate
 //    pelv_float_init_ = DyrosMath::floating_pelvis_transformation_matrix(floating_joint_); // pelvis transformation matrix based on floating bas
     pelv_float_init_ = model_.getCurrentLinkTransform(1);
@@ -2472,8 +2472,8 @@ void WalkingController::updateInitialState()
 
 
 
-    cout<<"lfoot from floating : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
-    cout<<"pelvis from floating : "<<endl<<pelv_float_init_.linear()<<endl<<pelv_float_init_.translation()<<endl;
+//    cout<<"lfoot from floating : "<<endl<<lfoot_float_init_.linear()<<endl<<lfoot_float_init_.translation()<<endl;
+//    cout<<"pelvis from floating : "<<endl<<pelv_float_init_.linear()<<endl<<pelv_float_init_.translation()<<endl;
     lfoot_float_euler_init_ = DyrosMath::rot2Euler(lfoot_float_init_.linear());
     rfoot_float_euler_init_ = DyrosMath::rot2Euler(rfoot_float_init_.linear());
 

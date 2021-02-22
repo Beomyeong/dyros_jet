@@ -1365,6 +1365,7 @@ private:
     Eigen::MatrixXd     future_lhip_;
     Eigen::MatrixXd     future_rhip_;
     Eigen::VectorXd     future_pel_yaw_;
+    Eigen::VectorXd     future_pel_est_;
 
     Eigen::Matrix2d     a_pel_;
     Eigen::Vector2d     b_pel_;

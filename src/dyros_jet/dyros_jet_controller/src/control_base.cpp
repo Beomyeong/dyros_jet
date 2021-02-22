@@ -386,8 +386,7 @@ void ControlBase::joyUiCommandCallback(const dyros_jet_msgs::WalkingCommandConst
 }
 
 void ControlBase::joyCommandCallback(const dyros_jet_msgs::WalkingCommandConstPtr &msg)
-{
-
+{  
     walking_controller_.getJoystick(msg->x, msg->y, msg->z);
 }
 

@@ -443,6 +443,8 @@ void WalkingController::qpIK_pelvis_13(){
 
 //    Selec_square = Selec_floating.transpose()*Selec_floating;
 
+    double waist_yaw_jaco;
+    waist_yaw_jaco = current_leg_jacobian_l_floating_(5,0);
     Eigen::Matrix<double, 13, 13> H_matrix_13;
     H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + w2_13*Iden_13 + w3_13*Selec_square.transpose()*Selec_square/hz_/hz_;
 
@@ -470,6 +472,7 @@ void WalkingController::qpIK_pelvis_13(){
 
     w2_13.setZero();
     g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square.transpose()/hz_*(-q_init_(0) + pre_q_d(0));
+//    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square.transpose()*waist_yaw_jaco*pre_pel_yaw_(1);///hz_*(-q_init_(0) + pre_q_d(0));
 
 
 
@@ -929,19 +932,28 @@ void WalkingController::QP_momentum(){
     double w1, w2, w3;
     w1 = 1; w2 = 0.1; w3 = 1;
 
-    Eigen::Matrix<double, 1, 2> A_sel_yaw;
+//    Eigen::Matrix<double, 1, 2> A_sel_yaw;
+//    A_sel_yaw.setZero();
+//    A_sel_yaw.block<1,1>(0,0) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,14);
+//    A_sel_yaw.block<1,1>(0,1) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,21);
+
+    Eigen::Matrix<double, 1, 4> A_sel_yaw;
     A_sel_yaw.setZero();
     A_sel_yaw.block<1,1>(0,0) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,14);
-    A_sel_yaw.block<1,1>(0,1) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,21);
+    A_sel_yaw.block<1,1>(0,1) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,17);
+    A_sel_yaw.block<1,1>(0,2) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,21);
+    A_sel_yaw.block<1,1>(0,3) = Augmented_Centroidal_Momentum_Matrix_.block<1,1>(5,24);
 
-    Eigen::Matrix<double, 2, 2> Iden;
+//    Eigen::Matrix<double, 2, 2> Iden;
+    Eigen::Matrix<double, 4, 4> Iden;
     Iden.setIdentity();
 
-    Eigen::Matrix<double, 2, 2> A_t_A;
+//    Eigen::Matrix<double, 2, 2> A_t_A;
+    Eigen::Matrix<double, 4, 4> A_t_A;
     A_t_A  = A_sel_yaw.transpose()*A_sel_yaw;
 
-    Eigen::Matrix<double, 2, 2> Q_mat;
-
+//    Eigen::Matrix<double, 2, 2> Q_mat;
+    Eigen::Matrix<double, 4, 4> Q_mat;
     Q_mat = w1*A_t_A + w2*Iden + w3/hz_/hz_*Iden;
 
     double h_lower;
@@ -949,28 +961,43 @@ void WalkingController::QP_momentum(){
 
 //    cout<<"h lower " <<h_lower<<endl;
 
-    Eigen::Vector2d q_err;
+    Eigen::VectorXd q_err(4);
     q_err(0) = q_init_(14) - current_q_(14);
-    q_err(1) = q_init_(21) - current_q_(21);
+    q_err(1) = q_init_(17) - current_q_(17);
+    q_err(2) = q_init_(21) - current_q_(21);
+    q_err(3) = q_init_(24) - current_q_(24);
 
-    Eigen::Vector2d     g_vector;
+//    Eigen::Vector2d     g_vector;
+    Eigen::VectorXd     g_vector(4);
     g_vector = w1*A_sel_yaw.transpose()*h_lower - w3/hz_*q_err;
 
 
-    real_t H_momentum[2*2],g_momentum[2], lb_momentum[2], ub_momentum[2];
+//    real_t H_momentum[2*2],g_momentum[2], lb_momentum[2], ub_momentum[2];
 
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            H_momentum[2*j +i] = Q_mat(i,j);
+//    for(int i=0;i<2;i++){
+//        for(int j=0;j<2;j++){
+//            H_momentum[2*j +i] = Q_mat(i,j);
+//        }
+//        g_momentum[i] = g_vector(i);
+
+//        lb_momentum[i] = -10;
+//        ub_momentum[i] = 10;
+//    }
+
+    real_t H_momentum[4*4], g_momentum[4], lb_momentum[4], ub_momentum[4];
+
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            H_momentum[4*j +i] = Q_mat(i,j);
         }
         g_momentum[i] = g_vector(i);
 
         lb_momentum[i] = -10;
         ub_momentum[i] = 10;
-    }
 
-    real_t q_upp[2];
-    QProblemB   qp_momentum(2);
+    }
+    real_t q_upp[4];
+    QProblemB   qp_momentum(4);
 
     Options opt_momentum;
     opt_momentum.initialStatusBounds = ST_LOWER;
@@ -985,9 +1012,13 @@ void WalkingController::QP_momentum(){
     qp_momentum.getPrimalSolution(q_upp);
 
 
-    desired_q_(14) = q_upp[0]/hz_ + desired_q_not_compensated_(LA_BEGIN);
-    desired_q_(21) = q_upp[1]/hz_ + desired_q_not_compensated_(RA_BEGIN);
+//    desired_q_(14) = q_upp[0]/hz_ + desired_q_not_compensated_(LA_BEGIN);
+//    desired_q_(21) = q_upp[1]/hz_ + desired_q_not_compensated_(RA_BEGIN);
 
+    desired_q_(14) = q_upp[0]/hz_ + desired_q_not_compensated_(LA_BEGIN);
+    desired_q_(17) = q_upp[1]/hz_ + desired_q_not_compensated_(LA_BEGIN+3);
+    desired_q_(21) = q_upp[2]/hz_ + desired_q_not_compensated_(RA_BEGIN);
+    desired_q_(24) = q_upp[3]/hz_ + desired_q_not_compensated_(RA_BEGIN+3);
 }
 void WalkingController::qpIK_pel_full_arm(){
     //redundant pelvis IK + AM with arm using 14 DOF
@@ -4007,7 +4038,7 @@ void WalkingController::Obtain_com_pattern(ifstream& input_x,ifstream& input_y, 
     input_foot.resize(2958,13);
     input_foot.setZero();
 
-    cout<<"obatin pattern : "<<endl;
+//    cout<<"obatin pattern : "<<endl;
 
 //    for(int i=0;i<2958;i++){
 //        input_x >> com_x(i,0) >> com_x(i,1) >> com_x(i,2)>> com_x(i,3) >> com_x(i,4) >> com_x(i,5)>>com_x(i,6)>>com_x(i,7) >> com_x(i,8)>> com_x(i,9) >> com_x(i,10)>>com_x(i,11) >> com_x(i,12);// >> com_x(i,13)>>com_x(i,14);
@@ -7067,6 +7098,7 @@ void WalkingController::MPC_com(){
         zmp_y_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,1);
     }
 
+
     Eigen::Vector3d y_0, x_0;
 
     y_0.setZero(); x_0.setZero();
@@ -7093,10 +7125,19 @@ void WalkingController::MPC_com(){
     zmp_x_err = zmp_x_ref - future_x;
     zmp_y_err = zmp_y_ref - future_y;
 
+    file[21]<<walking_tick_<<"\t"<<current_step_num_;
+    for(int i=0;i<N;i++){
+        file[21]<<"\t"<<future_x(i);
+    }
+    file[21]<<endl;
+
     Eigen::VectorXd   gy_input, gx_input;
     gx_input(N); gx_input.setZero();
     gy_input(N); gy_input.setZero();
 
+
+//    if(current_step_num_ == total_step_num_-1)
+//        future_ax.setZero();
 
     gx_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_x_err + gamma_mpc_*dt*dt*Pau_mpc_.transpose()*future_ax;
     gy_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_y_err;
@@ -7114,7 +7155,11 @@ void WalkingController::MPC_com(){
     zmp_x_margin *= 0.15;
     zmp_y_margin *= 0.075;
 
+
     zmp_x_min = zmp_x_ref - zmp_x_margin;
+    if(current_step_num_ == total_step_num_-1)
+        zmp_x_min = zmp_x_ref;
+
     zmp_x_max = zmp_x_ref + zmp_x_margin;
 
     zmp_y_min = zmp_y_ref - zmp_y_margin;
@@ -7218,28 +7263,28 @@ void WalkingController::MPC_com(){
 
     SupportfootComUpdate(pre_mpc_x_,pre_mpc_y_, pre_mpc_x_, pre_mpc_y_);
 
-    if(com_control_mode_ == true)
-    {
-      com_desired_(0) = mpc_x_(0);
-      com_desired_(1) = mpc_y_(0);
-      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+//    if(com_control_mode_ == true)
+//    {
+//      com_desired_(0) = mpc_x_(0);
+//      com_desired_(1) = mpc_y_(0);
+//      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-      com_dot_desired_(0) = mpc_x_(1);
-      com_dot_desired_(1) = mpc_y_(1);
-      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+//      com_dot_desired_(0) = mpc_x_(1);
+//      com_dot_desired_(1) = mpc_y_(1);
+//      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
-    }
-    else
-    {
-      com_desired_(0) = mpc_x_(0);
-      com_desired_(1) = mpc_y_(0);
-      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+//    }
+//    else
+//    {
+//      com_desired_(0) = mpc_x_(0);
+//      com_desired_(1) = mpc_y_(0);
+//      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-      com_dot_desired_(0) = mpc_x_(1);
-      com_dot_desired_(1) = mpc_y_(1);
-      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+//      com_dot_desired_(0) = mpc_x_(1);
+//      com_dot_desired_(1) = mpc_y_(1);
+//      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
-    }
+//    }
 
 
     Eigen::VectorXd yopt, xopt;
@@ -7252,13 +7297,7 @@ void WalkingController::MPC_com(){
     Eigen::MatrixXd future_com_x, future_com_y;
     future_com_x.resize(3*N,1);    future_com_y.resize(3*N,1);
 
-    Eigen::MatrixXd weighting_future;
-    weighting_future.resize(3*N,3*N);
-    weighting_future.setIdentity();
-    for (int i=0;i<N;i++){
-        weighting_future(3*i,3*i) = 1 - 0.012/19*i*i;
-    }
-    if(walking_tick_ == 0){
+   if(walking_tick_ == 0){
         future_com_x_mpc_.resize(N,1);       future_com_x_mpc_.setZero();
         future_com_y_mpc_.resize(N,1);       future_com_y_mpc_.setZero();
     }
@@ -7521,7 +7560,7 @@ void WalkingController::MPC_pel_yaw(){
     opt.initialStatusBounds = ST_INACTIVE;
     opt.numRefinementSteps =1;
     opt.enableCholeskyRefactorisation = 1;
-    opt.printLevel = PL_LOW;
+    opt.printLevel = PL_NONE;
 
     real_t opt_pel_yaw[nV];
 
@@ -7561,6 +7600,31 @@ void WalkingController::get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, d
             B_pel_(i,j) = (2*(i-j)*interval +1)*pow(dt,2)/2;
         }
     }
+//    a_pel_.setIdentity(); b_pel_.setZero();
+//    a_pel_.setIdentity();
+//    a_pel_(0,1) = dt; a_pel_(0,2) = pow(dt,2)/2.0;
+//    a_pel_(1,2) = dt;
+
+//    b_pel_(0) = pow(dt,3)/6.0;
+//    b_pel_(1) = pow(dt,2)/2.0;
+//    b_pel_(2) = dt;
+
+//    A_pel_.resize(N_smpl,3); A_pel_.setZero();
+//    B_pel_.resize(N_smpl,N_smpl); B_pel_.setZero();
+
+
+//    double nl;
+//    for(int i=0;i<N_smpl;i++){
+//        A_pel_(i,0) = 1;
+//        A_pel_(i,1) = (i*interval+1)*dt;
+//        A_pel_(i,2) = pow(i*interval+1,2)*pow(dt,2)/2.0;
+
+//        for(int j=0;j<i+1;j++){
+//            nl = (i-j)*interval+1;
+//            B_pel_(i,j) = (1+3*nl + 3*pow(nl,2))/6.0*pow(dt,3);
+
+//        }
+//    }
 
 //    cout<<"A_pel"<<endl<<A_pel_<<endl;
 //    cout<<"B_pel"<<endl<<B_pel_<<endl;
@@ -7570,7 +7634,7 @@ void WalkingController::get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, d
 
 
     alpha_pel_ = 1.0;
-    beta_pel_ = 0.000001;
+    beta_pel_ = 0.0000000001;
 
     Eigen::MatrixXd I_N_smpl;
     I_N_smpl.resize(N_smpl, N_smpl); I_N_smpl.setIdentity();
@@ -7937,7 +8001,10 @@ void WalkingController::FutureSingularityCheck(int N_smpl, int interval){
         future_com_.resize(N_smpl,3); future_lhip_.resize(N_smpl,3); future_rhip_.resize(N_smpl,3);
         future_com_.setZero(); future_lhip_.setZero(); future_rhip_.setZero();
         future_pel_yaw_.resize(N_smpl); future_pel_yaw_.setZero();
+        future_pel_est_.resize(N_smpl);
     }
+
+    future_pel_est_.setZero();
 
     for(int i=0;i<N_smpl;i++){
         future_com_(i,0) = future_com_x_mpc_(i);
@@ -7946,13 +8013,20 @@ void WalkingController::FutureSingularityCheck(int N_smpl, int interval){
 
         future_lhip_(i,1) = future_com_(i,1) + 0.105;
         future_rhip_(i,1) = future_com_(i,1) - 0.105;
+
+
+        future_lhip_(i,0) = future_com_(i,0);
+        future_rhip_(i,0) = future_com_(i,0);
+
+        future_lhip_(i,2) = future_com_(i,2);
+        future_rhip_(i,2) = future_com_(i,2);
     }
 
-    future_lhip_.col(0) = future_com_.col(0);
-    future_rhip_.col(0) = future_com_.col(0);
+//    future_lhip_.col(0) = future_com_.col(0);
+//    future_rhip_.col(0) = future_com_.col(0);
 
-    future_lhip_.col(2) = future_com_.col(2);
-    future_rhip_.col(2) = future_com_.col(2);
+//    future_lhip_.col(2) = future_com_.col(2);
+//    future_rhip_.col(2) = future_com_.col(2);
 
     future_singular_ = false;
     Eigen::MatrixXd  future_lhip_lankle, future_rhip_rankle;
@@ -7962,17 +8036,62 @@ void WalkingController::FutureSingularityCheck(int N_smpl, int interval){
     future_lhip_lankle = future_lfoot_trajectory_support_ - future_lhip_;
     future_rhip_rankle = future_rfoot_trajectory_support_ - future_rhip_;
 
-     double leg_max = 0.7442;
+     double leg_max = 0.68;
 
+     bool l_leg_singularity, r_leg_singularity;
+
+
+     double l_pel = 0.105;
+     double sin_temp;
      for(int i=0;i<N_smpl;i++){
-         if(future_lhip_lankle.row(i).norm() >= leg_max || future_rhip_rankle.row(i).norm() >= leg_max){
-             if(future_singular_ == false)
-                future_singular_ = true;
+         l_leg_singularity = 0; r_leg_singularity =0;
+         //         if(future_lhip_lankle.row(i).norm() >= leg_max || future_rhip_rankle.row(i).norm() >= leg_max){
+//             if(future_singular_ == false)
+//                future_singular_ = true;
 
-             cout<<"singularity occurs, lhip to l ankle  "<<future_lhip_lankle.row(i).norm()<<"rhip to rankle  : "<<future_rhip_rankle.row(i).norm()<<endl;
+//             cout<<"singularity occurs, lhip to l ankle  "<<future_lhip_lankle.row(i).norm()<<"rhip to rankle  : "<<future_rhip_rankle.row(i).norm()<<endl;
+//         }
+         if(future_lhip_lankle.row(i).norm()>= leg_max){
+             if(future_singular_ == false)
+                 future_singular_ = true;
+             l_leg_singularity =1;
+             if(future_lhip_lankle(i,0) > 0){
+//                 sin_temp = (future_lhip_lankle(i,0) -sqrt(pow(leg_max,2) - pow(future_lhip_lankle(i,2),2)))/l_pel;
+                 sin_temp = (sqrt(pow(future_lhip_lankle(i,0),2)+pow(future_lhip_lankle(i,1),2)) -0.27)/l_pel;
+                 future_pel_est_(i) = atan2(sin_temp,sqrt(1-pow(sin_temp,2)));
+             }
+             else{
+//                 sin_temp = (-future_lhip_lankle(i,0) -sqrt(pow(leg_max,2) - pow(future_lhip_lankle(i,2),2)))/l_pel;
+                 sin_temp = (sqrt(pow(future_lhip_lankle(i,0),2)+pow(future_lhip_lankle(i,1),2)) -0.27)/l_pel;
+                 future_pel_est_(i) = atan2(-sin_temp,sqrt(1-pow(sin_temp,2)));
+             }
+//             if(sin_temp <0)
+//                 future_pel_est_(i) =0;
+
          }
+         if(future_rhip_rankle.row(i).norm()>= leg_max){
+             if(future_singular_ == false)
+                 future_singular_ = true;
+             r_leg_singularity =1;
+             if(future_rhip_rankle(i,0) > 0){
+//                 sin_temp = (future_rhip_rankle(i,0) -sqrt(pow(leg_max,2) - pow(future_rhip_rankle(i,2),2)))/l_pel;
+                 sin_temp = (sqrt(pow(future_rhip_rankle(i,0),2)+pow(future_rhip_rankle(i,1),2)) -0.27)/l_pel;
+                 future_pel_est_(i) = atan2(-sin_temp,sqrt(1-pow(sin_temp,2)));
+             }
+             else{
+//                 sin_temp = (-future_rhip_rankle(i,0) -sqrt(pow(leg_max,2) - pow(future_rhip_rankle(i,2),2)))/l_pel;
+                 sin_temp = (sqrt(pow(future_rhip_rankle(i,0),2)+pow(future_rhip_rankle(i,1),2)) -0.27)/l_pel;
+                 future_pel_est_(i) = atan2(sin_temp,sqrt(1-pow(sin_temp,2)));
+             }
+//             if(sin_temp <0)
+//                 future_pel_est_(i) =0;
+         }
+
+         cout<<walking_tick_<<", l leg singularity : "<<l_leg_singularity<<", r leg singualrity : "<<r_leg_singularity<<", lfoot : "<<future_lfoot_trajectory_support_.row(i)<<", rfoot "<<future_rfoot_trajectory_support_.row(i)<<", pel "<<future_com_.row(i)<<", sin tep : "<<sin_temp<<endl;
+
      }
 
+     cout<<"future pel est : "<<endl<<future_pel_est_*RAD2DEG<<endl;
      cout<<" future singularity : "<<future_singular_<<endl;
 
 
@@ -7998,7 +8117,17 @@ void WalkingController::FuturePelYawReference(){
              }
              else{
                  future_pel_yaw_ref_(i) = first_pel_yaw_ref_;
-             }          
+             }
+//            if(walking_int < t_start_real_+ t_double1_){
+//                future_pel_yaw_ref_(i) = pre_future_pel_ref_;
+//            }
+//            else if(walking_int >= t_start_real_+t_double1_ && walking_int < t_start_+t_total_-t_double2_-t_rest_last_)
+//            {
+//                future_pel_yaw_ref_(i) = (first_pel_yaw_ref_ - pre_future_pel_ref_)/(t_start_+t_total_-t_double2_-t_rest_last_-(t_start_real_+t_double1_))*(walking_int - (t_start_real_+t_double1_)) + pre_future_pel_ref_;
+//            }
+//            else{
+//                future_pel_yaw_ref_(i) = first_pel_yaw_ref_;
+//            }
 
             if(N_second_ != 0){
                 walking_int -=t_total_;
@@ -8011,7 +8140,17 @@ void WalkingController::FuturePelYawReference(){
                     else{
                         future_pel_yaw_ref_(i) = second_pel_yaw_ref_;
                     }
+//                    if(walking_int < t_start_real_+ t_double1_){
+//                        future_pel_yaw_ref_(i) = first_pel_yaw_ref_;
+//                    }
+//                    else if(walking_int >= t_start_real_+t_double1_ && walking_int < t_start_+t_total_-t_double2_-t_rest_last_)
+//                    {
+//                        future_pel_yaw_ref_(i) = (second_pel_yaw_ref_ - first_pel_yaw_ref_)/(t_start_+t_total_-t_double2_-t_rest_last_-(t_start_real_+t_double1_))*(walking_int - (t_start_real_+t_double1_)) + first_pel_yaw_ref_;
 
+//                    }
+//                    else{
+//                        future_pel_yaw_ref_(i) = second_pel_yaw_ref_;
+//                    }
                 }
                 if(N_third_ != 0){
                     walking_int -=t_total_;
@@ -8022,6 +8161,16 @@ void WalkingController::FuturePelYawReference(){
                         else{
                             future_pel_yaw_ref_(i) = third_pel_yaw_ref_;
                         }
+//                        if(walking_int < t_start_real_+ t_double1_){
+//                            future_pel_yaw_ref_(i) = second_pel_yaw_ref_;
+//                        }
+//                        else if(walking_int >= t_start_real_+t_double1_ && walking_int < t_start_+t_total_-t_double2_-t_rest_last_)
+//                        {
+//                            future_pel_yaw_ref_(i) = (third_pel_yaw_ref_ - second_pel_yaw_ref_)/(t_start_+t_total_-t_double2_-t_rest_last_-(t_start_real_+t_double1_))*(walking_int - (t_start_real_+t_double1_)) + second_pel_yaw_ref_;
+//                        }
+//                        else{
+//                            future_pel_yaw_ref_(i) = third_pel_yaw_ref_;
+//                        }
                     }
                 }// end of N_third loop
             }// edn of N_second loop
@@ -8029,6 +8178,7 @@ void WalkingController::FuturePelYawReference(){
     }// end of for loop
 
 
+//    future_pel_yaw_ref_ = future_pel_est_;
 
     file[12]<<walking_tick_;
     for(int i=0;i<N_total_;i++){
@@ -8039,15 +8189,23 @@ void WalkingController::FuturePelYawReference(){
 void WalkingController::CalculateFuturePelAngle(){
     FutureSingularityCheck(N_,interval_);
 
-    double l_pel = 0.105;
+    double l_pel = 0.12;
 
+    double leg_max = 0.7242;
+    double max_stride;
+    double hc;
+    hc = link_transform_[LF_LINK].translation()(2) - link_transform_[LF_LINK +5].translation()(2);
+    max_stride = sqrt(pow(leg_max,2) - pow(hc,2));
+    cout<<"max stride : "<<max_stride<<endl;
+
+    max_stride = 0.23;
     pre_future_pel_ref_ = first_pel_yaw_ref_;
 
     if(future_singular_ == true){
         double sin_temp1, sin_temp2, sin_temp3;
-        sin_temp1 = ((foot_step_(current_step_num_,0)- foot_step_(current_step_num_-1,0))- 0.25)/(2*l_pel);
-        sin_temp2 = ((foot_step_(current_step_num_+1,0)- foot_step_(current_step_num_,0))- 0.25)/(2*l_pel);
-        sin_temp3 = ((foot_step_(current_step_num_+2,0)- foot_step_(current_step_num_+1,0))- 0.25)/(2*l_pel);
+        sin_temp1 = ((foot_step_(current_step_num_,0)- foot_step_(current_step_num_-1,0))- max_stride)/(3*l_pel);
+        sin_temp2 = ((foot_step_(current_step_num_+1,0)- foot_step_(current_step_num_,0))- max_stride)/(3*l_pel);
+        sin_temp3 = ((foot_step_(current_step_num_+2,0)- foot_step_(current_step_num_+1,0))- max_stride)/(3*l_pel);
 
 
         if(foot_step_(current_step_num_,6) == 1)//left foot
