@@ -64,14 +64,14 @@ const std::string FILE_NAMES[FILE_CNT] =
   "/home/beom/data/walking/04_support_foot_desired_current.txt",
   "/home/beom/data/walking/05_pelvis_support_desired_current.txt",
   "/home/beom/data/walking/06_toe_heel_trajectory.txt",
-  "/home/beom/data/walking/07_qpsolution_.txt",
-  "/home/beom/data/walking/08_qpsolution with waist_.txt",
+  "/home/beom/data/walking/07_singularity_check_.txt",
+  "/home/beom/data/walking/08_leg_q_dot_desired_current_.txt",
   "/home/beom/data/walking/09_float_foot trajectory_.txt",
   "/home/beom/data/walking/10_desired_velocity_.txt",
   "/home/beom/data/walking/11_com_pcheck_.txt",
   "/home/beom/data/walking/12_com_vcheck_.txt",
   "/home/beom/data/walking/13_ft_.txt",
-  "/home/beom/data/walking/14_cubiczmppattern_.txt",
+  "/home/beom/data/walking/14_hip_knee_ankle_pos.txt",
   "/home/beom/data/walking/15_mpc_com_.txt",
   "/home/beom/data/walking/16_h_matrix.txt",
   "/home/beom/data/walking/17_future_pel_yaw.txt",
@@ -239,7 +239,7 @@ public:
   void getFootSinTrajectory();
   void getFootTrajectory2();
   void computeIkControl(Eigen::Isometry3d float_trunk_transform, Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector12d& desired_leg_q);
-  void computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::Vector12d& desired_leg_q_dot);
+  void computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::VectorXd& desired_leg_q_dot);
   void compensator();
 
   void supportToFloatPattern();
@@ -673,7 +673,7 @@ private:
 
   //desired variables
   Eigen::Vector12d desired_leg_q_;
-  Eigen::Vector12d desired_leg_q_dot_;
+  Eigen::VectorXd desired_leg_q_dot_;
   Eigen::Vector12d pre_desired_leg_q_dot_;
   Eigen::Vector12d desired_leg_q_dot_filtered_;
   Eigen::Vector3d com_desired_;
@@ -1392,6 +1392,9 @@ private:
 
     Eigen::MatrixXd     Pax_mpc_;
     Eigen::MatrixXd     Pau_mpc_;
+
+    Eigen::MatrixXd     P_delvx_mpc_;
+    Eigen::MatrixXd     P_delvu_mpc_;
 
     Eigen::MatrixXd     Pzx_mpc_;
     Eigen::MatrixXd     Pzu_mpc_;

@@ -1630,14 +1630,6 @@ void WalkingController::qpIK_test(){
     }
 
 
-    file[7]<<walking_tick_<<"\t"<<state_l<<"\t"<<state_r
-          <<"\t"<<check_l_const(0)<<"\t"<<check_l_const(1)<<"\t"<<check_l_const(2)<<"\t"<<check_l_const(3)<<"\t"<<check_l_const(4)<<"\t"<<check_l_const(5)
-          <<"\t"<<check_r_const(0)<<"\t"<<check_r_const(1)<<"\t"<<check_r_const(2)<<"\t"<<check_r_const(3)<<"\t"<<check_r_const(4)<<"\t"<<check_r_const(5)
-          <<"\t"<<lower_limit(0)<<"\t"<<lower_limit(1)<<"\t"<<lower_limit(2)<<"\t"<<lower_limit(3)<<"\t"<<lower_limit(4)<<"\t"<<lower_limit(5)
-                <<"\t"<<lower_limit(6)<<"\t"<<lower_limit(7)<<"\t"<<lower_limit(8)<<"\t"<<lower_limit(9)<<"\t"<<lower_limit(10)<<"\t"<<lower_limit(11)
-          <<"\t"<<upper_limit(0)<<"\t"<<upper_limit(1)<<"\t"<<upper_limit(2)<<"\t"<<upper_limit(3)<<"\t"<<upper_limit(4)<<"\t"<<upper_limit(5)
-                 <<"\t"<<upper_limit(6)<<"\t"<<upper_limit(7)<<"\t"<<upper_limit(8)<<"\t"<<upper_limit(9)<<"\t"<<upper_limit(10)<<"\t"<<upper_limit(11)
-         <<endl;
 
     file[20]<<walking_tick_<<"\t"<<qOpt[0]<<"\t"<<qOpt[1]<<"\t"<<qOpt[2]<<"\t"<<qOpt[3]<<"\t"<<qOpt[4]<<"\t"<<qOpt[5]<<"\t"<<qOpt[6]<<"\t"<<qOpt[7]<<"\t"<<qOpt[8]<<"\t"<<qOpt[9]<<"\t"<<qOpt[10]<<"\t"<<qOpt[11]<<endl;
     Eigen::Vector12d qp_q;
@@ -1710,6 +1702,7 @@ void WalkingController::qp3(){
     if(MPC_Matrix_cal_ == false){
 //        ObtainMatrix(NL,N,dt,interval);
         getMPCMatrix(NL,N,dt,interval);
+//        MPC_Matrix_Update(N,dt,interval);
         MPC_Matrix_cal_ = true;
     }
 
@@ -1793,7 +1786,7 @@ void WalkingController::qp3(){
 //    }
 
 
-    file[21]<<walking_tick_<<"\t"<<fx_ref(0)<<"\t"<<fx_ref(1)<<"\t"<<fy_ref(0)<<"\t"<<fy_ref(1)<<endl;
+//    file[21]<<walking_tick_<<"\t"<<fx_ref(0)<<"\t"<<fx_ref(1)<<"\t"<<fy_ref(0)<<"\t"<<fy_ref(1)<<endl;
 
     Eigen::MatrixXd support_x,support_y,tempx,tempy;
     support_x.resize(N,2);
@@ -1838,6 +1831,8 @@ void WalkingController::qp3(){
     px_x.resize(N,1); px_x_to_foot.resize(N,1); py_y.resize(N,1); py_y_to_foot.resize(N,1);
     px_x = Px_*x_0;
     py_y = Py_*y_0;
+//    px_x = Pzx_mpc_*x_0;
+//    py_y = Pzx_mpc_*y_0;
 
     px_x_to_foot = px_x - fx_ref;
     py_y_to_foot = py_y - fy_ref;
@@ -1909,6 +1904,8 @@ void WalkingController::qp3(){
     Px_zmp = pu_.transpose()*px_x_to_foot;
     Py_zmp = pu_.transpose()*py_y_to_foot;
 
+//    Px_zmp = Pzu_mpc_.transpose()*px_x_to_foot;
+//    Py_zmp = Pzu_mpc_.transpose()*py_y_to_foot;
 
     Eigen::MatrixXd px_input, py_input;
     px_input.resize(N,1); py_input.resize(N,1);
@@ -1950,48 +1947,55 @@ void WalkingController::qp3(){
         for(int j=0;j<N;j++){
             Qx_input[j*N +i] = Qx_(i,j); // for delta velocity
             Ax_input[j*N+i] = pu_(i,j); // matrix for Jerk
+//            Qx_input[j*N +i] = Qx_mpc_(i,j); // for delta velocity
+//            Ax_input[j*N+i] = Pzu_mpc_(i,j); // matrix for Jerk
+
+            Qy_input[j*N + i] = Qx_(i,j);
+            Ay_input[j*N + i] = pu_(i,j);
+//            Qy_input[j*N +i] = Qx_mpc_(i,j); // for delta velocity
+//            Ay_input[j*N+i] = Pzu_mpc_(i,j); // matrix for Jerk
 
 //            Ay_input[j*N+i] = pu_(i,j);
 //            Qy_input[j*N+i] = Qy_(i,j);
 
         }
          gx_input[i] = px_input(i);
-//         gy_input[i] = py_input(i);
+         gy_input[i] = py_input(i);
 
          lbx[i] = -10;
          ubx[i] = 10;
 
-//         lby[i] = -10;
-//         uby[i] = 10;
+         lby[i] = -10;
+         uby[i] = 10;
 
 
          lbAx[i] = cst_x(i,0) -px_x_to_foot(i);
          ubAx[i] = cst_x(i,1) - px_x_to_foot(i);
 
-//         lbAy[i] = cst_y(i,0) -py_y_to_foot(i);
-//         ubAy[i] = cst_y(i,1) - py_y_to_foot(i);
+         lbAy[i] = cst_y(i,0) -py_y_to_foot(i);
+         ubAy[i] = cst_y(i,1) - py_y_to_foot(i);
     }
 
 
     real_t Qu_input[2*N*2*N], gu_input[2*N], lbu[2*N],ubu[2*N],Au_input[2*N*2*N],lbAu[2*N],ubAu[2*N];
 
 
-//    for(int i=0;i<2*N;i++){
-//        for(int j=0;j<2*N;j++){
-//            Qu_input[j*2*N+i] = Qu_(i,j);
-//            Au_input[j*2*N+i] = Au_(i,j);
-//        }
-//        gu_input[i] = gu(i,0);
-//        lbu[i] = -10;
-//        ubu[i] = 10;
-//    }
-//    for(int i=0;i<N;i++){
-//        lbAu[i] = cst_x(i,0) - px_x_to_foot(i);
-//        ubAu[i] = cst_x(i,1) - px_x_to_foot(i);
+    for(int i=0;i<2*N;i++){
+        for(int j=0;j<2*N;j++){
+            Qu_input[j*2*N+i] = Qu_(i,j);
+            Au_input[j*2*N+i] = Au_(i,j);
+        }
+        gu_input[i] = gu(i,0);
+        lbu[i] = -10;
+        ubu[i] = 10;
+    }
+    for(int i=0;i<N;i++){
+        lbAu[i] = cst_x(i,0) - px_x_to_foot(i);
+        ubAu[i] = cst_x(i,1) - px_x_to_foot(i);
 
-//        lbAu[N+i] = cst_y(i,0) - py_y_to_foot(i);
-//        ubAu[N+i] = cst_y(i,1) - py_y_to_foot(i);
-//    }
+        lbAu[N+i] = cst_y(i,0) - py_y_to_foot(i);
+        ubAu[N+i] = cst_y(i,1) - py_y_to_foot(i);
+    }
 
 
     file[22]<<walking_tick_<<"\t"<<cst_x(0,0)<<"\t"<<cst_x(0,1)<<"\t"<<cst_y(0,0)<<"\t"<<cst_y(0,1)<<endl;
@@ -2018,31 +2022,31 @@ void WalkingController::qp3(){
 
 
 
-    for(int i=0;i<N;i++){
-        for(int j=0;j<N;j++){
-//            Qx_input[j*N +i] = Qx_(i,j); // for delta velocity
-//            Ax_input[j*N+i] = pu_(i,j); // matrix for Jerk
+//    for(int i=0;i<N;i++){
+//        for(int j=0;j<N;j++){
+////            Qx_input[j*N +i] = Qx_(i,j); // for delta velocity
+////            Ax_input[j*N+i] = pu_(i,j); // matrix for Jerk
 
-            Ay_input[j*N+i] = pu_(i,j);
-            Qy_input[j*N+i] = Qy_(i,j);
+//            Ay_input[j*N+i] = pu_(i,j);
+//            Qy_input[j*N+i] = Qy_(i,j);
 
-        }
-//         gx_input[i] = px_input(i);
-         gy_input[i] = py_input(i);
+//        }
+////         gx_input[i] = px_input(i);
+//         gy_input[i] = py_input(i);
 
-//         lbx[i] = -10;
-//         ubx[i] = 10;
+////         lbx[i] = -10;
+////         ubx[i] = 10;
 
-         lby[i] = -10;
-         uby[i] = 10;
+//         lby[i] = -10;
+//         uby[i] = 10;
 
 
-//         lbAx[i] = cst_x(i,0) -px_x_to_foot(i);
-//         ubAx[i] = cst_x(i,1) - px_x_to_foot(i);
+////         lbAx[i] = cst_x(i,0) -px_x_to_foot(i);
+////         ubAx[i] = cst_x(i,1) - px_x_to_foot(i);
 
-         lbAy[i] = cst_y(i,0) -py_y_to_foot(i);
-         ubAy[i] = cst_y(i,1) - py_y_to_foot(i);
-    }
+//         lbAy[i] = cst_y(i,0) -py_y_to_foot(i);
+//         ubAy[i] = cst_y(i,1) - py_y_to_foot(i);
+//    }
 
     op1.initialStatusBounds = ST_INACTIVE;
     op1.numRefinementSteps = 1;
@@ -2056,38 +2060,54 @@ void WalkingController::qp3(){
 ///    
 
 //        if(walking_tick_ == 0){
-//            int_t nVu = 2*N;
+            int_t nVu = 2*N;
 
 
-//            QProblem mpc_u(nVu,nVu);
+            QProblem mpc_u(nVu,nVu);
 
-//            real_t xopt_u[nVu];
+            real_t xopt_u[nVu];
 
-//            mpc_u.setOptions(op);
-//            chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
-//            mpc_u.init(Qu_input,gu_input,Au_input,lbu,ubu,lbAu,ubAu, nWSR);
-//            mpc_u.getPrimalSolution(xopt_u);
+            mpc_u.setOptions(op);
+            chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+            mpc_u.init(Qu_input,gu_input,Au_input,lbu,ubu,lbAu,ubAu, nWSR);
+            mpc_u.getPrimalSolution(xopt_u);
 
-//            mpc_u.hotstart(gu_input,lbu,ubu,lbAu,ubAu,nWSR);
-//            returnValue qp_res;
+            mpc_u.hotstart(gu_input,lbu,ubu,lbAu,ubAu,nWSR);
+            returnValue qp_res;
 
-//            qp_res = mpc_u.getPrimalSolution(xopt_u);
-//            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
+            qp_res = mpc_u.getPrimalSolution(xopt_u);
+            chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
-//            x_d1_ = A_*x_0 + b1_*xopt_u[0];
-//            y_d1_ = A_*y_0 + b1_*xopt_u[N];
+            x_d1_ = A_*x_0 + b1_*xopt_u[0];
+            y_d1_ = A_*y_0 + b1_*xopt_u[N];
 
-//            opt_x_ = xopt_u[1];
-//            opt_y_ = xopt_u[N+1];
+            opt_x_ = xopt_u[1];
+            opt_y_ = xopt_u[N+1];
 //        }
 //        else {
 //            if(walking_tick_ % 2 == 0){
+
+//    mpc_x.setOptions(op);
+
+//    real_t xopt[nV];
+
+//    chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+//    mpc_x.init(Qx_input,gx_input,Ax_input,lbx,ubx,lbAx,ubAx,nWSR);
+//    mpc_x.getPrimalSolution(xopt);
+
+//    //mpc.hotstart(g_input,lb,ub,nWSR,0);
+////                mpc_x.hotstart(gx_input,lbx,ubx,lbAx,ubAx,nWSR);
+////                mpc_x.getPrimalSolution(xopt);
+
+//    x_d1_ = A_*x_0 + b1_*xopt[0];
+
+
 //                QProblem mpc_y(nV,nV);
 //                real_t yopt[nV];
 
 //                mpc_y.setOptions(op1);
 
-//                chrono::high_resolution_clock::time_point t_12 = std::chrono::high_resolution_clock::now();
+////                chrono::high_resolution_clock::time_point t_12 = std::chrono::high_resolution_clock::now();
 //                mpc_y.init(Qy_input,gy_input,Ay_input,lby,uby,lbAy,ubAy,nWSR);
 //                mpc_y.getPrimalSolution(yopt);
 
@@ -2103,22 +2123,10 @@ void WalkingController::qp3(){
 //            }
 //            else
 //            {
-                mpc_x.setOptions(op);
 
-                real_t xopt[nV];
+//                y_d1_ = A_*y_0 + b1_*opt_y_;
 
-                chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
-                mpc_x.init(Qx_input,gx_input,Ax_input,lbx,ubx,lbAx,ubAx,nWSR);
-                mpc_x.getPrimalSolution(xopt);
-
-                //mpc.hotstart(g_input,lb,ub,nWSR,0);
-                mpc_x.hotstart(gx_input,lbx,ubx,lbAx,ubAx,nWSR);
-                mpc_x.getPrimalSolution(xopt);
-
-                x_d1_ = A_*x_0 + b1_*xopt[0];
-                y_d1_ = A_*y_0 + b1_*opt_y_;
-
-                opt_x_ = xopt[1];
+//                opt_x_ = xopt[1];
 //            }
 
 //        }
@@ -2241,7 +2249,7 @@ void WalkingController::qp3(){
     ///////////////////////////////////
 
     x_p1_ = x_d1_;
-//    y_p1_ = y_d1_;
+    y_p1_ = y_d1_;
 
 
 
@@ -5673,9 +5681,9 @@ void WalkingController::IntrisicMPC(){
 //        lbA[i] = 0.0;
 //        ubA[i] = 0.0;
 
-        if(walking_tick_ == 0){
-            file[14]<<Min_bound(i)<<"\t"<<Max_bound(i)<<endl;
-        }
+//        if(walking_tick_ == 0){
+//            file[14]<<Min_bound(i)<<"\t"<<Max_bound(i)<<endl;
+//        }
     }
 //    for(int i=0;i<sample_N;i++){
 //        lbA[i] = zmp_min(i) - x_0(2);
@@ -6026,30 +6034,30 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     A_dsp1.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_dsp1(i+11) = (q_leg_min_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp1(i+11) = (q_leg_max_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
     A_lifting.block<12,12>(6,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_lifting(i+6) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_lifting(i+6) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_lifting(i+6) = (q_leg_min_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_lifting(i+6) = (q_leg_max_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_landing.block<12,12>(11,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_landing(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_landing(i+11) = (q_leg_min_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_landing(i+11) = (q_leg_max_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
     A_dsp2.block<12,12>(12,0) = Iden_12;
 
     for(int i=0;i<12;i++){
-        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
-        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        lbA_dsp2(i+12) = (q_leg_min_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
+        ubA_dsp2(i+12) = (q_leg_max_(LF_BEGIN + i) - desired_q_not_compensated_(LF_BEGIN + i))*hz_;
     }
 
 
@@ -7071,6 +7079,7 @@ void WalkingController::MPC_com(){
         N_ = N;
         interval_ = interval;
         MPC_Matrix_Update(N,dt,interval);
+//        getMPCMatrix(NL,N,dt,interval);
     }
 
     double start_time ;
@@ -7098,7 +7107,18 @@ void WalkingController::MPC_com(){
         zmp_y_ref(i) = ref_zmp_(walking_tick_ - start_time + interval*i,1);
     }
 
+    Eigen::VectorXd foot_x, foot_y;
 
+    footReferenceGenerator(foot_x, foot_y);
+
+    Eigen::VectorXd fx_ref;
+    fx_ref.resize(N);
+
+    for(int i=0;i<N;i++){
+        fx_ref(i) = foot_x(walking_tick_-start_time +interval*i);
+    }
+
+    zmp_x_ref = fx_ref;
     Eigen::Vector3d y_0, x_0;
 
     y_0.setZero(); x_0.setZero();
@@ -7111,56 +7131,67 @@ void WalkingController::MPC_com(){
         y_0 = pre_mpc_y_;
     }
 
-    Eigen::VectorXd     future_y, future_x, future_ax;
-    future_y.resize(N); future_x.resize(N); future_ax.resize(N);
+    Eigen::MatrixXd     future_y, future_x, future_ax;
+
+    future_y.resize(N,1); future_x.resize(N,1); future_ax.resize(N,1);
 
     future_x = Pzx_mpc_*x_0;
     future_y = Pzx_mpc_*y_0;
+//    future_x = Px_*x_0;
+//    future_y = Px_*y_0;
     future_ax = Pax_mpc_*x_0;
 
     Eigen::VectorXd    zmp_y_err, zmp_x_err;
     zmp_x_err.resize(N); zmp_x_err.setZero();
     zmp_y_err.resize(N); zmp_y_err.setZero();
 
-    zmp_x_err = zmp_x_ref - future_x;
-    zmp_y_err = zmp_y_ref - future_y;
+    zmp_x_err = -zmp_x_ref + future_x;
+//    zmp_x_err = fx_ref - future_x;
+    zmp_y_err = -zmp_y_ref + future_y;
 
-    file[21]<<walking_tick_<<"\t"<<current_step_num_;
-    for(int i=0;i<N;i++){
-        file[21]<<"\t"<<future_x(i);
-    }
-    file[21]<<endl;
 
-    Eigen::VectorXd   gy_input, gx_input;
-    gx_input(N); gx_input.setZero();
-    gy_input(N); gy_input.setZero();
+
+    Eigen::MatrixXd   gy_input, gx_input;
+    gx_input(N,1); gx_input.setZero();
+    gy_input(N,1); gy_input.setZero();
 
 
 //    if(current_step_num_ == total_step_num_-1)
 //        future_ax.setZero();
 
-    gx_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_x_err + gamma_mpc_*dt*dt*Pau_mpc_.transpose()*future_ax;
-    gy_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_y_err;
+//    gx_input = -alpha_mpc_*Pzu_mpc_.transpose()*zmp_x_err + gamma_mpc_*dt*dt*Pau_mpc_.transpose()*future_ax;
+    gx_input = alpha_mpc_*Pzu_mpc_.transpose()*zmp_x_err + gamma_mpc_*P_delvu_mpc_.transpose()*P_delvx_mpc_*x_0;
+    gy_input = alpha_mpc_*Pzu_mpc_.transpose()*zmp_y_err;
 
-    Eigen::VectorXd     zmp_x_min, zmp_x_max, zmp_y_min, zmp_y_max;
-    zmp_x_min.resize(N); zmp_x_min.setZero();
-    zmp_x_max.resize(N); zmp_x_max.setZero();
-    zmp_y_min.resize(N); zmp_y_min.setZero();
-    zmp_y_max.resize(N); zmp_y_max.setZero();
+    Eigen::MatrixXd     zmp_x_min, zmp_x_max, zmp_y_min, zmp_y_max;
+    zmp_x_min.resize(N,1); zmp_x_min.setZero();
+    zmp_x_max.resize(N,1); zmp_x_max.setZero();
+    zmp_y_min.resize(N,1); zmp_y_min.setZero();
+    zmp_y_max.resize(N,1); zmp_y_max.setZero();
 
-    Eigen::VectorXd     zmp_x_margin, zmp_y_margin;
-    zmp_x_margin.resize(N); zmp_x_margin.setOnes();
-    zmp_y_margin.resize(N); zmp_y_margin.setOnes();
+    Eigen::MatrixXd     zmp_x_margin, zmp_y_margin;
+    zmp_x_margin.resize(N,1); zmp_x_margin.setOnes();
+    zmp_y_margin.resize(N,1); zmp_y_margin.setOnes();
+
+
 
     zmp_x_margin *= 0.15;
     zmp_y_margin *= 0.075;
 
+//    if(walking_tick_ == t_start_)
+//        cout<<"zmp margin : "<<zmp_x_margin<<endl;
 
     zmp_x_min = zmp_x_ref - zmp_x_margin;
-    if(current_step_num_ == total_step_num_-1)
-        zmp_x_min = zmp_x_ref;
+//    if(current_step_num_ == total_step_num_-1)
+//        zmp_x_min = zmp_x_ref;/
 
     zmp_x_max = zmp_x_ref + zmp_x_margin;
+
+//    zmp_x_min = fx_ref - zmp_x_margin;
+//    if(current_step_num_ == total_step_num_-1)
+//        zmp_x_min = fx_ref;
+
+//    zmp_x_max = fx_ref + zmp_x_margin;
 
     zmp_y_min = zmp_y_ref - zmp_y_margin;
     zmp_y_max = zmp_y_ref + zmp_y_margin;
@@ -7181,16 +7212,44 @@ void WalkingController::MPC_com(){
     //    }
     //    file[21]<<endl;
 
-    Eigen::VectorXd    zmp_x_max_err, zmp_x_min_err, zmp_y_max_err, zmp_y_min_err;
-    zmp_x_max_err.resize(N); zmp_x_max_err.setZero();
-    zmp_x_min_err.resize(N); zmp_x_min_err.setZero();
-    zmp_y_max_err.resize(N); zmp_y_max_err.setZero();
-    zmp_y_min_err.resize(N); zmp_y_min_err.setZero();
+    Eigen::MatrixXd    zmp_x_max_err, zmp_x_min_err, zmp_y_max_err, zmp_y_min_err;
+    zmp_x_max_err.resize(N,1); zmp_x_max_err.setZero();
+    zmp_x_min_err.resize(N,1); zmp_x_min_err.setZero();
+    zmp_y_max_err.resize(N,1); zmp_y_max_err.setZero();
+    zmp_y_min_err.resize(N,1); zmp_y_min_err.setZero();
 
     zmp_x_max_err = zmp_x_max - future_x;
     zmp_x_min_err = zmp_x_min - future_x;
+
     zmp_y_max_err = zmp_y_max - future_y;
     zmp_y_min_err = zmp_y_min - future_y;
+
+    file[21]<<walking_tick_<<"\t"<<current_step_num_;
+    for(int i=0;i<N;i++){
+        file[21]<<"\t"<<zmp_x_max_err(i);
+    }
+    file[21]<<endl;
+    file[21]<<walking_tick_<<"\t"<<current_step_num_;
+    for(int i=0;i<N;i++){
+        file[21]<<"\t"<<zmp_x_min_err(i);
+    }
+    file[21]<<endl;
+
+    Eigen::MatrixXd temp_margin_x, temp_margin_y;
+    calculateFootMargin2(temp_margin_x,temp_margin_y);
+
+    Eigen::MatrixXd cst_x, cst_y;
+    cst_x.resize(N,2); cst_y.resize(N,2);
+
+    for(int i=0;i<N;i++){
+        cst_x(i,0) = temp_margin_x(walking_tick_-start_time+interval*i,0);
+        cst_x(i,1) = temp_margin_x(walking_tick_-start_time+interval*i,1);
+
+        cst_y(i,0) = temp_margin_y(walking_tick_-start_time+interval*i,0);
+        cst_y(i,1) = temp_margin_y(walking_tick_-start_time+interval*i,1);
+    }
+
+
 
     real_t Qy_mpc[N*N], gy_mpc[N], Ay_mpc[N*N], lby_mpc[N], uby_mpc[N], lbAy_mpc[N], ubAy_mpc[N];
     real_t Qx_mpc[N*N], gx_mpc[N], Ax_mpc[N*N], lbx_mpc[N], ubx_mpc[N], lbAx_mpc[N], ubAx_mpc[N];
@@ -7198,7 +7257,9 @@ void WalkingController::MPC_com(){
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             Qx_mpc[N*j + i] = Qx_mpc_(i,j);
+//            Qx_mpc[N*j + i] = Qx_(i,j);
             Ax_mpc[N*j + i] = Pzu_mpc_(i,j);
+//            Ax_mpc[N*j + i] = pu_(i,j);
 
             Qy_mpc[N*j + i] = Qy_mpc_(i,j);
             Ay_mpc[N*j + i] = Pzu_mpc_(i,j);
@@ -7207,11 +7268,17 @@ void WalkingController::MPC_com(){
         gx_mpc[i] = gx_input(i);
         gy_mpc[i] = gy_input(i);
 
-        lbAx_mpc[i] = zmp_x_min_err(i);
-        ubAx_mpc[i] = zmp_x_max_err(i);
+//        lbAx_mpc[i] = zmp_x_min_err(i);
+//        ubAx_mpc[i] = zmp_x_max_err(i);
 
-        lbAy_mpc[i] = zmp_y_min_err(i);
-        ubAy_mpc[i] = zmp_y_max_err(i);
+//        lbAy_mpc[i] = zmp_y_min_err(i);
+//        ubAy_mpc[i] = zmp_y_max_err(i);
+
+        lbAx_mpc[i] = cst_x(i,0) - zmp_x_err(i);
+        ubAx_mpc[i] = cst_x(i,1) - zmp_x_err(i);
+
+        lbAy_mpc[i] = cst_y(i,0) - zmp_y_err(i);
+        ubAy_mpc[i] = cst_y(i,1) - zmp_y_err(i);
 
         lbx_mpc[i] = -10;
         ubx_mpc[i] = 10;
@@ -7220,10 +7287,49 @@ void WalkingController::MPC_com(){
         uby_mpc[i] = 10;
     }
 
+    Eigen::MatrixXd Qu_input, Au_input;
+
+    Qu_input.resize(2*N,2*N); Qu_input.setZero();
+    Au_input.resize(2*N,2*N); Au_input.setZero();
+
+    Qu_input.block(0,0,N,N) = Qx_mpc_; Qu_input.block(N,N,N,N) = Qx_mpc_;
+    Au_input.block(0,0,N,N) = Pzu_mpc_; Au_input.block(N,N,N,N) = Pzu_mpc_;
+
+    real_t Qu_mpc[2*N*2*N], gu_mpc[2*N], Au_mpc[2*N*2*N], lbu_mpc[2*N], ubu_mpc[2*N], lbAu_mpc[2*N], ubAu_mpc[2*N];
+
+    for(int i=0;i<2*N;i++){
+        for(int j=0;j<2*N;j++){
+            Qu_mpc[j*2*N + i] = Qu_input(i,j);
+            Au_mpc[j*2*N + i] = Au_input(i,j);
+        }
+    }
+    for(int i=0; i<N;i++){
+        gu_mpc[i] = gx_input(i);
+        gu_mpc[i+N] = gy_input(i);
+
+        lbAu_mpc[i] = cst_x(i,0) - zmp_x_err(i);
+        lbAu_mpc[i+N] = cst_y(i,0) - zmp_y_err(i);
+
+        ubAu_mpc[i] = cst_x(i,1) - zmp_x_err(i);
+        ubAu_mpc[i+N] = cst_y(i,1) - zmp_y_err(i);
+
+        lbu_mpc[i] = -10;
+        lbu_mpc[i+N] = -10;
+
+        ubu_mpc[i] = 10;
+        ubu_mpc[i+N] = 10;
+
+    }
+
+
+    int_t nV2;
+    nV2 = 2*N;
+
+
     int_t  nV;
     nV = N;
 
-    int_t nWSR = 1000;
+    int_t nWSR = 10000;
 
 
     Options mpc_opt;
@@ -7233,28 +7339,44 @@ void WalkingController::MPC_com(){
 
     mpc_opt.printLevel = PL_NONE;
 
-    real_t opt_y_mpc[nV];
+    /// total //////
+    real_t u_mpc[nV2];
+    QProblem mpc_u(nV2, nV2);
+    mpc_u.setOptions(mpc_opt);
 
-//    QProblemB mpc_y(N);
+    mpc_u.init(Qu_mpc,gu_mpc,Au_mpc,lbu_mpc,ubu_mpc,lbAu_mpc,ubAu_mpc,nWSR,0);
+    mpc_u.getPrimalSolution(u_mpc);
+
+    mpc_x_ = a_mpc_*x_0 + b_mpc_*u_mpc[0];
+    mpc_y_ = a_mpc_*y_0 + b_mpc_*u_mpc[N];
+
+
+    //////////////
+
+//    mpc_x.resetCounter();
+
+//    real_t opt_y_mpc[nV];
+
+////    QProblemB mpc_y(N);
+////    mpc_y.setOptions(mpc_opt);
+////    mpc_y.init(Q_mpc,g_mpc,lb_mpc,ub_mpc,nWSR,0);
+////    mpc_y.getPrimalSolution(opt_mpc);
+
+//    QProblem mpc_y(nV, nV);
 //    mpc_y.setOptions(mpc_opt);
-//    mpc_y.init(Q_mpc,g_mpc,lb_mpc,ub_mpc,nWSR,0);
-//    mpc_y.getPrimalSolution(opt_mpc);
+//    mpc_y.init(Qy_mpc,gy_mpc,Ay_mpc,lby_mpc,uby_mpc,lbAy_mpc,ubAy_mpc,nWSR,0);
+//    mpc_y.getPrimalSolution(opt_y_mpc);
 
-    QProblem mpc_y(nV, nV);
-    mpc_y.setOptions(mpc_opt);
-    mpc_y.init(Qy_mpc,gy_mpc,Ay_mpc,lby_mpc,uby_mpc,lbAy_mpc,ubAy_mpc,nWSR,0);
-    mpc_y.getPrimalSolution(opt_y_mpc);
+//    mpc_y_ = a_mpc_*y_0 + b_mpc_*opt_y_mpc[0];
 
-    mpc_y_ = a_mpc_*y_0 + b_mpc_*opt_y_mpc[0];
+//    real_t opt_x_mpc[nV];
 
-    real_t opt_x_mpc[nV];
+//    QProblem mpc_x(nV, nV);
+//    mpc_x.setOptions(mpc_opt);
+//    mpc_x.init(Qx_mpc,gx_mpc,Ax_mpc,lbx_mpc,ubx_mpc,lbAx_mpc,ubAx_mpc,nWSR,0);
+//    mpc_x.getPrimalSolution(opt_x_mpc);
 
-    QProblem mpc_x(nV, nV);
-    mpc_y.setOptions(mpc_opt);
-    mpc_y.init(Qx_mpc,gx_mpc,Ax_mpc,lbx_mpc,ubx_mpc,lbAx_mpc,ubAx_mpc,nWSR,0);
-    mpc_y.getPrimalSolution(opt_x_mpc);
-
-    mpc_x_ = a_mpc_*x_0 + b_mpc_*opt_x_mpc[0];
+//    mpc_x_ = a_mpc_*x_0 + b_mpc_*opt_x_mpc[0];
 
 
     pre_mpc_x_ = mpc_x_;
@@ -7263,36 +7385,36 @@ void WalkingController::MPC_com(){
 
     SupportfootComUpdate(pre_mpc_x_,pre_mpc_y_, pre_mpc_x_, pre_mpc_y_);
 
-//    if(com_control_mode_ == true)
-//    {
-//      com_desired_(0) = mpc_x_(0);
-//      com_desired_(1) = mpc_y_(0);
-//      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+    if(com_control_mode_ == true)
+    {
+      com_desired_(0) = mpc_x_(0);
+      com_desired_(1) = mpc_y_(0);
+      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-//      com_dot_desired_(0) = mpc_x_(1);
-//      com_dot_desired_(1) = mpc_y_(1);
-//      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+      com_dot_desired_(0) = mpc_x_(1);
+      com_dot_desired_(1) = mpc_y_(1);
+      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
-//    }
-//    else
-//    {
-//      com_desired_(0) = mpc_x_(0);
-//      com_desired_(1) = mpc_y_(0);
-//      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
+    }
+    else
+    {
+      com_desired_(0) = mpc_x_(0);
+      com_desired_(1) = mpc_y_(0);
+      com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-//      com_dot_desired_(0) = mpc_x_(1);
-//      com_dot_desired_(1) = mpc_y_(1);
-//      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
+      com_dot_desired_(0) = mpc_x_(1);
+      com_dot_desired_(1) = mpc_y_(1);
+      com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
-//    }
+    }
 
 
     Eigen::VectorXd yopt, xopt;
     yopt.resize(N); xopt.resize(N);
-    for(int i=0;i<N;i++){
-        xopt(i) = opt_x_mpc[i];
-        yopt(i) = opt_y_mpc[i];
-    }
+//    for(int i=0;i<N;i++){
+//        xopt(i) = opt_x_mpc[i];
+//        yopt(i) = opt_y_mpc[i];
+//    }
 
     Eigen::MatrixXd future_com_x, future_com_y;
     future_com_x.resize(3*N,1);    future_com_y.resize(3*N,1);
@@ -7456,11 +7578,11 @@ void WalkingController::MPC_Matrix_Update(int sampling_n, double dt, int interva
     for(int i=0;i<sampling_n;i++){
         Pzx_mpc_(i,0) = 1;
         Pzx_mpc_(i,1) = (i*interval + 1)*dt;
-        Pzx_mpc_(i,2) = (i*interval +1)*(i*interval +1)*pow(dt,2)/2.0 - zc_/GRAVITY;
+        Pzx_mpc_(i,2) = (i*interval +1)*(i*interval +1)*pow(dt,2)*0.5 - zc_/GRAVITY;
 
         for(int j=0;j<i+1;j++){
             nl = (i-j)*interval +1;
-            Pzu_mpc_(i,j) = (1+3*nl + 3*pow(nl,2))/6.0*pow(dt,3) - zc_/GRAVITY*dt;
+            Pzu_mpc_(i,j) = (1+3*nl + 3*pow(nl,2))*pow(dt,3)/6.0 - dt*zc_/GRAVITY;
         }
     }
 
@@ -7471,6 +7593,35 @@ void WalkingController::MPC_Matrix_Update(int sampling_n, double dt, int interva
 
     Pax_mpc_.resize(sampling_n,3); Pax_mpc_.setZero();
     Pau_mpc_.resize(sampling_n,sampling_n); Pau_mpc_.setZero();
+
+    P_delvx_mpc_.resize(sampling_n,3); P_delvu_mpc_.setZero();
+    P_delvu_mpc_.resize(sampling_n,sampling_n); P_delvu_mpc_.setZero();
+
+    Eigen::MatrixXd p_vx, p_vu;
+
+    p_vx.resize(sampling_n,3); p_vu.resize(sampling_n,sampling_n);
+    p_vx.setZero(); p_vu.setZero();
+
+
+    for(int i=0; i<sampling_n; i++){
+        p_vx.row(i) = Px_mpc_.row(3*i + 1);
+        p_vu.row(i) = Pu_mpc_.row(3*i + 1);
+    }
+
+    Eigen::MatrixXd Selec_delta_v;
+    Selec_delta_v.resize(sampling_n,sampling_n);
+    Selec_delta_v.setZero();
+
+    Eigen::Matrix<double, 1, 2> del_vel;
+    del_vel(0, 0) = -1.0; del_vel(0,1) = 1.0;
+    Selec_delta_v(0,0) = 1.0;
+
+    for(int i=1; i<sampling_n; i++){
+        Selec_delta_v.block<1,2>(i,i-1) = del_vel;
+    }
+
+    P_delvu_mpc_ = Selec_delta_v*p_vu;
+    P_delvx_mpc_ = Selec_delta_v*p_vx;
 
     for(int i =0;i<sampling_n;i++){
         Pax_mpc_.row(i) = Px_mpc_.row(3*i+2);
@@ -7490,15 +7641,23 @@ void WalkingController::MPC_Matrix_Update(int sampling_n, double dt, int interva
 
     pau_t_pau = Pau_mpc_.transpose()*Pau_mpc_;
 
+    Eigen::MatrixXd S_del_t_S_del;
+    S_del_t_S_del.resize(sampling_n,sampling_n);
+    S_del_t_S_del = P_delvu_mpc_.transpose()*P_delvu_mpc_;
+
     Eigen::MatrixXd Iden_sampling_n;
     Iden_sampling_n.resize(sampling_n,sampling_n); Iden_sampling_n.setIdentity();
 
-    alpha_mpc_ = 1.0; beta_mpc_ = 0.000001; gamma_mpc_ = 0.001;
+    alpha_mpc_ = 1.0; beta_mpc_ = 0.00001; gamma_mpc_ = 0.001;
     Qx_mpc_.resize(sampling_n,sampling_n); Qx_mpc_.setZero();
     Qy_mpc_.resize(sampling_n,sampling_n); Qy_mpc_.setZero();
 
-    Qx_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n + gamma_mpc_*pau_t_pau*dt*dt;
+//    Qx_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n + gamma_mpc_*pau_t_pau*dt*dt;
 
+    // considering velocity delta
+
+    Qx_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n + gamma_mpc_*S_del_t_S_del;
+//    beta_mpc_ = 0.0000001;
     Qy_mpc_ = alpha_mpc_*pu_t_pu + beta_mpc_*Iden_sampling_n;
 
 
@@ -7633,7 +7792,7 @@ void WalkingController::get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, d
     g_pel_.resize(N_smpl);
 
 
-    alpha_pel_ = 1.0;
+    alpha_pel_ = 10.0;
     beta_pel_ = 0.0000000001;
 
     Eigen::MatrixXd I_N_smpl;

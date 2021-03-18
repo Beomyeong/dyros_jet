@@ -86,13 +86,13 @@ void WalkingController::compute()
 ////                if(heel_toe_mode_ == true)
                     t_1 = std::chrono::high_resolution_clock::now();
 //                    qp31();
-                    qp3();
-                    MPC_com();
+//                    qp3();
+//                    MPC_com();
                     t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
 
-                        FuturePelYawReference();
-                        MPC_pel_yaw();
+//                        FuturePelYawReference();
+//                        MPC_pel_yaw();
                     file[20]<<"\t"<<t_2.count();
 //            }
 //            else if(ik_mode_ !=2 || current_step_num_ == total_step_num_-1){
@@ -231,6 +231,31 @@ void WalkingController::compute()
                 <<"\t"<<rheel_clik_(0)<<"\t"<<rheel_clik_(1)<<"\t"<<rheel_clik_(2)<<"\t"<<rheel_clik_(3)<<"\t"<<rheel_clik_(4)<<"\t"<<rheel_clik_(5)
                 <<endl;
 
+        double left_determinant, right_determinant;
+        left_determinant = current_leg_jacobian_l_.determinant();
+        right_determinant = current_leg_jacobian_r_.determinant();
+
+        Eigen::VectorXcd eigenvalue_left, eigenvalue_right;
+        eigenvalue_left = current_leg_jacobian_l_.eigenvalues();
+        eigenvalue_right = current_leg_jacobian_r_.eigenvalues();
+
+        Eigen::JacobiSVD<Eigen::MatrixXd> svd_l(current_leg_jacobian_l_,Eigen::ComputeFullU|Eigen::ComputeFullU);
+        Eigen::JacobiSVD<Eigen::MatrixXd> svd_r(current_leg_jacobian_r_,Eigen::ComputeFullU|Eigen::ComputeFullU);
+
+//        cout<<walking_tick_<<", left leg eigenvalues : "<<eigenvalue_left(0)<<"\t"<<eigenvalue_left(1)<<"\t"<<eigenvalue_left(2)<<"\t"<<eigenvalue_left(3)<<"\t"<<eigenvalue_left(4)<<"\t"<<eigenvalue_left(5)<<endl;
+//        cout<<"left singular values, "<<svd_l.singularValues();
+//        cout<<", right leg eigenvalues : "<<eigenvalue_right(0)<<"\t"<<eigenvalue_right(1)<<"\t"<<eigenvalue_right(2)<<"\t"<<eigenvalue_right(3)<<"\t"<<eigenvalue_right(4)<<"\t"<<eigenvalue_right(5)<<endl;
+//        cout<<"right singular values , "<<svd_r.singularValues();
+
+//        cout<<" left jaco determinant : "<<left_determinant<<", right jaco determinant : "<<right_determinant<<endl;
+//        cout<<walking_tick_<<", left leg eigenvalues : "<<eigenvalue_left(0)<<"\t"<<eigenvalue_left(1)<<"\t"<<eigenvalue_left(2)<<"\t"<<eigenvalue_left(3)<<"\t"<<eigenvalue_left(4)<<"\t"<<eigenvalue_left(5)<<"\t"
+//              <<", right leg eigenvalues : "<<eigenvalue_right(0)<<"\t"<<eigenvalue_right(1)<<"\t"<<eigenvalue_right(2)<<"\t"<<eigenvalue_right(3)<<"\t"<<eigenvalue_right(4)<<"\t"<<eigenvalue_right(5)<<endl;
+
+        file[7]<<walking_tick_<<"\t"<<left_determinant<<"\t"<<right_determinant
+//              <<"\t"<<eigenvalue_left(0)<<"\t"<<eigenvalue_left(1)<<"\t"<<eigenvalue_left(2)<<"\t"<<eigenvalue_left(3)<<"\t"<<eigenvalue_left(4)<<"\t"<<eigenvalue_left(5)
+//                <<"\t"<<eigenvalue_right(0)<<"\t"<<eigenvalue_right(1)<<"\t"<<eigenvalue_right(2)<<"\t"<<eigenvalue_right(3)<<"\t"<<eigenvalue_right(4)<<"\t"<<eigenvalue_right(5)
+               <<"\t"<<svd_l.singularValues()(0)<<"\t"<<svd_l.singularValues()(1)<<"\t"<<svd_l.singularValues()(2)<<"\t"<<svd_l.singularValues()(3)<<"\t"<<svd_l.singularValues()(4)<<"\t"<<svd_l.singularValues()(5)
+              <<"\t"<<svd_r.singularValues()(0)<<"\t"<<svd_r.singularValues()(1)<<"\t"<<svd_r.singularValues()(2)<<"\t"<<svd_r.singularValues()(3)<<"\t"<<svd_r.singularValues()(4)<<"\t"<<svd_r.singularValues()(5)<<endl;
         /////////////////////compute/////////////////////////
         if (ik_mode_ == 0)
         {
@@ -264,19 +289,19 @@ void WalkingController::compute()
               desired_q_not_compensated_(i) = q_init_(i);
             }
 //            desired_q_(i) = desired_leg_q_dot_(i)/hz_+current_q_(i);
-            desired_q_(i) = desired_leg_q_dot_(i-1)/hz_+desired_q_not_compensated_(i);
+            desired_q_(i) = desired_leg_q_dot_(i)/hz_+desired_q_not_compensated_(i);
           }
         }
         else if (ik_mode_ == 2){
             chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
 //                    qpIK();
 //            qpIK_pelvis();
-            qpIK_pelvis_13();
-            QP_momentum();
+//            qpIK_pelvis_13();
+//            QP_momentum();
 //            qpIK_pel_arm();
 //            qpIK_pel_full_arm();
 
-//            qpIK_test();
+            qpIK_test();
             chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
             file[20]<<"\t"<<t_2.count()<<endl;
@@ -304,13 +329,18 @@ void WalkingController::compute()
         Eigen::Vector2d zmp_calculated;
         zmp_calculated.setZero();
 
+
+        // for preview
         zmp_calculated(0) = c*xd_;
         zmp_calculated(1) = c*yd_;
 
-        zmp_calculated(0) = c*x_d1_;
-        zmp_calculated(1) = c*y_d1_;
+        // for MPC
+//        zmp_calculated(0) = c*x_d1_;
+//        zmp_calculated(1) = c*y_d1_;
+//        zmp_calculated(0) = c*mpc_x_;
+//        zmp_calculated(1) = c*mpc_y_;
 
-        zmp_calculated(0) = com_data_(walking_tick_,1) - c(2) * com_data_(walking_tick_,3);
+//        zmp_calculated(0) = com_data_(walking_tick_,1) - c(2) * com_data_(walking_tick_,3);
         //zmp_calculated(1) = com_data_(walking_tick_,4) - c(2) * com_data_(walking_tick_,6);
 
 
@@ -419,7 +449,7 @@ void WalkingController::compute()
 
 
         ///// data saving in text files new version /////
-        file[0]<<walking_tick_<<"\t"<<zmp_desired_(0)<<"\t"<<zmp_desired_(1)<<"\t"<<zmp_measured_(0)<<"\t"<<zmp_measured_(1)<<endl;
+        file[0]<<walking_tick_<<"\t"<<zmp_desired_(0)<<"\t"<<zmp_desired_(1)<<"\t"<<zmp_measured_(0)<<"\t"<<zmp_measured_(1)<<"\t"<<zmp_calculated(0)<<"\t"<<zmp_calculated(1)<<endl;
         file[1]<<walking_tick_<<"\t"<<current_step_num_<<"\t"<<com_desired_(0)<<"\t"<<com_desired_(1)<<"\t"<<com_desired_(2)<<"\t"<<com_support_current_(0)<<"\t"<<com_support_current_(1)<<"\t"<<com_support_current_(2)
               <<"\t"<<com_float_current_(0)<<"\t"<<com_float_current_(1)<<"\t"<<com_float_current_(2)
               <<"\t"<<com_dot_desired_(0)<<"\t"<<com_dot_desired_(1)<<"\t"<<com_dot_float_current_(0)<<"\t"<<com_dot_float_current_(1)
@@ -473,8 +503,14 @@ void WalkingController::compute()
                   <<"\t"<<rheel_trajectory_euler_(0)<<"\t"<<rheel_trajectory_euler_(1)<<"\t"<<rheel_trajectory_euler_(2)
                <<endl;
 
-        file[8]<<walking_tick_<<"\t"<<desired_leg_q_dot_(0)<<"\t"<<desired_leg_q_dot_(1)<<"\t"<<desired_leg_q_dot_(2)<<"\t"<<desired_leg_q_dot_(3)<<"\t"<<desired_leg_q_dot_(4)<<"\t"<<desired_leg_q_dot_(5)
-              <<"\t"<<desired_leg_q_dot_(6)<<"\t"<<desired_leg_q_dot_(7)<<"\t"<<desired_leg_q_dot_(8)<<"\t"<<desired_leg_q_dot_(9)<<"\t"<<desired_leg_q_dot_(10)<<"\t"<<desired_leg_q_dot_(11)<<endl;
+        file[8]<<walking_tick_
+              <<"\t"<<desired_leg_q_dot_(0)
+              <<"\t"<<desired_leg_q_dot_(1)<<"\t"<<desired_leg_q_dot_(2)<<"\t"<<desired_leg_q_dot_(3)<<"\t"<<desired_leg_q_dot_(4)<<"\t"<<desired_leg_q_dot_(5)<<"\t"<<desired_leg_q_dot_(6)
+              <<"\t"<<desired_leg_q_dot_(7)<<"\t"<<desired_leg_q_dot_(8)<<"\t"<<desired_leg_q_dot_(9)<<"\t"<<desired_leg_q_dot_(10)<<"\t"<<desired_leg_q_dot_(11)<<"\t"<<desired_leg_q_dot_(12)
+             <<"\t"<<current_q_dot_(0)
+             <<"\t"<<current_q_dot_(1)<<"\t"<<current_q_dot_(2)<<"\t"<<current_q_dot_(3)<<"\t"<<current_q_dot_(4)<<"\t"<<current_q_dot_(5)<<"\t"<<current_q_dot_(6)
+             <<"\t"<<current_q_dot_(7)<<"\t"<<current_q_dot_(8)<<"\t"<<current_q_dot_(9)<<"\t"<<current_q_dot_(10)<<"\t"<<current_q_dot_(11)<<"\t"<<current_q_dot_(12)
+             <<endl;
         file[9]<<walking_tick_<<"\t"<<lfoot_trajectory_float_.translation()(0)<<"\t"<<lfoot_trajectory_float_.translation()(1)<<"\t"<<lfoot_trajectory_float_.translation()(2)
               <<"\t"<<rfoot_trajectory_float_.translation()(0)<<"\t"<<rfoot_trajectory_float_.translation()(1)<<"\t"<<rfoot_trajectory_float_.translation()(2)
              <<"\t"<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2)
@@ -484,10 +520,23 @@ void WalkingController::compute()
              <<"\t"<<lfoot_float_current_euler_(0)*RAD2DEG<<"\t"<<lfoot_float_current_euler_(1)*RAD2DEG<<"\t"<<lfoot_float_current_euler_(2)*RAD2DEG
                 <<"\t"<<rfoot_float_current_euler_(0)*RAD2DEG<<"\t"<<rfoot_float_current_euler_(1)*RAD2DEG<<"\t"<<rfoot_float_current_euler_(2)*RAD2DEG
               <<endl;
+        file[14]<<walking_tick_
+               <<"\t"<<link_transform_[0].translation()(0)<<"\t"<<link_transform_[0].translation()(1)<<"\t"<<link_transform_[0].translation()(2)
+                 <<"\t"<<link_transform_[LF_LINK].translation()(0)<<"\t"<<link_transform_[LF_LINK].translation()(1)<<"\t"<<link_transform_[LF_LINK].translation()(2)
+                   <<"\t"<<link_transform_[LF_LINK+3].translation()(0)<<"\t"<<link_transform_[LF_LINK+3].translation()(1)<<"\t"<<link_transform_[LF_LINK+3].translation()(2)
+                     <<"\t"<<link_transform_[LF_LINK+4].translation()(0)<<"\t"<<link_transform_[LF_LINK+4].translation()(1)<<"\t"<<link_transform_[LF_LINK+4].translation()(2)
+                    <<"\t"<<link_transform_[RF_LINK].translation()(0)<<"\t"<<link_transform_[RF_LINK].translation()(1)<<"\t"<<link_transform_[RF_LINK].translation()(2)
+                      <<"\t"<<link_transform_[RF_LINK+3].translation()(0)<<"\t"<<link_transform_[RF_LINK+3].translation()(1)<<"\t"<<link_transform_[RF_LINK+3].translation()(2)
+                     <<"\t"<<link_transform_[RF_LINK+4].translation()(0)<<"\t"<<link_transform_[RF_LINK+4].translation()(1)<<"\t"<<link_transform_[RF_LINK+4].translation()(2)
+                    <<"\t"<<ltoe_float_current_.translation()(0)<<"\t"<<ltoe_float_current_.translation()(1)<<"\t"<<ltoe_float_current_.translation()(2)
+                      <<"\t"<<lheel_float_current_.translation()(0)<<"\t"<<lheel_float_current_.translation()(1)<<"\t"<<lheel_float_current_.translation()(2)
+                     <<"\t"<<rtoe_float_current_.translation()(0)<<"\t"<<rtoe_float_current_.translation()(1)<<"\t"<<rtoe_float_current_.translation()(2)
+                       <<"\t"<<rheel_float_current_.translation()(0)<<"\t"<<rheel_float_current_.translation()(1)<<"\t"<<rheel_float_current_.translation()(2)
+                    <<endl;
 //        file[21]<<walking_tick_<<"\t"<<current_q_dot_(0)<<"\t"<<current_q_dot_(1)<<"\t"<<current_q_dot_(2)<<"\t"<<current_q_dot_(3)<<"\t"<<current_q_dot_(4)<<"\t"<<current_q_dot_(5)
 //               <<"\t"<<current_q_dot_(6)<<"\t"<<current_q_dot_(7)<<"\t"<<current_q_dot_(8)<<"\t"<<current_q_dot_(9)<<"\t"<<current_q_dot_(10)<<"\t"<<current_q_dot_(11)
 //              <<"\t"<<current_q_dot_(LA_BEGIN)<<"\t"<<current_q_dot_(LA_BEGIN+1)<<"\t"<<current_q_dot_(LA_BEGIN+2)<<"\t"<<current_q_dot_(LA_BEGIN+3)<<"\t"<<current_q_dot_(LA_BEGIN+4)<<"\t"<<current_q_dot_(LA_BEGIN+5)<<"\t"<<current_q_dot_(LA_BEGIN+6)
-//                <<"\t"<<current_q_dot_(RA_BEGIN)<<"\t"<<current_q_dot_(RA_BEGIN+1)<<"\t"<<current_q_dot_(RA_BEGIN+2)<<"\t"<<current_q_dot_(RA_BEGIN+3)<<"\t"<<current_q_dot_(RA_BEGIN+4)<<"\t"<<current_q_dot_(RA_BEGIN+5)<<"\t"<<current_q_dot_(RA_BEGIN+6)
+//             <<"\t"<<current_q_dot_(RA_BEGIN)<<"\t"<<current_q_dot_(RA_BEGIN+1)<<"\t"<<current_q_dot_(RA_BEGIN+2)<<"\t"<<current_q_dot_(RA_BEGIN+3)<<"\t"<<current_q_dot_(RA_BEGIN+4)<<"\t"<<current_q_dot_(RA_BEGIN+5)<<"\t"<<current_q_dot_(RA_BEGIN+6)<<endl;
 //              <<"\t"<<E_con(0)<<"\t"<<E_con(1)<<"\t"<<E_con(2)<<"\t"<<E_con(3)<<"\t"<<E_con(4)<<"\t"<<E_con(5)
 //                <<"\t"<<E_con(6)<<"\t"<<E_con(7)<<"\t"<<E_con(8)<<"\t"<<E_con(9)<<"\t"<<E_con(10)<<"\t"<<E_con(11)
 //              <<"\t"<<E_con_total<<endl;
@@ -498,8 +547,10 @@ void WalkingController::compute()
                <<"\t"<<rfoot_trajectory_dot_support_(3)<<"\t"<<rfoot_trajectory_dot_support_(4)<<"\t"<<rfoot_trajectory_dot_support_(5)
               <<"\t"<<lfoot_trajectory_dot_support_(3)<<"\t"<<lfoot_trajectory_dot_support_(4)<<"\t"<<lfoot_trajectory_dot_support_(5)
                <<endl;
-        file[34]<<walking_tick_<<"\t"<<current_torque_(0)<<"\t"<<current_torque_(1)<<"\t"<<current_torque_(2)<<"\t"<<current_torque_(3)<<"\t"<<current_torque_(4)<<"\t"<<current_torque_(5)
-               <<"\t"<<current_torque_(6)<<"\t"<<current_torque_(7)<<"\t"<<current_torque_(8)<<"\t"<<current_torque_(9)<<"\t"<<current_torque_(10)<<"\t"<<current_torque_(11)<<endl;
+        file[34]<<walking_tick_
+               <<"\t"<<current_torque_(0)
+              <<"\t"<<current_torque_(1)<<"\t"<<current_torque_(2)<<"\t"<<current_torque_(3)<<"\t"<<current_torque_(4)<<"\t"<<current_torque_(5) <<"\t"<<current_torque_(6)
+              <<"\t"<<current_torque_(7)<<"\t"<<current_torque_(8)<<"\t"<<current_torque_(9)<<"\t"<<current_torque_(10)<<"\t"<<current_torque_(11)<<"\t"<<current_torque_(12)<<endl;
 
         ///////////////////////////////////////////////
 
@@ -693,7 +744,7 @@ void WalkingController::writeDesired(const unsigned int *mask, VectorQd& desired
              if(lqr_compensator_mode_ ==  true)
              {
                  if(i <12)
-                    desired_q(i) = DOB_IK_output_b_(i);
+                    desired_q(i+1) = DOB_IK_output_b_(i);
              }
           }
 //      }
@@ -761,6 +812,9 @@ void WalkingController::parameterSetting()
   matrix_get_flag_ = false;
   MPC_Matrix_cal_ = false;
 
+  desired_leg_q_dot_.resize(13);
+  desired_leg_q_dot_.setZero();
+
 
 
   //// for setting floating frame to pelvis transpormation matrix
@@ -777,8 +831,8 @@ void WalkingController::parameterSetting()
 //  q_leg_max_.resize(12);
 //  q_leg_min_.resize(12);
 
-//    SettingJointLimit();
-  SettingVirtualJointLimit();
+    SettingJointLimit();
+//  SettingVirtualJointLimit();
 
 //  kalmanStateSpace3();
 //  kalmanStateSpace2(); //kalman statespace eq with com bias term
@@ -905,12 +959,12 @@ void WalkingController::getRobotState()
       pelv_float_current_ = model_.getCurrentLinkTransform(1);
       com_float_current_ = model_.getCurrentCom();
 
-      file[14]<<walking_tick_<<"\t"<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2);
+//      file[14]<<walking_tick_<<"\t"<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2);
 //      lfoot_float_current_ = pelv_float_current_*model_.getCurrentTransform((DyrosJetModel::EndEffector)0);
 //      rfoot_float_current_ = pelv_float_current_*model_.getCurrentTransform((DyrosJetModel::EndEffector)1);
 //      com_float_current_ = pelv_float_current_.linear()*model_.getCurrentCom();
 
-      file[14]<<"\t"<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2)<<endl;
+//      file[14]<<"\t"<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2)<<endl;
 
       com_dot_float_current_ = model_.getCurrentComDot();
       current_Angular_momentum_ = model_.getCurrentComAngularMomentum();
@@ -954,12 +1008,7 @@ void WalkingController::getRobotState()
       lfoot_rot_y = lfoot_float_current_.translation() + DyrosMath::rotateWithY(l_ankle_float(1))*ankle_to_heel - ankle_to_heel;
       rfoot_rot_y = rfoot_float_current_.translation() + DyrosMath::rotateWithY(r_ankle_float(1))*ankle_to_heel - ankle_to_heel;
 
-      file[11]<<walking_tick_<<"\t"<<lfoot_plane_temp.translation()(0)<<"\t"<<lfoot_plane_temp.translation()(1)<<"\t"<<lfoot_plane_temp.translation()(2)
-             <<"\t"<<rfoot_plane_temp.translation()(0)<<"\t"<<rfoot_plane_temp.translation()(1)<<"\t"<<rfoot_plane_temp.translation()(2)
-            <<"\t"<<lheel_temp(0)<<"\t"<<lheel_temp(1)<<"\t"<<lheel_temp(2)
-           <<"\t"<<rheel_temp(0)<<"\t"<<rheel_temp(1)<<"\t"<<rheel_temp(2)
-          <<"\t"<<lfoot_rot_y(0)<<"\t"<<lfoot_rot_y(1)<<"\t"<<lfoot_rot_y(2)
-         <<"\t"<<rfoot_rot_y(0)<<"\t"<<rfoot_rot_y(1)<<"\t"<<rfoot_rot_y(2)<<endl;
+
 
 //      if(walking_tick_ ==0)
 //        cout<<"com float  "<<com_float_current_<<endl;
@@ -3013,14 +3062,20 @@ void WalkingController::updateNextStepTime()
 
 void WalkingController::addZmpOffset()
 {
-//  lfoot_zmp_offset_ = -0.04;
-//  rfoot_zmp_offset_ = 0.04;
+    // for perview//
+  lfoot_zmp_offset_ = -0.04;
+  rfoot_zmp_offset_ = 0.04;
 
-    lfoot_zmp_offset_ = 0.02;
-    rfoot_zmp_offset_ = -0.02;
+//    lfoot_zmp_offset_ = 0.02;
+//    rfoot_zmp_offset_ = -0.02;
 
 //  lfoot_zmp_offset_ = -0.01;
 //  rfoot_zmp_offset_ = 0.01;
+
+//    /// for MPC
+//    lfoot_zmp_offset_ = 0.04;
+//    rfoot_zmp_offset_ = -0.04;
+
 
   foot_step_support_frame_offset_ = foot_step_support_frame_;
 
@@ -3334,22 +3389,22 @@ void WalkingController::getComTrajectory()
 
     //file[26]<<walking_tick_<<"\t"<<xs_(0)<<"\t"<<xs_(1)<<"\t"<<xs_(2)<<endl;
 
-//    com_pos_prev(0) = xs_(0);
+    com_pos_prev(0) = xs_(0);
     com_pos_prev(1) = ys_(0);
     com_pos = temp_rot*(com_pos_prev - temp_pos);
 
-//    com_vel_prev(0) = xs_(1);
+    com_vel_prev(0) = xs_(1);
     com_vel_prev(1) = ys_(1);
     com_vel_prev(2) = 0.0;
     com_vel = temp_rot*com_vel_prev;
 
-//    com_acc_prev(0) = xs_(2);
+    com_acc_prev(0) = xs_(2);
     com_acc_prev(1) = ys_(2);
     com_acc_prev(2) = 0.0;
     com_acc = temp_rot*com_acc_prev;
 
-//    xs_(0) = com_pos(0);
-//    xs_(1) = com_vel(0);
+    xs_(0) = com_pos(0);
+    xs_(1) = com_vel(0);
     xs_(2) = com_acc(0);
 
     ys_(0) = com_pos(1);
@@ -3361,7 +3416,7 @@ void WalkingController::getComTrajectory()
     //file[27]<<walking_tick_<<"\t"<<xs_(0)<<"\t"<<xs_(1)<<"\t"<<xs_(2)<<endl;
   }
 
-//  x_p1_ = xs_;
+  x_p1_ = xs_;
   y_p1_ = ys_;
   double start_time;
 
@@ -3375,11 +3430,11 @@ void WalkingController::getComTrajectory()
 
   if(com_control_mode_ == true)
   {
-//    com_desired_(0) = xd_(0);
+    com_desired_(0) = xd_(0);
     com_desired_(1) = yd_(0);
     com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-//    com_dot_desired_(0) = xd_(1);
+    com_dot_desired_(0) = xd_(1);
     com_dot_desired_(1) = yd_(1);
     com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
@@ -3391,11 +3446,11 @@ void WalkingController::getComTrajectory()
   }
   else
   {
-//    com_desired_(0) = xd_(0);
+    com_desired_(0) = xd_(0);
     com_desired_(1) = yd_(0);
     com_desired_(2) = DyrosMath::cubic(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0);
 
-//    com_dot_desired_(0) = xd_(1);
+    com_dot_desired_(0) = xd_(1);
     com_dot_desired_(1) = yd_(1);
     com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
@@ -4611,7 +4666,7 @@ void WalkingController::computeIkControl(Eigen::Isometry3d float_trunk_transform
 }
 
 
-void WalkingController::computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::Vector12d& desired_leg_q_dot)
+void WalkingController::computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::VectorXd& desired_leg_q_dot)
 {
     if(walking_tick_ ==0)
            cout<<endl<<" !!!!  jacobian ctrl   !!!!"<<endl;
@@ -4677,8 +4732,8 @@ void WalkingController::computeJacobianControl(Eigen::Isometry3d float_lleg_tran
 
      for (int i=0; i<6; i++)
      {
-       desired_leg_q_dot(i+6) = q_rfoot_dot(i);
-       desired_leg_q_dot(i) = q_lfoot_dot(i);
+       desired_leg_q_dot(i+7) = q_rfoot_dot(i);
+       desired_leg_q_dot(i+1) = q_lfoot_dot(i);
      }
 }
 
@@ -7244,9 +7299,9 @@ void WalkingController:: getOptimizationInputMatrix2(){
    for(int i=0;i<3;i++){
        y_temp_3(i) = Y_temp(i+3);
        y_temp_(i) = Y_temp(i+3);
-       file[34]<<y_temp_(i)<<"\t";
+//       file[34]<<y_temp_(i)<<"\t";
    }
-   file[34]<<endl;
+//   file[34]<<endl;
    for(int i=0;i<3;i++){
        for(int j=0;j<3;j++)
            A_c_(i,j) = A_c(i,j);
@@ -10452,37 +10507,41 @@ void WalkingController::CalculateCenterOfMassSupportBody(){
 }
 void WalkingController::SettingJointLimit(){
 
-    q_leg_max_.resize(12);
-    q_leg_min_.resize(12);
-//    q_leg_min_(0) = -50*DEG2RAD; q_leg_max_(0) = 50*DEG2RAD;
-//    q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
-//    q_leg_min_(2) = -90*DEG2RAD; q_leg_max_(2) = 90*DEG2RAD;
-//    q_leg_min_(3) =   0.0; q_leg_max_(3) = 3.14;
-////    q_leg_min_(4) = -45*DEG2RAD; q_leg_max_(4) = -20*DEG2RAD; // max : -25 min :-45
-////    q_leg_min_(4) = -3.14; q_leg_max_(4) = 3.14;
-//    q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
+    q_leg_max_.resize(13);
+    q_leg_min_.resize(13);
 
-//    q_leg_min_(6) = -50*DEG2RAD; q_leg_max_(6) = 50*DEG2RAD;
-//    q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
-//    q_leg_min_(8) = -90*DEG2RAD; q_leg_max_(8) = 90*DEG2RAD;
-//    q_leg_min_(9) = -3.14; q_leg_max_(9) = 0.0;
-////    q_leg_min_(10) = 20*DEG2RAD; q_leg_max_(10) = 45*DEG2RAD;//3.14; min : 25 max 45
-////    q_leg_min_(10) = -3.14; q_leg_max_(10) = 3.14;
-//    q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
+    q_leg_min_(0)  = -3.14; q_leg_max_(0) = 3.14;
 
-    q_leg_min_(0) = -3.14; q_leg_max_(0) = 3.14;
-    q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
+    q_leg_min_(1) = -50*DEG2RAD; q_leg_max_(1) = 50*DEG2RAD;
     q_leg_min_(2) = -3.14; q_leg_max_(2) = 3.14;
-    q_leg_min_(3) =   0.0; q_leg_max_(3) = 3.14;
-    q_leg_min_(4) = -3.14; q_leg_max_(4) = 3.14;
-    q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
-
+    q_leg_min_(3) = -90*DEG2RAD; q_leg_max_(3) = 90*DEG2RAD;
+    q_leg_min_(4) =   5*DEG2RAD; q_leg_max_(4) = 3.14;
+    q_leg_min_(5) = -45*DEG2RAD; q_leg_max_(5) = -25*DEG2RAD; // max : -25 min :-45
+//    q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
     q_leg_min_(6) = -3.14; q_leg_max_(6) = 3.14;
-    q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
+
+    q_leg_min_(7) = -50*DEG2RAD; q_leg_max_(7) = 50*DEG2RAD;
     q_leg_min_(8) = -3.14; q_leg_max_(8) = 3.14;
-    q_leg_min_(9) = -3.14; q_leg_max_(9) = 0.0;
-    q_leg_min_(10) = -3.14; q_leg_max_(10) = 3.14;
-    q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
+    q_leg_min_(9) = -90*DEG2RAD; q_leg_max_(9) = 90*DEG2RAD;
+    q_leg_min_(10) = -3.14; q_leg_max_(10) = -5*DEG2RAD;
+    q_leg_min_(11) = 25*DEG2RAD; q_leg_max_(11) = 45*DEG2RAD;//3.14; min : 25 max 45
+//    q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
+    q_leg_min_(12) = -3.14; q_leg_max_(12) = 3.14;
+
+
+//    q_leg_min_(1) = -3.14; q_leg_max_(1) = 3.14;
+//    q_leg_min_(2) = -3.14; q_leg_max_(2) = 3.14;
+//    q_leg_min_(3) = -3.14; q_leg_max_(3) = 3.14;
+//    q_leg_min_(4) =   0.0; q_leg_max_(4) = 3.14;
+//    q_leg_min_(5) = -3.14; q_leg_max_(5) = 3.14;
+//    q_leg_min_(6) = -3.14; q_leg_max_(6) = 3.14;
+
+//    q_leg_min_(7) = -3.14; q_leg_max_(7) = 3.14;
+//    q_leg_min_(8) = -3.14; q_leg_max_(8) = 3.14;
+//    q_leg_min_(9) = -3.14; q_leg_max_(9) = 3.14;
+//    q_leg_min_(10) = -3.14; q_leg_max_(10) = 0.0;
+//    q_leg_min_(11) = -3.14; q_leg_max_(11) = 3.14;
+//    q_leg_min_(12) = -3.14; q_leg_max_(12) = 3.14;
 
 //    if(walking_tick_<=t_start_ + t_double1_){
 //        q_leg_max_(4) = -32*DEG2RAD;
@@ -10731,8 +10790,8 @@ void WalkingController::Compliant_control(Eigen::Vector12d desired_leg_q)
 {
   if(walking_tick_ == 0)
   {
-    pre_motor_q_leg_ = current_motor_q_leg_;
-    DOB_IK_output_b_ = current_motor_q_leg_;
+    pre_motor_q_leg_ = current_motor_q_leg_.segment<12>(1);
+    DOB_IK_output_b_ = current_motor_q_leg_.segment<12>(1);
   }
 
   Eigen::Vector12d current_u; // left right order
@@ -10741,7 +10800,7 @@ void WalkingController::Compliant_control(Eigen::Vector12d desired_leg_q)
 
   for (int i = 0; i < 12; i++)
   { // (theta_m(k+1) - theta_m(k)) / dt = Kp (u - theta_m(k))
-    current_u(i) = (current_motor_q_leg_(i) - (1 - Kp*del_t)*pre_motor_q_leg_(i)) / (Kp*del_t);
+    current_u(i) = (current_motor_q_leg_(i+1) - (1 - Kp*del_t)*pre_motor_q_leg_(i)) / (Kp*del_t);
   }
 
   Eigen::Vector12d d_hat;
@@ -10817,7 +10876,7 @@ void WalkingController::Compliant_control(Eigen::Vector12d desired_leg_q)
       DOB_IK_output_(i) = desired_leg_q(i) + gain_temp*d_hat(i);  // LQR 위치 대신 단순 IK 기반 위치
     }
   }
-  pre_motor_q_leg_ = current_motor_q_leg_;
+  pre_motor_q_leg_ = current_motor_q_leg_.segment<12>(1);
   d_hat_b_ = d_hat;
 //  cout << d_hat*180/M_PI << endl;
   DOB_IK_output_b_ = DOB_IK_output_;
@@ -10893,7 +10952,7 @@ void WalkingController::Jacobian_test(Eigen::Vector12d& desired_leg_q_dot){
         desired_leg_q_dot(i+6) = q_rfoot_dot(i);
     }
 
-    file[14]<<walking_tick_<<"\t"<<p_velocity(0)<<"\t"<<p_velocity(1)<<"\t"<<p_velocity(2)<<"\t"<<p_velocity(3)<<"\t"<<p_velocity(4)<<"\t"<<p_velocity(5)<<endl;
+//    file[14]<<walking_tick_<<"\t"<<p_velocity(0)<<"\t"<<p_velocity(1)<<"\t"<<p_velocity(2)<<"\t"<<p_velocity(3)<<"\t"<<p_velocity(4)<<"\t"<<p_velocity(5)<<endl;
 
 }
 void WalkingController::Jacobian_floating(){
