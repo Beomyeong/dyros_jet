@@ -74,7 +74,7 @@ void WalkingController::compute()
 
 //            if(current_step_num_ == 0 || current_step_num_ >total_step_num_ -2){
                 chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
-                getComTrajectory();
+//                getComTrajectory();
                 chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
                 file[20]<<walking_tick_<<"\t"<<t_2.count();
@@ -86,7 +86,7 @@ void WalkingController::compute()
 ////                if(heel_toe_mode_ == true)
                     t_1 = std::chrono::high_resolution_clock::now();
 //                    qp31();
-//                    qp3();
+                    qp3();
 //                    MPC_com();
                     t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
@@ -331,12 +331,12 @@ void WalkingController::compute()
 
 
         // for preview
-        zmp_calculated(0) = c*xd_;
-        zmp_calculated(1) = c*yd_;
+//        zmp_calculated(0) = c*xd_;
+//        zmp_calculated(1) = c*yd_;
 
         // for MPC
-//        zmp_calculated(0) = c*x_d1_;
-//        zmp_calculated(1) = c*y_d1_;
+        zmp_calculated(0) = c*x_d1_;
+        zmp_calculated(1) = c*y_d1_;
 //        zmp_calculated(0) = c*mpc_x_;
 //        zmp_calculated(1) = c*mpc_y_;
 
