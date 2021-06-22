@@ -644,13 +644,13 @@ void WalkingController::qpIK_pelvis_13(){
 
         g_13[j] = -g_vector_13(j);
     }
-    if(foot_step_(current_step_num_,6) ==0)//right foot support
-        lb_13[0] =-0.1;
-    else {
-        ub_13[0] = 0.1;
-    }
-    lb_13[0] = pre_pel_yaw_(1);
-    ub_13[0] = pre_pel_yaw_(1);
+//    if(foot_step_(current_step_num_,6) ==0)//right foot support
+//        lb_13[0] =-0.1;
+//    else {
+//        ub_13[0] = 0.1;
+//    }
+//    lb_13[0] = pre_pel_yaw_(1);
+//    ub_13[0] = pre_pel_yaw_(1);
 //    lb_13[12] = -5;
 //    ub_13[12] = 5;
     for(int i=0;i<25;i++){
@@ -1210,13 +1210,22 @@ void WalkingController::qpIK_test(){
         cout<<endl<<" !!!!   Heel toe optimization  !!!!"<<endl<<endl;
     }
     Eigen::Matrix6d Q_jac_l, Q_jac_r;
-    Q_jac_l = current_leg_jacobian_l_.transpose()*current_leg_jacobian_l_;
-    Q_jac_r = current_leg_jacobian_r_.transpose()*current_leg_jacobian_r_;
+//    Q_jac_l = current_leg_jacobian_l_.transpose()*current_leg_jacobian_l_;
+//    Q_jac_r = current_leg_jacobian_r_.transpose()*current_leg_jacobian_r_;
+
+    Q_jac_l = current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*current_leg_jacobian_l_floating_.block<6,6>(0,1);
+    Q_jac_r = current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*current_leg_jacobian_r_floating_.block<6,6>(0,1);
 //    Q_jac_l = current_left_toe_jacobian_.transpose()*current_left_toe_jacobian_;
 //    Q_jac_r = current_right_toe_jacobian_.transpose()*current_right_toe_jacobian_;
 
-    Q_input.block<6,6>(0,0) = Q_jac_l + 0.01*Iden_6;
-    Q_input.block<6,6>(6,6) = Q_jac_r + 0.01*Iden_6;
+    Q_input.block<6,6>(0,0) = 0.8*Q_jac_l + 0.08*Iden_6;
+    Q_input.block<6,6>(6,6) = 0.8*Q_jac_r + 0.08*Iden_6;
+
+    Eigen::Matrix<double, 12, 12> Q_input_dsp1;
+    Q_input_dsp1.setZero();
+
+    Q_input_dsp1.block<6,6>(0,0) = current_left_toe_jacobian_floating_.block<6,6>(0,1).transpose()*current_left_toe_jacobian_floating_.block<6,6>(0,1) + 0.08*Iden_6;
+    Q_input_dsp1.block<6,6>(6,6) = current_right_toe_jacobian_floating_.block<6,6>(0,1).transpose()*current_right_toe_jacobian_floating_.block<6,6>(0,1) + 0.08*Iden_6;
 
 //    Q_input.setIdentity();
 
@@ -1260,8 +1269,10 @@ void WalkingController::qpIK_test(){
     if(walking_tick_ == 0)
         pre_q_sol_.setZero();
 
-    g_l = current_leg_jacobian_l_.transpose()*lp_ + 0.01*pre_q_sol_.segment<6>(0);
-    g_r = current_leg_jacobian_r_.transpose()*rp_ + 0.01*pre_q_sol_.segment<6>(6);
+//    g_l = current_leg_jacobian_l_.transpose()*lp_ + 0.08*pre_q_sol_.segment<6>(0);
+//    g_r = current_leg_jacobian_r_.transpose()*rp_ + 0.08*pre_q_sol_.segment<6>(6);
+    g_l = 0.8*current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*lp_ + 0.08*pre_q_sol_.segment<6>(0);
+    g_r = 0.8*current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*rp_ + 0.08*pre_q_sol_.segment<6>(6);
 
 //    g_l = current_left_toe_jacobian_.transpose()*ltoe_p_;
 //    g_r = current_right_toe_jacobian_.transpose()*rtoe_p_;
@@ -1275,6 +1286,11 @@ void WalkingController::qpIK_test(){
     g_input.segment<6>(0) = -g_l;
     g_input.segment<6>(6) = -g_r;
 
+
+    Eigen::Vector12d g_input_dsp1;
+    g_input_dsp1.setZero();
+    g_input_dsp1.segment<6>(0) = - current_left_toe_jacobian_floating_.block<6,6>(0,1).transpose()*ltoe_p_ + 0.08*pre_q_sol_.segment<6>(0);
+    g_input_dsp1.segment<6>(6) = -current_right_toe_jacobian_floating_.block<6,6>(0,1).transpose()*rtoe_p_ + 0.08*pre_q_sol_.segment<6>(6);
 
     // consider constraint of toe trajectory
     Eigen::Matrix<double, 10, 12>Toe_Jaco_mat;
@@ -1331,16 +1347,18 @@ void WalkingController::qpIK_test(){
 //    file[28]<<walking_tick_<<"\t"<<left_leg_length<<"\t"<<right_leg_length<<"\t"<<left_toe_length<<"\t"<<right_toe_length<<endl;
 
 //    real_t H[12*12], g[12],lb[12],ub[12], A[23*12], lbA[23],ubA[23] ;
-    real_t H[12*12], g[12],  lb[12],ub[12],
+    real_t H[12*12], g[12], H_dsp1[12*12], g_dsp1[12], lb[12],ub[12],
             A_dsp1[23*12], A_lifting[18*12], A_landing[23*12], A_dsp2[24*12],
            lbA_dsp1[23],lbA_lifting[18],lbA_landing[23],lbA_dsp2[24],
            ubA_dsp1[23],ubA_lifting[18],ubA_landing[23],ubA_dsp2[24];
 
     for(int i=0;i<12;i++){
         for(int j=0;j<12;j++){
-            H[12*i+j] = Q_input(i,j);           
+            H[12*i+j] = Q_input(i,j);
+            H[12*i + j] = Q_input_dsp1(i,j);
         }
         g[i] = g_input(i);
+        g_dsp1[i] = g_input_dsp1(i);
         lb[i] = -10000;
         ub[i] = 10000;
 
@@ -1429,9 +1447,10 @@ void WalkingController::qpIK_test(){
             dsp1.setOptions(options);
 
             dsp1.init(H,g,A_dsp1,lb,ub,lbA_dsp1,ubA_dsp1,nWSR);
+//            dsp1.init(H_dsp1,g_dsp1,A_dsp1,lb,ub,lbA_dsp1,ubA_dsp1,nWSR);
             dsp1.getPrimalSolution(qOpt);
-            dsp1.hotstart(g,lb,ub,lbA_dsp1,ubA_dsp1,nWSR);
-            dsp1.getPrimalSolution(qOpt);
+//            dsp1.hotstart(g,lb,ub,lbA_dsp1,ubA_dsp1,nWSR);
+//            dsp1.getPrimalSolution(qOpt);
         }
         else if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
         {
@@ -1440,8 +1459,8 @@ void WalkingController::qpIK_test(){
 
             lifting.init(H,g,A_lifting,lb,ub,lbA_lifting,ubA_lifting,nWSR);
             lifting.getPrimalSolution(qOpt);
-            lifting.hotstart(g,lb,ub,lbA_lifting,ubA_lifting,nWSR);
-            lifting.getPrimalSolution(qOpt);
+//            lifting.hotstart(g,lb,ub,lbA_lifting,ubA_lifting,nWSR);
+//            lifting.getPrimalSolution(qOpt);
         }
         else if(walking_tick_ >= t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0 && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)// SSP + DSP ( landing the foot ) and contact whole foot
         {
@@ -1450,8 +1469,8 @@ void WalkingController::qpIK_test(){
 
             landing.init(H,g,A_landing,lb,ub,lbA_landing,ubA_landing,nWSR);
             landing.getPrimalSolution(qOpt);
-            landing.hotstart(g,lb,ub,lbA_landing,ubA_landing,nWSR);
-            landing.getPrimalSolution(qOpt);
+//            landing.hotstart(g,lb,ub,lbA_landing,ubA_landing,nWSR);
+//            landing.getPrimalSolution(qOpt);
         }
         else{
             QProblem dsp2(12,24);
@@ -1459,8 +1478,8 @@ void WalkingController::qpIK_test(){
 
             dsp2.init(H,g,A_dsp2,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
             dsp2.getPrimalSolution(qOpt);
-            dsp2.hotstart(g,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
-            dsp2.getPrimalSolution(qOpt);
+//            dsp2.hotstart(g,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
+//            dsp2.getPrimalSolution(qOpt);
         }
 
 //    if(walking_tick_ >= t_start_ + t_double1_ +20 && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
@@ -1684,6 +1703,357 @@ void WalkingController::qpIK_test(){
 
     desired_q_not_compensated2_ = desired_q_;
 }
+void WalkingController::qpIK_heeltoe_pelvis_13(){
+
+    //redundant pelvis IK
+    if(walking_tick_ == 0)
+        cout<<"optimization IK with redundant pelvis DOF  13 "<<endl;
+
+
+    /////////////////////////////
+    /// cost function matrix ////
+
+    if(walking_tick_ == 0){
+        pre_q_dot_.setZero();
+    }
+
+    //// for weighting factor ///
+    Eigen::Matrix<double, 12, 12> w1, w2;
+    w1.setIdentity();
+    w2.setIdentity();
+
+    w1(0,0) = 0.2; w1(6,6) = 0.2;
+    w2*= 0.5;
+
+    Eigen::Matrix<double, 13, 13> w1_13, w2_13, w3_13;
+    w1_13.setIdentity(); w2_13.setIdentity(); w3_13.setIdentity();
+    w3_13.setZero();
+//    w2_13(0,0)= 2; w2_13(1,1) = 2; w2_13(7,7) = 2;
+    w2_13*= 0.001;
+    // for H matrix
+
+//    w2_13*=0.1;
+    Eigen::Matrix<double, 12, 12> Jacobian_12, Jacobian_12_t;
+    Jacobian_12.setZero(); Jacobian_12_t.setZero();
+    Jacobian_12.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,0);
+    Jacobian_12.block<6,6>(6,6) = current_leg_jacobian_r_floating_.block<6,6>(0,0);
+
+    Jacobian_12_t = Jacobian_12.transpose();
+
+    Eigen::Matrix<double, 12, 12> Iden_12;
+    Iden_12.setIdentity();
+
+    Eigen::Matrix<double, 12, 13>  Jacobian_12_13;
+    Eigen::Matrix<double, 13, 12> Jacobian_12_13_t;
+    Jacobian_12_13.setZero(); Jacobian_12_13_t.setZero();
+
+
+
+    Jacobian_12_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+    Jacobian_12_13.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    Jacobian_12_13.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+
+//    Jacobian_12_13.block<6,7>(0,0) = current_left_toe_jacobian_floating_;
+
+//    Jacobian_12_13.block<6,1>(6,0) = current_right_toe_jacobian_floating_.block<6,1>(0,0);
+//    Jacobian_12_13.block<6,6>(6,7) = current_right_toe_jacobian_floating_.block<6,6>(0,1);
+
+//    Jacobian_12_13.block<6,7>(0,0) = current_left_heel_jacobian_floating_;
+
+//    Jacobian_12_13.block<6,1>(6,0) = current_right_heel_jacobian_floating_.block<6,1>(0,0);
+//    Jacobian_12_13.block<6,6>(6,7) = current_right_heel_jacobian_floating_.block<6,6>(0,1);
+
+    Jacobian_12_13_t = Jacobian_12_13.transpose();
+
+    Eigen::Matrix<double, 13, 13> Iden_13,  Selec_floating;
+    Eigen::Matrix<double, 1,13> Selec_square;
+    Iden_13.setIdentity();   Selec_floating.setZero();
+    Selec_floating(0,0) = 1;
+    Selec_square.setZero();
+    Selec_square(0,0) = 1;
+
+//    Selec_square = Selec_floating.transpose()*Selec_floating;
+
+    double waist_yaw_jaco;
+    waist_yaw_jaco = current_leg_jacobian_l_floating_(5,0);
+    Eigen::Matrix<double, 13, 13> H_matrix_13;
+    H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + w2_13*Iden_13 + w3_13*Selec_square.transpose()*Selec_square/hz_/hz_;
+
+    Eigen::Matrix<double, 12, 12> H_matrix_12;
+    H_matrix_12 = w1*Jacobian_12_t*Jacobian_12 + w2*Iden_12;
+
+    // for g vector
+    Eigen::Vector12d g_vector_12, desired_v;
+    Eigen::VectorXd g_vector_13(13);
+//    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,0).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(0);
+//    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,0).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(6);
+//    g_vector_12.segment<6>(0) = w1.block<6,6>(0,0)*current_leg_jacobian_l_floating_.block<6,6>(0,1).transpose()*lp_ + w2.block<6,6>(0,0)*pre_q_dot_.segment<6>(1);
+//    g_vector_12.segment<6>(6) = w1.block<6,6>(6,6)*current_leg_jacobian_r_floating_.block<6,6>(0,1).transpose()*rp_ + w2.block<6,6>(6,6)*pre_q_dot_.segment<6>(7);
+
+
+
+    desired_v.segment<6>(0) = lp_;
+    desired_v.segment<6>(6) = rp_;
+
+//    desired_v.segment<6>(0) = ltoe_p_;
+//    desired_v.segment<6>(6) = rtoe_p_;
+
+//    desired_v.segment<6>(0) = lheel_p_;
+//    desired_v.segment<6>(6) = rheel_p_;
+
+    Eigen::VectorXd pre_q_d(13);
+    if(walking_tick_ ==0){
+        pre_q_d = q_init_.segment<13>(0);
+    }else{
+//        pre_q_d.segment<12>(0) = desired_q_not_compensated_.segment<12>(0);
+//        pre_q_d(12) = pre_floating_joint_;
+        pre_q_d = desired_q_not_compensated_.segment<13>(0);
+    }
+
+    w2_13.setZero();
+    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + w2_13*pre_q_dot_.segment<13>(0) + w3_13*Selec_square.transpose()/hz_*(-q_init_(0) + pre_q_d(0));
+
+
+    double floating_joint_limit_max, floating_joint_limit_min;
+    double x_stride, y_stride;
+    if(foot_step_(current_step_num_,6) ==0){ // right foot support
+        x_stride = lfoot_support_current_.translation()(0);// - rfoot_support_current_.translation()(0);
+        y_stride = lfoot_support_current_.translation()(1);// - rfoot_support_current_.translation()(1);
+
+        if(x_stride <=0 ){
+            floating_joint_limit_max = atan2(-x_stride, y_stride);
+            floating_joint_limit_min = -15*DEG2RAD;
+        }
+        else{
+            floating_joint_limit_min = atan2(-x_stride, y_stride);
+            floating_joint_limit_max = 15*DEG2RAD;
+        }
+
+    }
+    else{//left foot support
+        x_stride = rfoot_support_current_.translation()(0);// - lfoot_support_current_.translation()(0);
+        y_stride = -rfoot_support_current_.translation()(1);// - rfoot_support_current_.translation()(1);
+
+        if(x_stride <=0){
+            floating_joint_limit_max = 15*DEG2RAD;
+            floating_joint_limit_min = atan2(x_stride, y_stride);
+        }
+        else{
+            floating_joint_limit_min = -15*DEG2RAD;
+            floating_joint_limit_max = atan2(x_stride, y_stride);
+        }
+    }
+
+
+    Eigen::Matrix<double, 25, 13> Constraint_A_25_13;
+    Constraint_A_25_13.setZero();
+    Constraint_A_25_13.block<12,13>(0,0) = Jacobian_12_13;
+    Constraint_A_25_13.block<13,13>(12,0).setIdentity();
+
+    Eigen::VectorXd u_inequality_25(25), l_inequality_25(25);
+    u_inequality_25.segment<12>(0) = desired_v;
+    l_inequality_25.segment<12>(0) = desired_v;
+
+    u_inequality_25.segment<13>(12) = (q_leg_max_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+    l_inequality_25.segment<13>(12) = (q_leg_min_ - desired_q_not_compensated_.segment<13>(0))*hz_;
+
+
+
+    real_t H_13[13*13],A_13[25*13],lbA_13[25],ubA_13[25],lb_13[13],ub_13[13], g_13[13];
+
+    for(int j=0;j<13;j++){
+        for(int i=0;i<13;i++){
+            H_13[13*i+j] = H_matrix_13(i,j);
+        }
+
+        for(int i=0;i<25;i++){
+            A_13[13*i+j] = Constraint_A_25_13(i,j);
+        }
+
+        lb_13[j] = -10;
+        ub_13[j] = 10;
+
+        g_13[j] = -g_vector_13(j);
+    }
+
+    for(int i=0;i<25;i++){
+        lbA_13[i] = l_inequality_25(i);
+        ubA_13[i] = u_inequality_25(i);
+    }
+
+    lb_13[0] = pre_pel_yaw_(1);
+    ub_13[0] = pre_pel_yaw_(1);
+
+    Eigen::Matrix<double, 24, 13> A_input_dsp1, A_input_landing;
+    A_input_dsp1.setZero(); A_input_landing.setZero();
+
+    Eigen::Matrix<double, 19, 13> A_input_lifting;
+    A_input_lifting.setZero();
+
+    Eigen::Matrix<double, 25, 13> A_input_dsp2;
+    A_input_dsp2.setZero();
+
+    Eigen::VectorXd lbA_input_dsp1,ubA_input_dsp1, lbA_input_lifting, ubA_input_lifting, lbA_input_landing, ubA_input_landing, lbA_input_dsp2, ubA_input_dsp2;
+    lbA_input_dsp1.resize(24); ubA_input_dsp1.resize(24);
+    lbA_input_lifting.resize(19); ubA_input_lifting.resize(19);
+    lbA_input_landing.resize(24); ubA_input_landing.resize(24);
+    lbA_input_dsp2.resize(25); ubA_input_dsp2.resize(25);
+
+    GetHeeltoePelvisConstraintMatrix(A_input_dsp1,A_input_lifting,A_input_landing,A_input_dsp2,
+                                     lbA_input_dsp1,ubA_input_dsp1,lbA_input_lifting,ubA_input_lifting,lbA_input_landing,ubA_input_landing,lbA_input_dsp2,ubA_input_dsp2);
+
+    real_t A_dsp1[24*13], A_lifting[19*13], A_landing[24*13], A_dsp2[25*13],
+            lbA_dsp1[24],lbA_lifting[19],lbA_landing[24],lbA_dsp2[25],
+            ubA_dsp1[24],ubA_lifting[19],ubA_landing[24],ubA_dsp2[25];
+
+    for(int j=0;j<13;j++){
+        for(int i=0;i<24;i++){
+            A_dsp1[13*i + j] = A_input_dsp1(i,j);
+            A_landing[13*i + j] = A_input_landing(i,j);
+        }
+        for(int i=0;i<19;i++){
+            A_lifting[13*i + j] = A_input_lifting(i,j);
+        }
+        for(int i=0; i<25;i++){
+            A_dsp2[13*i + j] = A_input_dsp2(i,j);
+        }
+    }
+
+    for(int i=0;i<24;i++){
+        lbA_dsp1[i] = lbA_input_dsp1(i);
+        ubA_dsp1[i] = ubA_input_dsp1(i);
+
+        lbA_landing[i] = lbA_input_landing(i);
+        ubA_landing[i] = ubA_input_landing(i);
+    }
+    for(int i =0;i<19;i++){
+        lbA_lifting[i] = lbA_input_lifting(i);
+        ubA_lifting[i] = ubA_input_lifting(i);
+    }
+
+    for(int i=0;i<25;i++){
+        lbA_dsp2[i] = lbA_input_dsp2(i);
+        ubA_dsp2[i] = ubA_input_dsp2(i);
+    }
+
+
+
+//    real_t xOpt[12];
+//    QProblem example(12,12);
+
+    real_t xOpt[13];
+
+    QProblem example(13,25);
+
+    Options options;
+    options.initialStatusBounds =ST_LOWER;
+    options.numRefinementSteps = 1;
+    options.enableCholeskyRefactorisation = 1;
+    options.printLevel = PL_NONE;
+    options.enableEqualities = BT_TRUE;
+
+    example.setOptions(options);
+
+    int_t nWSR = 1000;
+
+
+
+//    example.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
+//    example.getPrimalSolution(xOpt);
+//    example.hotstart(g,lb,ub,lbA,ubA,nWSR);
+//    example.getPrimalSolution(xOpt);
+
+
+    real_t qOpt[13];
+
+    if(walking_tick_< t_start_ + t_double1_){
+
+        QProblem dsp1(13,24);
+        dsp1.setOptions(options);
+
+        dsp1.init(H_13,g_13,A_dsp1,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
+        dsp1.getPrimalSolution(qOpt);
+//        dsp1.hotstart(g_13,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
+//        dsp1.getPrimalSolution(qOpt);
+    }
+    else if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+    {
+        QProblem lifting(13,19);
+        lifting.setOptions(options);
+
+        lifting.init(H_13,g_13,A_lifting,lb_13,ub_13,lbA_lifting,ubA_lifting,nWSR);
+        lifting.getPrimalSolution(qOpt);
+//        lifting.hotstart(g_13,lb,ub,lbA_lifting,ubA_lifting,nWSR);
+//        lifting.getPrimalSolution(qOpt);
+    }
+    else if(walking_tick_ >= t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0 && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)// SSP + DSP ( landing the foot ) and contact whole foot
+    {
+        QProblem landing(13,24);
+        landing.setOptions(options);
+
+        landing.init(H_13,g_13,A_landing,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
+        landing.getPrimalSolution(qOpt);
+//        landing.hotstart(g_13,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
+//        landing.getPrimalSolution(qOpt);
+    }
+    else{
+        QProblem dsp2(13,25);
+        dsp2.setOptions(options);
+
+        dsp2.init(H_13,g_13,A_dsp2,lb_13,ub_13,lbA_dsp2,ubA_dsp2,nWSR);
+        dsp2.getPrimalSolution(qOpt);
+//        dsp2.hotstart(g,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
+//        dsp2.getPrimalSolution(qOpt);
+    }
+
+//    Eigen::VectorXd qp_q;
+//    qp_q.resize(13);
+//    for(int i=0;i<6;i++){
+//        qp_q(i) = xOpt[i]/hz_ + desired_q_not_compensated_(LF_BEGIN + i);
+//        qp_q(i+6) = xOpt[i+6]/hz_ + desired_q_not_compensated_(RF_BEGIN +i);
+//    }
+//    qp_q(12) = -xOpt[12]/hz_ + desired_q_not_compensated_(12);
+
+    if(walking_tick_ == 0)
+        pre_floating_joint_ = 0;
+
+//    floating_joint_ = xOpt[12]/hz_ + pre_floating_joint_;/**/
+
+//    qp_q(12) = -floating_joint_;
+
+//    file[18]<<walking_tick_;
+//    for(int i=0;i<13;i++){
+//        pre_q_dot_(i) = xOpt[i];
+//        file[18]<<"\t"<<xOpt[i];
+//    }
+//    file[18]<<endl;
+
+//   for(int i=0;i<13;i++){
+////       desired_q_(i) = qp_q(i);
+//       desired_q_(i) = xOpt[i]/hz_ + desired_q_not_compensated_(i);
+//   }
+
+    file[18]<<walking_tick_;
+    for(int i=0;i<13;i++){
+        pre_q_dot_(i) = qOpt[i];
+        file[18]<<"\t"<<qOpt[i];
+    }
+    file[18]<<endl;
+
+   for(int i=0;i<13;i++){
+//       desired_q_(i) = qp_q(i);
+       desired_q_(i) = qOpt[i]/hz_ + desired_q_not_compensated_(i);
+   }
+
+//   file[12]<<walking_tick_<<"\t"<<foot_step_(current_step_num_,6)<<"\t"<<x_stride<<"\t"<<y_stride<<"\t"<<floating_joint_limit_min<<"\t"<<floating_joint_limit_max<<"\t"<<floating_joint_<<endl;
+
+   pre_floating_joint_ = floating_joint_;
+
+
+}
+
 void WalkingController::qp3(){
     //variable vector consists of only zerk possible one. using analytic method for jerk
 
@@ -1705,6 +2075,7 @@ void WalkingController::qp3(){
 //        MPC_Matrix_Update(N,dt,interval);
         MPC_Matrix_cal_ = true;
     }
+
 
 
     if(current_step_num_ == 0)
@@ -1754,8 +2125,8 @@ void WalkingController::qp3(){
 //        p_ref(i,1) = ref_zmp_(walking_tick_ - start_time + interval*i,1); // y position of foot
 //    }
 
-//    zmp_desired_(0) = ref_zmp_(walking_tick_-start_time,0);
-//    zmp_desired_(1) = ref_zmp_(walking_tick_-start_time,1);
+    zmp_desired_(0) = ref_zmp_(walking_tick_-start_time,0);
+    zmp_desired_(1) = ref_zmp_(walking_tick_-start_time,1);
 
 
 //    file[17]<<walking_tick_<<"\t"<<p_ref(0,0)<<"\t"<<p_ref(0,1)<<endl;
@@ -5877,6 +6248,7 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     }
     if(walking_tick_ <=600)// || walking_tick_ >= t_start_real_ + t_double1_
         pushing_force_ = 0;
+
     pushing_force_ = 0;
 
 //    pushing_force_ = DyrosMath::cubic(walking_tick_,t_start_,t_start_real_ + t_double1_,0.0,-0.4,0.0,0.0);
@@ -5887,23 +6259,28 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
    if(foot_step_(current_step_num_,6) == 1)// left foot support
     {
        // constraint for toe contact ///
-        A_dsp1.block<6,6>(0,0) = current_leg_jacobian_l_;
+//        A_dsp1.block<6,6>(0,0) = current_leg_jacobian_l_;
 
-        A_dsp1.block<4,6>(6,6) = current_right_toe_jacobian_.block<4,6>(0,0);
-        A_dsp1.block<1,6>(10,6) = current_right_toe_jacobian_.block<1,6>(5,0);
+//        A_dsp1.block<4,6>(6,6) = current_right_toe_jacobian_.block<4,6>(0,0);
+//        A_dsp1.block<1,6>(10,6) = current_right_toe_jacobian_.block<1,6>(5,0);
+
+        A_dsp1.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,1);
+
+        A_dsp1.block<4,6>(6,6) =current_right_toe_jacobian_floating_.block<4,6>(0,1);
+        A_dsp1.block<1,6>(10,6) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
 
 
-        lbA_dsp1.segment<6>(0) = lp_ + 5*lp_clik_;
+        lbA_dsp1.segment<6>(0) = lp_ + 3*lp_clik_;
 
-        lbA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
-        lbA_dsp1(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
-//        lbA_dsp1(8) += pushing_force;
-        lbA_dsp1(8) -= torelance;
+        lbA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0) + 3*rtoe_clik_.segment<4>(0);
+        lbA_dsp1(10) = rtoe_p_(5) + 3*rtoe_clik_(5);
+        lbA_dsp1(8) += pushing_force_;
+//        lbA_dsp1(8) -= torelance;
 
-        ubA_dsp1.segment<6>(0) = lp_ + 5*lp_clik_;
+        ubA_dsp1.segment<6>(0) = lp_ + 3*lp_clik_;
 
-        ubA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
-        ubA_dsp1(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
+        ubA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0) + 3*rtoe_clik_.segment<4>(0);
+        ubA_dsp1(10) = rtoe_p_(5) + 3*rtoe_clik_(5);
 
 //        ubA_dsp1(8) += torelance;
         ubA_dsp1(8) += pushing_force_;
@@ -5913,41 +6290,50 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     else if(foot_step_(current_step_num_,6) == 0)//right foot support
     {
        // constraint for toe contact ///
-        A_dsp1.block<4,6>(0,0) = current_left_toe_jacobian_.block<4,6>(0,0);
-        A_dsp1.block<1,6>(4,0) = current_left_toe_jacobian_.block<1,6>(5,0);
+//        A_dsp1.block<4,6>(0,0) = current_left_toe_jacobian_.block<4,6>(0,0);
+//        A_dsp1.block<1,6>(4,0) = current_left_toe_jacobian_.block<1,6>(5,0);
 
-        A_dsp1.block<6,6>(5,6) = current_leg_jacobian_r_;
+//        A_dsp1.block<6,6>(5,6) = current_leg_jacobian_r_;
 
-        lbA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
-        lbA_dsp1(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
-//        lbA_dsp1(2) += pushing_force;
-        lbA_dsp1(2) -= torelance;
+       A_dsp1.block<4,6>(0,0)  = current_left_toe_jacobian_floating_.block<4,6>(0,1);
+       A_dsp1.block<1,6>(4,0) = current_left_toe_jacobian_floating_.block<1,6>(5,1);
 
-        lbA_dsp1.segment<6>(5) = rp_ + 5*rp_clik_;
+       A_dsp1.block<6,6>(5,6) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
-        ubA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
-        ubA_dsp1(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
+
+       lbA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 3*ltoe_clik_.segment<4>(0);
+       lbA_dsp1(4) = ltoe_p_(5) + 3*ltoe_clik_(5);
+       lbA_dsp1(2) += pushing_force_;
+//        lbA_dsp1(2) -= torelance;
+
+        lbA_dsp1.segment<6>(5) = rp_ + 3*rp_clik_;
+
+        ubA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 3*ltoe_clik_.segment<4>(0);
+        ubA_dsp1(4) = ltoe_p_(5) + 3*ltoe_clik_(5);
 
 //        ubA_dsp1(2) += torelance;
         ubA_dsp1(2) += pushing_force_;
 
-        ubA_dsp1.segment<6>(5) = rp_ + 5*rp_clik_;
+        ubA_dsp1.segment<6>(5) = rp_ + 3*rp_clik_;
     }
 
    //constraint for support foot contact during lifting
     if(foot_step_(current_step_num_,6) == 1)// left foot support
     {
-        A_lifting.block<6,6>(0,0) = current_leg_jacobian_l_;
-        lbA_lifting.segment<6>(0) = lp_ + 5*lp_clik_;
-        ubA_lifting.segment<6>(0) = lp_ + 5*lp_clik_;
+//        A_lifting.block<6,6>(0,0) = current_leg_jacobian_l_;
+        A_lifting.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,1);
+
+        lbA_lifting.segment<6>(0) = lp_ + 3*lp_clik_;
+        ubA_lifting.segment<6>(0) = lp_ + 3*lp_clik_;
 
     }
     else if(foot_step_(current_step_num_,6) == 0)
     {
-        A_lifting.block<6,6>(0,6) = current_leg_jacobian_r_;
+//        A_lifting.block<6,6>(0,6) = current_leg_jacobian_r_;
+        A_lifting.block<6,6>(0,6) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
-        lbA_lifting.segment<6>(0) = rp_ + 5*rp_clik_;
-        ubA_lifting.segment<6>(0) = rp_ + 5*rp_clik_;
+        lbA_lifting.segment<6>(0) = rp_ + 3*rp_clik_;
+        ubA_lifting.segment<6>(0) = rp_ + 3*rp_clik_;
     }
 
     //constraint for heel
@@ -5956,10 +6342,15 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
 //        height_gain = 5.0;
     if(foot_step_(current_step_num_,6) == 1)// left foot support
     {
-        A_landing.block<6,6>(0,0) = current_leg_jacobian_l_;
+//        A_landing.block<6,6>(0,0) = current_leg_jacobian_l_;
 
-        A_landing.block<4,6>(6,6) = current_right_heel_jacobian_.block<4,6>(0,0);
-        A_landing.block<1,6>(10,6) = current_right_heel_jacobian_.block<1,6>(5,0);
+//        A_landing.block<4,6>(6,6) = current_right_heel_jacobian_.block<4,6>(0,0);
+//        A_landing.block<1,6>(10,6) = current_right_heel_jacobian_.block<1,6>(5,0);
+
+        A_landing.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,1);
+
+        A_landing.block<4,6>(6,6) = current_right_heel_jacobian_floating_.block<4,6>(0,1);
+        A_landing.block<1,6>(10,6) = current_right_heel_jacobian_floating_.block<1,6>(5,1);
 
         lbA_landing.segment<6>(0) = lp_ + 5*lp_clik_;
         lbA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 5*rheel_clik_.segment<4>(0);
@@ -5977,10 +6368,15 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     }
     else if(foot_step_(current_step_num_,6) == 0)
     {
-        A_landing.block<4,6>(0,0) = current_left_heel_jacobian_.block<4,6>(0,0);
-        A_landing.block<1,6>(4,0) = current_left_heel_jacobian_.block<1,6>(5,0);
+//        A_landing.block<4,6>(0,0) = current_left_heel_jacobian_.block<4,6>(0,0);
+//        A_landing.block<1,6>(4,0) = current_left_heel_jacobian_.block<1,6>(5,0);
 
-        A_landing.block<6,6>(5,6) = current_leg_jacobian_r_;
+//        A_landing.block<6,6>(5,6) = current_leg_jacobian_r_;
+
+        A_landing.block<4,6>(0,0) = current_left_heel_jacobian_floating_.block<4,6>(0,1);
+        A_landing.block<1,6>(4,0) = current_left_heel_jacobian_floating_.block<1,6>(5,1);
+
+        A_landing.block<6,6>(5,6) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
         lbA_landing.segment<4>(0) = lheel_p_.segment<4>(0) + 5*lheel_clik_.segment<4>(0);
         lbA_landing(2) = lheel_p_(2) + height_gain*lheel_clik_(2);
@@ -5995,22 +6391,25 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
     }
 
     // constraint for full contact
-    A_dsp2.block<6,6>(0,0) = current_leg_jacobian_l_;
-    A_dsp2.block<6,6>(6,6) = current_leg_jacobian_r_;
+//    A_dsp2.block<6,6>(0,0) = current_leg_jacobian_l_;
+//    A_dsp2.block<6,6>(6,6) = current_leg_jacobian_r_;
+
+    A_dsp2.block<6,6>(0,0) = current_leg_jacobian_l_floating_.block<6,6>(0,1);
+    A_dsp2.block<6,6>(6,6) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
     if(foot_step_(current_step_num_,6) == 1)//left foot support
     {
         lbA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
-        lbA_dsp2.segment<6>(6) = rp_ + 5*rp_clik_;
-
-        ubA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
-        ubA_dsp2.segment<6>(6) = rp_ + 5*rp_clik_;
-    }
-    else if(foot_step_(current_step_num_,6) == 0){
-        lbA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
         lbA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
 
-        ubA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
+        ubA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
+        ubA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
+    }
+    else if(foot_step_(current_step_num_,6) == 0){
+        lbA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
+        lbA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
+
+        ubA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
         ubA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
     }
 
@@ -6063,26 +6462,270 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
 
 
 }
+void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 19, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 25, 13> &A_dsp2,
+                                            Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd &ubA_dsp1, Eigen::VectorXd &lbA_lifting, Eigen::VectorXd &ubA_lifting, Eigen::VectorXd &lbA_landing, Eigen::VectorXd &ubA_landing, Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd &ubA_dsp2)
+{
+
+    A_dsp1.setZero(); A_lifting.setZero(); A_landing.setZero(); A_dsp2.setZero();
+
+    Eigen::MatrixXd Iden_12;
+    Iden_12.resize(12,12);
+    Iden_12.setIdentity();
+
+    double kv;
+    kv = 0.05;
+
+    kv = DyrosMath::cubic(walking_tick_,t_start_,t_start_real_,0.0,0.02,0.0,0.0);
+    double torelance = 100;
+    if(foot_step_(current_step_num_,6)== 1)//left foot support
+    {
+        if(l_ft_(4) <0)
+            pushing_force_ = kv*l_ft_(4)/step_length_x_;
+    }
+    else{//right foot support
+        if(r_ft_(4) <0)
+            pushing_force_ = kv*r_ft_(4)/step_length_x_;
+    }
+    if(walking_tick_ <=600)// || walking_tick_ >= t_start_real_ + t_double1_
+        pushing_force_ = 0;
+
+    pushing_force_ = 0;
+
+//    pushing_force_ = DyrosMath::cubic(walking_tick_,t_start_,t_start_real_ + t_double1_,0.0,-0.4,0.0,0.0);
+    /////////////////////////////////////////
+    ///    constraint for task space      ///
+    /////////////////////////////////////////
+
+   if(foot_step_(current_step_num_,6) == 1)// left foot support
+    {
+       // constraint for toe contact ///
+        A_dsp1.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+        A_dsp1.block<4,1>(6,0) = current_right_toe_jacobian_floating_.block<4,1>(0,0);
+        A_dsp1.block<1,1>(10,0) = current_right_toe_jacobian_floating_.block<1,1>(5,0);
+
+        A_dsp1.block<4,6>(6,7) = current_right_toe_jacobian_floating_.block<4,6>(0,1);
+        A_dsp1.block<1,6>(10,7) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
+
+
+        lbA_dsp1.segment<6>(0) = lp_  + 3*lp_clik_;
+
+        lbA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0) ;//+ 3*rtoe_clik_.segment<4>(0);
+        lbA_dsp1(10) = rtoe_p_(5) ;//+ 3*rtoe_clik_(5);
+//        lbA_dsp1(8) += pushing_force;
+//        lbA_dsp1(8) -= torelance;
+
+        ubA_dsp1.segment<6>(0) = lp_+ 3*lp_clik_;
+
+        ubA_dsp1.segment<4>(6) = rtoe_p_.segment<4>(0)+ 3*rtoe_clik_.segment<4>(0);
+        ubA_dsp1(10) = rtoe_p_(5) + 3*rtoe_clik_(5);
+
+//        ubA_dsp1(8) += torelance;
+//        ubA_dsp1(8) += pushing_force_;
+
+
+    }
+    else if(foot_step_(current_step_num_,6) == 0)//right foot support
+    {
+       // constraint for toe contact ///
+        A_dsp1.block<4,7>(0,0) = current_left_toe_jacobian_floating_.block<4,7>(0,0);
+        A_dsp1.block<1,7>(4,0) = current_left_toe_jacobian_floating_.block<1,7>(5,0);
+
+        A_dsp1.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+        A_dsp1.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+        lbA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 3*ltoe_clik_.segment<4>(0);
+        lbA_dsp1(4) = ltoe_p_(5) + 3*ltoe_clik_(5);
+//        lbA_dsp1(2) += pushing_force;
+//        lbA_dsp1(2) -= torelance;
+
+        lbA_dsp1.segment<6>(5) = rp_ + 3*rp_clik_;
+
+        ubA_dsp1.segment<4>(0) = ltoe_p_.segment<4>(0) + 3*ltoe_clik_.segment<4>(0);
+        ubA_dsp1(4) = ltoe_p_(5) + 3*ltoe_clik_(5);
+
+//        ubA_dsp1(2) += torelance;
+//        ubA_dsp1(2) += pushing_force_;
+
+        ubA_dsp1.segment<6>(5) = rp_ + 3*rp_clik_;
+    }
+
+   //constraint for support foot contact during lifting
+    if(foot_step_(current_step_num_,6) == 1)// left foot support
+    {
+        A_lifting.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+        lbA_lifting.segment<6>(0) = lp_ + 3*lp_clik_;
+        ubA_lifting.segment<6>(0) = lp_ + 3*lp_clik_;
+
+    }
+    else if(foot_step_(current_step_num_,6) == 0)
+    {
+        A_lifting.block<6,1>(0,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+        A_lifting.block<6,6>(0,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+        lbA_lifting.segment<6>(0) = rp_ + 3*rp_clik_;
+        ubA_lifting.segment<6>(0) = rp_ + 3*rp_clik_;
+    }
+
+    //constraint for heel
+    int height_gain =10;
+//    if(current_step_num_ >= total_step_num_-2)
+//        height_gain = 5.0;
+    if(foot_step_(current_step_num_,6) == 1)// left foot support
+    {
+        A_landing.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+        A_landing.block<4,1>(6,0) = current_right_heel_jacobian_floating_.block<4,1>(0,0);
+        A_landing.block<1,1>(10,0) = current_right_heel_jacobian_floating_.block<1,1>(5,0);
+
+        A_landing.block<4,6>(6,7) = current_right_heel_jacobian_floating_.block<4,6>(0,1);
+        A_landing.block<1,6>(10,7) = current_right_heel_jacobian_floating_.block<1,6>(5,1);
+
+        lbA_landing.segment<6>(0) = lp_ ;//+ 5*lp_clik_;
+        lbA_landing.segment<4>(6) = rheel_p_.segment<4>(0) ;//+ 5*rheel_clik_.segment<4>(0);
+        lbA_landing(8) = rheel_p_(2) ;//+ height_gain*rheel_clik_(2);
+        lbA_landing(10) = rheel_p_(5) ;//+ 5*rheel_clik_(5);
+
+        ubA_landing.segment<6>(0) = lp_ ;//+ 5*lp_clik_;
+
+        ubA_landing.segment<4>(6) = rheel_p_.segment<4>(0) ;//+ 5*rheel_clik_.segment<4>(0);
+        ubA_landing(8) = rheel_p_(2) ;//+ height_gain*rheel_clik_(2);
+        ubA_landing(10) =  rheel_p_(5);// + 5*rheel_clik_(5);
+
+//        lbA_landing.segment<4>(6) = ubA_landing.segment<4>(6);
+//        lbA_landing(10) = ubA_landing(10);
+    }
+    else if(foot_step_(current_step_num_,6) == 0)
+    {
+        A_landing.block<4,7>(0,0) = current_left_heel_jacobian_floating_.block<4,7>(0,0);
+        A_landing.block<1,7>(4,0) = current_left_heel_jacobian_floating_.block<1,7>(5,0);
+
+        A_landing.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+        A_landing.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+        lbA_landing.segment<4>(0) = lheel_p_.segment<4>(0) ;//+ 5*lheel_clik_.segment<4>(0);
+        lbA_landing(2) = lheel_p_(2);// + height_gain*lheel_clik_(2);
+        lbA_landing(4) = lheel_p_(5) ;//+ 5*lheel_clik_(5);
+
+        lbA_landing.segment<6>(5) = rp_ ;//+ 5*rp_clik_;
+
+        ubA_landing.segment<4>(0) = lheel_p_.segment<4>(0);// + 5*lheel_clik_.segment<4>(0);
+        ubA_landing(2) = lheel_p_(2) ;//+ height_gain*lheel_clik_(2);
+        ubA_landing(4) = lheel_p_(5);// + 5*lheel_clik_(5);
+        ubA_landing.segment<6>(5) = rp_ ;//+ 5*rp_clik_;
+    }
+
+    // constraint for full contact
+    A_dsp2.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+    A_dsp2.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    A_dsp2.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+    if(foot_step_(current_step_num_,6) == 1)//left foot support
+    {
+        lbA_dsp2.segment<6>(0) = lp_ ;//+ 3*lp_clik_;
+        lbA_dsp2.segment<6>(6) = rp_ ;//+ 3*rp_clik_;
+
+        ubA_dsp2.segment<6>(0) = lp_ ;//+ 3*lp_clik_;
+        ubA_dsp2.segment<6>(6) = rp_ ;//+ 3*rp_clik_;
+    }
+    else if(foot_step_(current_step_num_,6) == 0){
+        lbA_dsp2.segment<6>(0) = lp_;// + 3*lp_clik_;
+        lbA_dsp2.segment<6>(6) = rp_ ;//+ 3*rp_clik_;
+
+        ubA_dsp2.segment<6>(0) = lp_;// + 3*lp_clik_;
+        ubA_dsp2.segment<6>(6) = rp_;// + 3*rp_clik_;
+    }
+
+
+
+//    // test for heel control
+
+//    A_dsp2.block<6,6>(0,0) = current_left_heel_jacobian_;
+//    A_dsp2.block<6,6>(6,6) = current_right_heel_jacobian_;
+
+//    lbA_dsp2.segment<6>(0) = lheel_p_ + 2*lheel_clik_;
+//    lbA_dsp2.segment<6>(6) = rheel_p_ + 2*rheel_clik_;
+
+//    ubA_dsp2.segment<6>(0) = lheel_p_ + 2*lheel_clik_;
+//    ubA_dsp2.segment<6>(6) = rheel_p_ + 2*rheel_clik_;
+
+    /////////////////////////////////////////
+    ///    constraint for joint limit     ///
+    /////////////////////////////////////////
+
+    Eigen::Matrix<double, 13, 13> Iden_13;
+    Iden_13.setIdentity();
+
+    A_dsp1.block<13,13>(11,0) = Iden_13;
+
+    for(int i=0;i<13;i++){
+        lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+    }
+
+
+    A_lifting.block<13,13>(6,0) = Iden_13;
+
+    for(int i=0;i<13;i++){
+        lbA_lifting(i+6) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA_lifting(i+6) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+    }
+
+    A_landing.block<13,13>(11,0) = Iden_13;
+
+    for(int i=0;i<13;i++){
+        lbA_landing(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+    }
+
+    A_dsp2.block<13,13>(12,0) = Iden_13;
+
+    for(int i=0;i<13;i++){
+        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+    }
+
+}
 void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d &rp, Eigen::Vector6d &lp_toe, Eigen::Vector6d &rp_toe, Eigen::Vector6d &lp_heel, Eigen::Vector6d &rp_heel,
                                            Eigen::Vector6d &lp_clik, Eigen::Vector6d &rp_clik, Eigen::Vector6d &lp_toe_clik, Eigen::Vector6d &rp_toe_clik, Eigen::Vector6d &lp_heel_clik, Eigen::Vector6d &rp_heel_clik){
 
     Eigen::Vector6d cubic_xr, cubic_xl;
     Eigen::Vector3d r_leg_phi, l_leg_phi;
 
+    Eigen::Vector3d temp_lp, temp_rp;
+
+
     lp.setZero(); rp.setZero(), cubic_xr.setZero(), cubic_xl.setZero();
 
     /////for calculating desired ankle velocity
     if(walking_tick_ == 0 || walking_tick_ == t_start_ || walking_tick_ == t_start_+t_total_-t_double2_-t_rest_last_  ){
-        lp.topRows<3>() = (-lfoot_float_current_.translation()+lfoot_trajectory_float_.translation());
-        rp.topRows<3>() = (-rfoot_float_current_.translation()+rfoot_trajectory_float_.translation());
+//        lp.topRows<3>() = (-lfoot_float_current_.translation()+lfoot_trajectory_float_.translation());
+//        rp.topRows<3>() = (-rfoot_float_current_.translation()+rfoot_trajectory_float_.translation());
+        temp_lp.topRows<3>() = (-lfoot_float_current_.translation()+lfoot_trajectory_float_.translation());
+        temp_rp.topRows<3>() = (-rfoot_float_current_.translation()+rfoot_trajectory_float_.translation());
 //        lp.topRows<3>().setZero();
 //        rp.topRows<3>().setZero();
     }
     else{
-      lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());
-      rp.topRows<3>() = (-pre_rfoot_trajectory_float_.translation()+rfoot_trajectory_float_.translation());
+//      lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());
+//      rp.topRows<3>() = (-pre_rfoot_trajectory_float_.translation()+rfoot_trajectory_float_.translation());
+        temp_lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());
+        temp_rp.topRows<3>() = (-pre_rfoot_trajectory_float_.translation()+rfoot_trajectory_float_.translation());
     }
 
+    Eigen::Vector3d delta_lp, delta_rp;
+    delta_lp = temp_lp.topRows<3>() - lp.topRows<3>();
+    delta_rp = temp_rp.topRows<3>() - rp.topRows<3>();
+//    cout<<"deltat lp : "<<delta_lp<<endl<<"pre lp : "<<lp<<endl<<"lp : "<<temp_lp<<endl;
+
+//    lp.topRows<3>() = temp_lp;
+//    rp.topRows<3>() = temp_rp;
+    for(int i=0;i<3;i++){
+        if(abs(delta_lp(i)) < 0.01)
+            lp(i) = temp_lp(i);
+        if(abs(delta_rp(i)) < 0.01)
+            rp(i) = temp_rp(i);
+    }
 
     for(int i=0;i<3;i++)
     {
@@ -7673,6 +8316,7 @@ void WalkingController::MPC_pel_yaw(){
 
     if(walking_tick_ == 0){
         get_mpc_pel_yaw_matrix(NL,N,dt,interval);
+        cout<<"mpc pel yaw "<<endl;
     }
 
     Eigen::Vector2d pel_yaw_0;
@@ -8261,6 +8905,8 @@ void WalkingController::FuturePelYawReference(){
     if(walking_tick_ == 0){
         future_pel_yaw_ref_.resize(N_); future_pel_yaw_ref_.setZero();
         pre_future_pel_ref_ = 0; first_pel_yaw_ref_ = 0; second_pel_yaw_ref_ = 0; third_pel_yaw_ref_ = 0;
+
+        cout<<"future ple yaw reference"<<endl;
     }
 
     if(walking_tick_ == t_start_ || walking_tick_ == 0)

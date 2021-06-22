@@ -403,6 +403,12 @@ public:
   void MovingonestepZMP(unsigned int current_step_number, Eigen::VectorXd& temp_px, Eigen::VectorXd& temp_py);
   void SettingVirtualJointLimit();
 
+  void HeelToeDemermination(Eigen::Isometry3d float_trunk_transform, Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Isometry3d& new_float_lleg_transform, Eigen::Isometry3d& new_float_rleg_transform);
+  void function_theta(double theta, double& theta_new, Eigen::Vector3d hip, Eigen::Vector3d ankle_from_point, Eigen::Vector3d ankle_to_tip, Eigen::Vector2d& function_result);
+  void theta_cal_newton_method(double theta, Eigen::Vector3d hip, Eigen::Vector3d ankle, Eigen::Vector3d ankle_to_tip, double& tip_theta);
+  void getHeel_Toe_FootTrajectory();
+  void newton_method_ankle_update(double& theta_zero,  Eigen::Isometry3d& new_ankle, Eigen::Vector3d ankle, Eigen::Vector3d ankle_to_tip, Eigen::Vector3d hip);
+
   // for controlled LIPM // updated by myeongju
   void getComTrajectory_MJ();
   void modifiedPreviewControl_MJ();
@@ -433,6 +439,9 @@ public:
   void CalculateFuturePelAngle();
   void QP_momentum();
 
+  void qpIK_heeltoe_pelvis_13();
+  void GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 19, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 25, 13> &A_dsp2,
+                           Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd  &ubA_dsp1,Eigen::VectorXd &lbA_lifting, Eigen::VectorXd  &ubA_lifting,Eigen::VectorXd &lbA_landing, Eigen::VectorXd  &ubA_landing,Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd  &ubA_dsp2);
 
 
 private:
@@ -1171,6 +1180,11 @@ private:
     Eigen::Matrix6d current_right_toe_jacobian_;
     Eigen::Matrix6d current_right_heel_jacobian_;
 
+    Eigen::Matrix<double, 6, 7> current_left_toe_jacobian_floating_;
+    Eigen::Matrix<double, 6, 7> current_left_heel_jacobian_floating_;
+    Eigen::Matrix<double, 6, 7> current_right_toe_jacobian_floating_;
+    Eigen::Matrix<double, 6, 7> current_right_heel_jacobian_floating_;
+
     /////// parameter for intrisically stable MPC////////
 
     Eigen::VectorXd p_vector_;
@@ -1433,6 +1447,11 @@ private:
     double              third_pel_yaw_ref_;
 
     Eigen::VectorXd     future_pel_yaw_ref_;
+
+    double              pre_toe_theta_;
+    double              pre_heel_theta_;
+
+    double              E_con_total_;
 
 };
 
