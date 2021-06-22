@@ -1,0 +1,2 @@
+DynamixelSDK/c++:imu_3dm_gx4:mujoco_ros_sim/mujoco_ros:mujoco_ros_sim/mujoco_ros_msgs:rt_dynamixel_msgs
+-DCATKIN_DEVEL_PREFIX=/home/beom/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/beom/catkin_ws/install -G Unix Makefiles
