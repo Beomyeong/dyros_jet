@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/imu_3dm_gx4_generate_messages_nodejs"
   "/home/beom/catkin_ws/devel/share/gennodejs/ros/imu_3dm_gx4/msg/FilterOutput.js"
+  "CMakeFiles/imu_3dm_gx4_generate_messages_nodejs"
 )
 
 # Per-language clean rules from dependency scanning.

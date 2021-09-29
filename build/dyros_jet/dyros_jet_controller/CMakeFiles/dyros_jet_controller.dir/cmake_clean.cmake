@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/dyros_jet_controller.dir/src/dyros_jet_controller.cpp.o"
-  "/home/beom/catkin_ws/devel/lib/dyros_jet_controller/dyros_jet_controller.pdb"
   "/home/beom/catkin_ws/devel/lib/dyros_jet_controller/dyros_jet_controller"
+  "/home/beom/catkin_ws/devel/lib/dyros_jet_controller/dyros_jet_controller.pdb"
+  "CMakeFiles/dyros_jet_controller.dir/src/dyros_jet_controller.cpp.o"
 )
 
 # Per-language clean rules from dependency scanning.

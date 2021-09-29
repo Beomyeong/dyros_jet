@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/dyros_jet_haptic.dir/src/dyros_haptic.cpp.o"
-  "/home/beom/catkin_ws/devel/lib/dyros_jet_haptic/dyros_jet_haptic.pdb"
   "/home/beom/catkin_ws/devel/lib/dyros_jet_haptic/dyros_jet_haptic"
+  "/home/beom/catkin_ws/devel/lib/dyros_jet_haptic/dyros_jet_haptic.pdb"
+  "CMakeFiles/dyros_jet_haptic.dir/src/dyros_haptic.cpp.o"
 )
 
 # Per-language clean rules from dependency scanning.

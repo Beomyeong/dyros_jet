@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/imu_3dm_gx4_generate_messages_lisp"
   "/home/beom/catkin_ws/devel/share/common-lisp/ros/imu_3dm_gx4/msg/FilterOutput.lisp"
+  "CMakeFiles/imu_3dm_gx4_generate_messages_lisp"
 )
 
 # Per-language clean rules from dependency scanning.

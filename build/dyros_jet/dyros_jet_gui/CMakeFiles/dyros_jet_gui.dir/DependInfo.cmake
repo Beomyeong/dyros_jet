@@ -38,10 +38,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui/include"
   "/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui/include/qcustomplot"
+  "dyros_jet/dyros_jet_gui"
   "/usr/include/qt4"
   "/usr/include/qt4/QtGui"
   "/usr/include/qt4/QtCore"
-  "dyros_jet/dyros_jet_gui"
   )
 
 # Targets to which this target links.

@@ -238,6 +238,7 @@ public:
   void getAdaptiveFootTrajectory();
   void getFootSinTrajectory();
   void getFootTrajectory2();
+  void getFootTrajectory3();
   void computeIkControl(Eigen::Isometry3d float_trunk_transform, Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector12d& desired_leg_q);
   void computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::VectorXd& desired_leg_q_dot);
   void compensator();
@@ -294,6 +295,8 @@ public:
 
   void Jacobian_test(Eigen::Vector12d& desired_leg_q_dot);
   void Jacobian_floating();
+
+  void Pelvis_ori_test();
 
 
   void zmptoInitFloat();
@@ -439,8 +442,9 @@ public:
   void CalculateFuturePelAngle();
   void QP_momentum();
 
+  void qpIK_pelvis_heel_toe();
   void qpIK_heeltoe_pelvis_13();
-  void GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 19, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 25, 13> &A_dsp2,
+  void GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 25, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 24, 13> &A_dsp2,
                            Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd  &ubA_dsp1,Eigen::VectorXd &lbA_lifting, Eigen::VectorXd  &ubA_lifting,Eigen::VectorXd &lbA_landing, Eigen::VectorXd  &ubA_landing,Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd  &ubA_dsp2);
 
 
@@ -636,6 +640,10 @@ private:
   Eigen::Isometry3d rfoot_support_current_;
   Eigen::Vector3d lfoot_float_current_euler_;
   Eigen::Vector3d rfoot_float_current_euler_;
+
+  Eigen::Vector3d pelv_support_current_euler_;
+  Eigen::Vector3d pelv_float_current_euler_;
+  Eigen::Vector3d pelv_trajectory_support_euler_;
 
   Eigen::Vector3d com_float_current_;
   Eigen::Isometry3d pelv_float_current_;
@@ -1291,6 +1299,11 @@ private:
     Eigen::Vector3d lheel_trajectory_euler_;
     Eigen::Vector3d rheel_trajectory_euler_;
 
+    Eigen::Vector3d ltoe_float_current_euler_;
+    Eigen::Vector3d lheel_float_current_euler_;
+    Eigen::Vector3d rtoe_float_current_euler_;
+    Eigen::Vector3d rheel_float_current_euler_;
+
     Eigen::Vector6d lp_clik_;
     Eigen::Vector6d rp_clik_;
     Eigen::Vector6d ltoe_clik_;
@@ -1356,6 +1369,8 @@ private:
     Eigen::Vector12d d_hat_b_;
     Eigen::Matrix<double, 6, 7> current_leg_jacobian_l_floating_;
     Eigen::Matrix<double, 6, 7> current_leg_jacobian_r_floating_;
+    Eigen::Matrix<double, 6, 7> current_knee_jacobian_l_floating_;
+    Eigen::Matrix<double, 6, 7> current_knee_jacobian_r_floating_;
     double          floating_joint_;
     double          floating_joint_init_;
     double          pre_floating_joint_;

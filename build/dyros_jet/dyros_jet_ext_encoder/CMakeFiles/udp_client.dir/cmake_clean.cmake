@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/udp_client.dir/src/udp_client.cpp.o"
-  "/home/beom/catkin_ws/devel/lib/dyros_jet_ext_encoder/udp_client.pdb"
   "/home/beom/catkin_ws/devel/lib/dyros_jet_ext_encoder/udp_client"
+  "/home/beom/catkin_ws/devel/lib/dyros_jet_ext_encoder/udp_client.pdb"
+  "CMakeFiles/udp_client.dir/src/udp_client.cpp.o"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -24,6 +24,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/opt/ros/kinetic/include"
   "/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
+  "/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui_2/include"
   "/usr/include/x86_64-linux-gnu/qt5"
   "/usr/include/x86_64-linux-gnu/qt5/QtQuick"
   "/usr/include/x86_64-linux-gnu/qt5/QtQml"
@@ -31,7 +32,6 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/x86_64-linux-gnu/qt5/QtCore"
   "/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64"
   "/usr/include/x86_64-linux-gnu/qt5/QtGui"
-  "/home/beom/catkin_ws/src/dyros_jet/dyros_jet_gui_2/include"
   )
 
 # Targets to which this target links.

@@ -14,6 +14,7 @@ set(CMAKE_TARGET_DEFINITIONS_C
   "ROSCONSOLE_BACKEND_LOG4CXX"
   "ROS_BUILD_SHARED_LIBS=1"
   "ROS_PACKAGE_NAME=\"mujoco_ros\""
+  "mujoco_ros_lib_EXPORTS"
   )
 
 # The include file search paths:
@@ -35,6 +36,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "ROSCONSOLE_BACKEND_LOG4CXX"
   "ROS_BUILD_SHARED_LIBS=1"
   "ROS_PACKAGE_NAME=\"mujoco_ros\""
+  "mujoco_ros_lib_EXPORTS"
   )
 
 # The include file search paths:

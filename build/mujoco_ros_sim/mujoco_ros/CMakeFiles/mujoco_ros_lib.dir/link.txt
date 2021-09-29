@@ -1,1 +1,1 @@
-/usr/bin/c++  -fPIC -g  -shared -Wl,-soname,libmujoco_ros_lib.so -o /home/beom/catkin_ws/devel/lib/libmujoco_ros_lib.so CMakeFiles/mujoco_ros_lib.dir/__/mjpro200/include/uitools.c.o CMakeFiles/mujoco_ros_lib.dir/src/mjros.cpp.o  -L/home/beom/catkin_ws/src/mujoco_ros_sim/mjpro200/bin 
+/usr/bin/g++-8 -fPIC -g  -shared -Wl,-soname,libmujoco_ros_lib.so -o /home/beom/catkin_ws/devel/lib/libmujoco_ros_lib.so CMakeFiles/mujoco_ros_lib.dir/__/mjpro200/include/uitools.c.o CMakeFiles/mujoco_ros_lib.dir/src/mjros.cpp.o   -L/home/beom/catkin_ws/src/mujoco_ros_sim/mjpro200/bin 

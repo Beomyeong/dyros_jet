@@ -162,10 +162,10 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     {
       getArmLinksJacobianMatrix(i, &arm_link_jacobian_[i-15]);
     }
-    getFull_jacobian(i, &full_jacobian_);
-//    std::cout<<"full jacobian"<<std::endl<<full_jacobian_<<std::endl;
-
+    getFull_jacobian(i, &full_jacobian_);    
+//      std::cout<<"full jacobian"<<std::endl<<full_jacobian_<<std::endl;
   }
+
 
 
 }
@@ -396,7 +396,7 @@ void DyrosJetModel::getJacobianMatrix18DoF(EndEffector ee, Eigen::Matrix<double,
 }
 
 void DyrosJetModel::getLegLinksJacobianMatrix
-(unsigned int id, Eigen::Matrix<double, 6, 6> *jacobian)
+(unsigned int id, Eigen::Matrix<double, 6, 7> *jacobian)
 {
   Eigen::MatrixXd full_jacobian(6,MODEL_WITH_VIRTUAL_DOF);
   full_jacobian.setZero();
@@ -404,17 +404,21 @@ void DyrosJetModel::getLegLinksJacobianMatrix
                                          Eigen::Vector3d::Zero(), full_jacobian, false);
   unsigned int ee;
 
+  jacobian->block<3,1>(0,0) = full_jacobian.block<3,1>(3,6);
+  jacobian->block<3,1>(3,0) = full_jacobian.block<3,1>(0,6);
+
+
   if( id >0 && id<=6)
   {
     ee = 0;
-    jacobian->block<3, 6>(0, 0) = full_jacobian.block<3, 6>(3, joint_start_index_[ee]);
-    jacobian->block<3, 6>(3, 0) = full_jacobian.block<3, 6>(0, joint_start_index_[ee]);
+    jacobian->block<3, 6>(0, 1) = full_jacobian.block<3, 6>(3, joint_start_index_[ee]);
+    jacobian->block<3, 6>(3, 1) = full_jacobian.block<3, 6>(0, joint_start_index_[ee]);
   }
   else if( id>=7 && id<13)
   {
     ee = 1;
-    jacobian->block<3, 6>(0, 0) = full_jacobian.block<3, 6>(3, joint_start_index_[ee]);
-    jacobian->block<3, 6>(3, 0) = full_jacobian.block<3, 6>(0, joint_start_index_[ee]);
+    jacobian->block<3, 6>(0, 1) = full_jacobian.block<3, 6>(3, joint_start_index_[ee]);
+    jacobian->block<3, 6>(3, 1) = full_jacobian.block<3, 6>(0, joint_start_index_[ee]);
   }
   else
   {
