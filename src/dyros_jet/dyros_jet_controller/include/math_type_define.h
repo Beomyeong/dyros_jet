@@ -847,6 +847,24 @@ static Eigen::Matrix6d floating_pelv_rotation_6_matrix(double virtual_joint){
 //    return theta_output;
 
 //}
+static Eigen::Matrix3d particular_rotation_matrix(Eigen::Vector3d euler_angle){
+    Eigen::Matrix3d rotation_matrix_temp;
+
+    rotation_matrix_temp.setZero();
+
+    rotation_matrix_temp(0,0) = -sin(euler_angle(0))*cos(euler_angle(1))/sin(euler_angle(1));
+    rotation_matrix_temp(0,1) = cos(euler_angle(0))*cos(euler_angle(1))/sin(euler_angle(1));
+    rotation_matrix_temp(0,2) = 1;
+
+    rotation_matrix_temp(1,0) = cos(euler_angle(0));
+    rotation_matrix_temp(1,1) = sin(euler_angle(0));
+
+    rotation_matrix_temp(2,0) = sin(euler_angle(0))/sin(euler_angle(1));
+    rotation_matrix_temp(2,1) = -cos(euler_angle(0))/sin(euler_angle(1));
+
+    return rotation_matrix_temp;
+
+}
 }
 
 #endif

@@ -231,6 +231,7 @@ public:
   void parameterSetting();
   //functions in compute
   void getRobotState();
+  void getRobotState_modified();
   void getComTrajectory();
   void getZmpTrajectory();
   void getPelvTrajectory();
@@ -239,6 +240,7 @@ public:
   void getFootSinTrajectory();
   void getFootTrajectory2();
   void getFootTrajectory3();
+  void getFootTrajectory4();
   void computeIkControl(Eigen::Isometry3d float_trunk_transform, Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector12d& desired_leg_q);
   void computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::VectorXd& desired_leg_q_dot);
   void compensator();
@@ -246,6 +248,7 @@ public:
   void supportToFloatPattern();
   void updateNextStepTime();
   void updateInitialState();
+  void updateInitialState_modified();
 
   //functions for getFootStep()
   void calculateFootStepTotal();
@@ -441,12 +444,16 @@ public:
   void FuturePelYawReference();
   void CalculateFuturePelAngle();
   void QP_momentum();
+  void ZMP_constraint_boundary(Eigen::MatrixXd& zmp_x_boundary, Eigen::MatrixXd& zmp_y_boundary);
+  void onestepZMPboundary(unsigned int current_step_number, Eigen::MatrixXd& x_boundary, Eigen::MatrixXd& y_boundary);
 
   void qpIK_pelvis_heel_toe();
   void qpIK_heeltoe_pelvis_13();
-  void GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 25, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 24, 13> &A_dsp2,
+  void GetHeeltoePelvisConstraintMatrix(Eigen::MatrixXd &A_dsp1, Eigen::MatrixXd &A_lifting, Eigen::MatrixXd &A_landing, Eigen::MatrixXd &A_dsp2,
                            Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd  &ubA_dsp1,Eigen::VectorXd &lbA_lifting, Eigen::VectorXd  &ubA_lifting,Eigen::VectorXd &lbA_landing, Eigen::VectorXd  &ubA_landing,Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd  &ubA_dsp2);
+  void CheckEulerVelocity(Eigen::Vector3d& l_euler_dot, Eigen::Vector3d& r_euler_dot, VectorQd& qdot);
 
+  void GenerateProfile(double current_time, double p0, double pf, double t0, double t1, double t2, double t3, double& position_profile, double& velocity_profile);
 
 private:
 
@@ -609,6 +616,8 @@ private:
   Eigen::Vector3d com_support_current_;
   Eigen::Vector3d com_support_dot_current_;//from support foot
   Eigen::Vector3d com_support_body_;
+  Eigen::Vector3d com_support_measured_;
+  Eigen::Vector3d com_float_measured_;
 
   Eigen::Vector3d com_support_pre_;
   Eigen::Vector3d com_support_pre_pre_;
@@ -640,6 +649,11 @@ private:
   Eigen::Isometry3d rfoot_support_current_;
   Eigen::Vector3d lfoot_float_current_euler_;
   Eigen::Vector3d rfoot_float_current_euler_;
+  Eigen::Vector3d pre_lfoot_float_euler_;
+  Eigen::Vector3d pre_rfoot_float_euler_;
+
+  Eigen::Vector3d rheel_float_check_;
+  Eigen::Vector3d lheel_float_check_;
 
   Eigen::Vector3d pelv_support_current_euler_;
   Eigen::Vector3d pelv_float_current_euler_;
@@ -1293,6 +1307,10 @@ private:
     Eigen::Isometry3d lheel_trajectory_support_;
     Eigen::Isometry3d rheel_trajectory_support_;
 
+    Eigen::Vector3d ltoe_trajectory_support_euler_;
+    Eigen::Vector3d rtoe_trajectory_support_euler_;
+    Eigen::Vector3d lheel_trajectory_support_euler_;
+    Eigen::Vector3d rheel_trajectory_support_euler_;
 
     Eigen::Vector3d ltoe_trajectory_euler_;
     Eigen::Vector3d rtoe_trajectory_euler_;
@@ -1346,6 +1364,10 @@ private:
 
     Eigen::Isometry3d ltoe_DSP1_support_init_;
     Eigen::Isometry3d rtoe_DSP1_support_init_;
+    Eigen::Isometry3d lheel_lifting_support_init_;
+    Eigen::Isometry3d rheel_lifting_support_init_;
+    Eigen::Isometry3d ltoe_lifting_support_init_;
+    Eigen::Isometry3d rtoe_lifting_support_init_;
 
     double pushing_force_;
     double pre_pushing_force_;

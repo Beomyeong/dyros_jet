@@ -1305,6 +1305,7 @@ void WalkingController::UpdateCentroidalMomentumMatrix(){
 
     model_.updateKinematics(q_temp,qdot_temp);
     current_Angular_momentum_ = model_.getCurrentComAngularMomentum();
+    com_float_measured_ = model_.getCurrentCom();
 
     file[27]<<walking_tick_<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)<<endl;
 }

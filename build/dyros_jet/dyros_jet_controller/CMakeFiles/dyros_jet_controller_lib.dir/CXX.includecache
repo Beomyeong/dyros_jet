@@ -56,13 +56,17 @@ Eigen/Dense
 unsupported/Eigen/MatrixFunctions
 -
 
-/home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/walking_controller.cpp
+/home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/qpoptimization.cpp
 dyros_jet_controller/dyros_jet_model.h
 /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/dyros_jet_controller/dyros_jet_model.h
 dyros_jet_controller/walking_controller.h
 /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/dyros_jet_controller/walking_controller.h
 cvxgen_6_8_0/cvxgen/solver.h
 /home/beom/catkin_ws/src/dyros_jet/dyros_jet_controller/src/cvxgen_6_8_0/cvxgen/solver.h
+chrono
+-
+stdio.h
+-
 
 /opt/ros/kinetic/include/ros/advertise_options.h
 ros/forwards.h

@@ -12,10 +12,10 @@ void WalkingController::qpIK(){
     if(walking_tick_ == 0)
         cout<<"optimization IK  "<<endl;
     // using qpoases
-//    Eigen::Matrix<double, 12, 12> jacobian_A;
-//    jacobian_A.setZero();
-//    jacobian_A.block<6,6>(0,0) = current_leg_jacobian_l_;
-//    jacobian_A.block<6,6>(6,6) = current_leg_jacobian_r_;
+    Eigen::Matrix<double, 12, 12> jacobian_A;
+    jacobian_A.setZero();
+    jacobian_A.block<6,6>(0,0) = current_leg_jacobian_l_;
+    jacobian_A.block<6,6>(6,6) = current_leg_jacobian_r_;
 
     Eigen::VectorXd y_input(12);
     Eigen::Matrix6d Kp;
@@ -113,14 +113,14 @@ void WalkingController::qpIK(){
     for(int j=0;j<12;j++){
         for(int i=0;i<12;i++){
             H[12*i+j] = Jacobian_H_Matrix(i,j) + iden(i,j);
-//            A[12*i+j] = jacobian_A(i,j);
+            A[12*i+j] = jacobian_A(i,j);
         }
 //        for(int i=0;i<11;i++){
 //            A[12*i+j] = Jacobian_A_redundant_yaw(i,j);
 //        }
-        for(int i=0;i<21;i++){
-            A[12*i+j] = Jacobian_A_redundant_yaw_joint_limit(i,j);
-        }
+//        for(int i=0;i<21;i++){
+//            A[12*i+j] = Jacobian_A_redundant_yaw_joint_limit(i,j);
+//        }
 
     }
 
@@ -133,14 +133,14 @@ void WalkingController::qpIK(){
         g[i] = -g_vector(i);
     }
 
-    for(int i=0;i<9;i++){
-        lbA[i] = y_input_9(i);
-        ubA[i] = y_input_9(i);
-    }
-    for(int i=0;i<12;i++){
-        lbA[i+9] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA[i+9] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
-    }
+//    for(int i=0;i<9;i++){
+//        lbA[i] = y_input_9(i);
+//        ubA[i] = y_input_9(i);
+//    }
+//    for(int i=0;i<12;i++){
+//        lbA[i+9] = (q_leg_min_(i+1) - desired_q_not_compensated_(i+1))*hz_;
+//        ubA[i+9] = (q_leg_max_(i+1) - desired_q_not_compensated_(i+1))*hz_;
+//    }
 
 //    for(int i=0;i<11;i++){
 //        lbA[i] = y_input_10(i);
@@ -151,20 +151,20 @@ void WalkingController::qpIK(){
 //        ubA[i+11] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
 //    }
 
-//    for(int i=0;i<12;i++){
-//        lbA[i] = y_input_12(i);
-//        ubA[i] = y_input_12(i);
-//    }
-//    for(int i=0;i<12;i++){
-//        lbA[i+12] = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-//        ubA[i+12] = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
-//    }
+    for(int i=0;i<12;i++){
+        lbA[i] = y_input_12(i);
+        ubA[i] = y_input_12(i);
+    }
+    for(int i=0;i<12;i++){
+        lbA[i+12] = (q_leg_min_(i+1) - desired_q_not_compensated_(i+1))*hz_;
+        ubA[i+12] = (q_leg_max_(i+1) - desired_q_not_compensated_(i+1))*hz_;
+    }
 
 
     real_t xOpt[12];
 //    real_t yOpt[12+12];
 //    QProblem example(12,12, HST_IDENTITY);
-    QProblem example(12,23);
+    QProblem example(12,24);
 
     Options options;
     options.initialStatusBounds =ST_LOWER;
@@ -214,7 +214,7 @@ void WalkingController::qpIK(){
 //    inverse_test = jacobian_A*q_temp;
 
    for(int i=0;i<12;i++){
-       desired_q_(i) = qp_q(i);
+       desired_q_(i+1) = qp_q(i);
 //       desired_q_(i) = desired_q_not_compensated_(i) + inverse_test(i)/hz_;
    }
 //   desired_q_.segment<12>(0) = qp_q;
@@ -907,14 +907,159 @@ void WalkingController::qpIK_pelvis_heel_toe(){
     if(walking_tick_<600)
         knee_gain = 0;
     else {
-        knee_gain = 5;
+        knee_gain = 1;
     }
 
 //    H_matrix_13 = knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
 //    g_vector_13 = knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
 
-    H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
-    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+    Eigen::Matrix<double, 11, 13> Jacobian_toe_11_13;
+    Eigen::Matrix<double, 13, 11> Jacobian_toe_13_11_t;
+    Jacobian_toe_11_13.setZero(); Jacobian_toe_13_11_t.setZero();
+
+//    knee_gain = 0;
+
+    Eigen::VectorXd toe_dot;
+    toe_dot.resize(11); toe_dot.setZero();
+
+//    knee_gain = 0;
+    if(walking_tick_ > 600)
+    {
+//        if(walking_tick_ >= t_start_real_ + t_double1_)// &&  walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)
+//        {
+//            H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
+//            g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+//        }
+//        else{
+//            if(foot_step_(current_step_num_,6) == 1)// left foot support
+//            {
+//                Jacobian_toe_11_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+//                Jacobian_toe_11_13.block<4,1>(6,0) = current_right_toe_jacobian_floating_.block<4,1>(0,0);
+//                Jacobian_toe_11_13.block<1,1>(10,0) = current_right_toe_jacobian_floating_.block<1,1>(5,0);
+//                Jacobian_toe_11_13.block<4,6>(6,7) = current_right_toe_jacobian_floating_.block<4,6>(0,1);
+//                Jacobian_toe_11_13.block<1,6>(10,7) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
+
+//                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+//                toe_dot.segment<6>(0) = lp_;
+//                toe_dot.segment<4>(6) = rtoe_p_.segment<4>(0);
+//                toe_dot(10) = rtoe_p_(5);
+
+//            }
+//            else{
+//                Jacobian_toe_11_13.block<4,7>(0,0) = current_left_toe_jacobian_floating_.block<4,7>(0,0);
+//                Jacobian_toe_11_13.block<1,7>(4,0) = current_left_toe_jacobian_floating_.block<1,7>(5,0);
+
+//                Jacobian_toe_11_13.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+//                Jacobian_toe_11_13.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+//                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+//                toe_dot.segment<4>(0) = ltoe_p_.segment<4>(0);
+//                toe_dot(4) = ltoe_p_(5);
+//                toe_dot.segment<6>(5) = rp_;
+
+//            }
+//            H_matrix_13 = w1_13*Jacobian_toe_13_11_t*Jacobian_toe_11_13 + 2*Iden_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee ;
+//            g_vector_13 = w1_13*Jacobian_toe_13_11_t*toe_dot + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0) + 2*pre_q_dot_.segment<13>(0);
+//        }
+        if(walking_tick_< t_start_real_ + t_double1_)
+        {
+            if(foot_step_(current_step_num_,6) == 1)// left foot support
+            {
+                Jacobian_toe_11_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+                Jacobian_toe_11_13.block<4,1>(6,0) = current_right_toe_jacobian_floating_.block<4,1>(0,0);
+                Jacobian_toe_11_13.block<1,1>(10,0) = current_right_toe_jacobian_floating_.block<1,1>(5,0);
+                Jacobian_toe_11_13.block<4,6>(6,7) = current_right_toe_jacobian_floating_.block<4,6>(0,1);
+                Jacobian_toe_11_13.block<1,6>(10,7) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
+
+                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+                toe_dot.segment<6>(0) = lp_;
+                toe_dot.segment<4>(6) = rtoe_p_.segment<4>(0);
+                toe_dot(10) = rtoe_p_(5);
+
+            }
+            else{
+                Jacobian_toe_11_13.block<4,7>(0,0) = current_left_toe_jacobian_floating_.block<4,7>(0,0);
+                Jacobian_toe_11_13.block<1,7>(4,0) = current_left_toe_jacobian_floating_.block<1,7>(5,0);
+
+                Jacobian_toe_11_13.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+                Jacobian_toe_11_13.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+                toe_dot.segment<4>(0) = ltoe_p_.segment<4>(0);
+                toe_dot(4) = ltoe_p_(5);
+                toe_dot.segment<6>(5) = rp_;
+
+            }
+            H_matrix_13 = w1_13*Jacobian_toe_13_11_t*Jacobian_toe_11_13 + 2*Iden_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee ;
+            g_vector_13 = w1_13*Jacobian_toe_13_11_t*toe_dot + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0) + 2*pre_q_dot_.segment<13>(0);
+        }
+        else if(walking_tick_>= t_start_real_ + t_double1_ && walking_tick_ < t_start_real_ + t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+        {
+            knee_gain = 0;
+            H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
+            g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+        }
+        else if(walking_tick_ >= t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0 && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)// SSP + DSP ( landing the foot ) and contact whole foot
+        {
+
+            knee_gain = 0;
+            if(foot_step_(current_step_num_,6) == 1)// left foot support
+            {
+                Jacobian_toe_11_13.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+                Jacobian_toe_11_13.block<4,1>(6,0) = current_right_heel_jacobian_floating_.block<4,1>(0,0);
+                Jacobian_toe_11_13.block<1,1>(10,0) = current_right_heel_jacobian_floating_.block<1,1>(5,0);
+                Jacobian_toe_11_13.block<4,6>(6,7) = current_right_heel_jacobian_floating_.block<4,6>(0,1);
+                Jacobian_toe_11_13.block<1,6>(10,7) = current_right_heel_jacobian_floating_.block<1,6>(5,1);
+
+                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+                toe_dot.segment<6>(0) = lp_;
+                toe_dot.segment<4>(6) = rheel_p_.segment<4>(0);
+                toe_dot(10) = rheel_p_(5);
+
+            }
+            else{
+                Jacobian_toe_11_13.block<4,7>(0,0) = current_left_heel_jacobian_floating_.block<4,7>(0,0);
+                Jacobian_toe_11_13.block<1,7>(4,0) = current_left_heel_jacobian_floating_.block<1,7>(5,0);
+
+                Jacobian_toe_11_13.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+                Jacobian_toe_11_13.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+
+                Jacobian_toe_13_11_t = Jacobian_toe_11_13.transpose();
+
+                toe_dot.segment<4>(0) = lheel_p_.segment<4>(0);
+                toe_dot(4) = lheel_p_(5);
+                toe_dot.segment<6>(5) = rp_;
+
+            }
+            knee_gain =0;
+
+            H_matrix_13 = w1_13*Jacobian_toe_13_11_t*Jacobian_toe_11_13 + 1*Iden_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee ;
+            g_vector_13 = w1_13*Jacobian_toe_13_11_t*toe_dot + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0) + 1*pre_q_dot_.segment<13>(0);
+        }
+        else
+        {
+            knee_gain = 0;
+            H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
+            g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+        }
+    }
+    else{
+        H_matrix_13 = w1_13*Jacobian_12_13_t*Jacobian_12_13 + knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
+        g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+    }
+
+//    g_vector_13 = w1_13*Jacobian_12_13_t*desired_v + 1*pre_q_dot_.segment<13>(0)+knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
+
+
+
 
 
     Eigen::Matrix<double, 25, 13> Constraint_A_25_13;
@@ -945,13 +1090,24 @@ void WalkingController::qpIK_pelvis_heel_toe(){
             A_13[13*i+j] = Constraint_A_25_13(i,j);
         }
 
-        lb_13[j] = -10;
-        ub_13[j] = 10;
+        lb_13[j] = -15;
+        ub_13[j] = 15;
 
         g_13[j] = -g_vector_13(j);
     }
 
     // constraint for MPC -pel yaw //
+//    if(pre_pel_yaw_(1) >= 0){
+//        lb_13[0] = 0;
+//        ub_13[0] = pre_pel_yaw_(1);
+//    }
+//    else
+//    {
+//        lb_13[0] = pre_pel_yaw_(1);
+//        ub_13[0] = 0;
+//    }
+
+
     lb_13[0] = pre_pel_yaw_(1);
     ub_13[0] = pre_pel_yaw_(1);
 
@@ -991,29 +1147,27 @@ void WalkingController::qpIK_pelvis_heel_toe(){
     /// \brief H_13
 
 
-    Eigen::Matrix<double, 24, 13> A_input_dsp1, A_input_landing;
-    A_input_dsp1.setZero(); A_input_landing.setZero();
+    Eigen::MatrixXd A_input_dsp1, A_input_landing,A_input_lifting, A_input_dsp2;
 
-    Eigen::Matrix<double, 25, 13> A_input_lifting;
-    A_input_lifting.setZero();
+    A_input_dsp1.resize(24,13);     A_input_dsp1.setZero();
+    A_input_lifting.resize(25,13);  A_input_lifting.setZero();
+    A_input_landing.resize(24,13);  A_input_landing.setZero();
+    A_input_dsp2.resize(25,13);     A_input_dsp2.setZero();
 
-    Eigen::Matrix<double, 24, 13> A_input_dsp2;
-    A_input_dsp2.setZero();
 
     Eigen::VectorXd lbA_input_dsp1,ubA_input_dsp1, lbA_input_lifting, ubA_input_lifting, lbA_input_landing, ubA_input_landing, lbA_input_dsp2, ubA_input_dsp2;
     lbA_input_dsp1.resize(24); ubA_input_dsp1.resize(24);
     lbA_input_lifting.resize(25); ubA_input_lifting.resize(25);
     lbA_input_landing.resize(24); ubA_input_landing.resize(24);
-    lbA_input_dsp2.resize(24); ubA_input_dsp2.resize(24);
+    lbA_input_dsp2.resize(25); ubA_input_dsp2.resize(25);
 
     GetHeeltoePelvisConstraintMatrix(A_input_dsp1,A_input_lifting,A_input_landing,A_input_dsp2,
                                      lbA_input_dsp1,ubA_input_dsp1,lbA_input_lifting,ubA_input_lifting,lbA_input_landing,ubA_input_landing,lbA_input_dsp2,ubA_input_dsp2);
-    real_t A_dsp1[24*13], A_lifting[25*13], A_landing[24*13], A_dsp2[24*13],
-            lbA_dsp1[24],lbA_lifting[25],lbA_landing[24],lbA_dsp2[24],
-            ubA_dsp1[24],ubA_lifting[25],ubA_landing[24],ubA_dsp2[24];
+    real_t A_dsp1[24*13], A_lifting[25*13], A_landing[24*13], A_dsp2[25*13],
+            lbA_dsp1[24],lbA_lifting[25],lbA_landing[24],lbA_dsp2[25],
+            ubA_dsp1[24],ubA_lifting[25],ubA_landing[24],ubA_dsp2[25];
 
 
-    real_t H_13_dsp1[13*13], g_13_dsp[13];
 
 //    for(int j=0;j<13;j++){
 //        for(int i=0;i<13;i++){
@@ -1022,18 +1176,26 @@ void WalkingController::qpIK_pelvis_heel_toe(){
 //    }
 
     for(int j=0;j<13;j++){
+//        for(int i=0;i<25;i++){
+//            A_dsp1[13*i + j] = A_input_dsp1(i,j);
+//        }
         for(int i=0;i<24;i++){
             A_dsp1[13*i + j] = A_input_dsp1(i,j);
             A_landing[13*i + j] = A_input_landing(i,j);
         }
         for(int i=0;i<25;i++){
             A_lifting[13*i + j] = A_input_lifting(i,j);
+//            A_landing[13*i + j] = A_input_landing(i,j);
         }
         for(int i=0; i<24;i++){
             A_dsp2[13*i + j] = A_input_dsp2(i,j);
         }
     }
 
+//    for(int i=0;i<25;i++){
+//        lbA_dsp1[i] = lbA_input_dsp1(i);
+//        ubA_dsp1[i] = ubA_input_dsp1(i);
+//    }
     for(int i=0;i<24;i++){
         lbA_dsp1[i] = lbA_input_dsp1(i);
         ubA_dsp1[i] = ubA_input_dsp1(i);
@@ -1044,9 +1206,12 @@ void WalkingController::qpIK_pelvis_heel_toe(){
     for(int i =0;i<25;i++){
         lbA_lifting[i] = lbA_input_lifting(i);
         ubA_lifting[i] = ubA_input_lifting(i);
+
+//        lbA_landing[i] = lbA_input_landing(i);
+//        ubA_landing[i] = ubA_input_landing(i);
     }
 
-    for(int i=0;i<24;i++){
+    for(int i=0;i<25;i++){
         lbA_dsp2[i] = lbA_input_dsp2(i);
         ubA_dsp2[i] = ubA_input_dsp2(i);
     }
@@ -1062,71 +1227,94 @@ void WalkingController::qpIK_pelvis_heel_toe(){
 ////    options.enableEqualities = BT_TRUE;
 //    int_t nWSR = 1000;
 
-    if(walking_tick_< t_start_real_ + t_double1_){
-
-        QProblem dsp1(13,24);
-        dsp1.setOptions(options);
-
-        dsp1.init(H_13,g_13,A_dsp1,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
-//        dsp1.init(H_13_dsp1,g_13_dsp1,A_dsp1,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
-        dsp1.getPrimalSolution(qOpt);
-//        dsp1.hotstart(g_13,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
-//        dsp1.getPrimalSolution(qOpt);
-    }
-
-    else if(walking_tick_ >= t_start_real_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
-//    if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+    if(walking_tick_ <= 600)
     {
-        QProblem lifting(13,25);
-        lifting.setOptions(options);
+        QProblem initial(13,25);
+        initial.setOptions(options);
 
-        lifting.init(H_13,g_13,A_lifting,lb_13,ub_13,lbA_lifting,ubA_lifting,nWSR);
-        lifting.getPrimalSolution(qOpt);
-////        lifting.hotstart(g_13,lb,ub,lbA_lifting,ubA_lifting,nWSR);
-////        lifting.getPrimalSolution(qOpt);
-//          example.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
-//          example.getPrimalSolution(qOpt);
+        initial.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
+        initial.getPrimalSolution(qOpt);
     }
-    //    else{
-    //        example.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
-    //        example.getPrimalSolution(qOpt);
-    //    }
-
-
-    else if(walking_tick_ >= t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0 && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)// SSP + DSP ( landing the foot ) and contact whole foot
+    else if(walking_tick_ > 600)
     {
-        QProblem landing(13,24);
-        landing.setOptions(options);
+        if(walking_tick_< t_start_real_ + t_double1_){
 
-        landing.init(H_13,g_13,A_landing,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
-        landing.getPrimalSolution(qOpt);
-//        landing.hotstart(g_13,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
-//        landing.getPrimalSolution(qOpt);
-    }
-    else{
-        QProblem dsp2(13,24);
-        dsp2.setOptions(options);
+            QProblem dsp1(13,24);
+            dsp1.setOptions(options);
 
-        dsp2.init(H_13,g_13,A_dsp2,lb_13,ub_13,lbA_dsp2,ubA_dsp2,nWSR);
-        dsp2.getPrimalSolution(qOpt);
-//        dsp2.hotstart(g,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
-//        dsp2.getPrimalSolution(qOpt);
+            dsp1.init(H_13,g_13,A_dsp1,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
+    //        dsp1.init(H_13_dsp1,g_13_dsp1,A_dsp1,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
+            dsp1.getPrimalSolution(qOpt);
+    //        dsp1.hotstart(g_13,lb_13,ub_13,lbA_dsp1,ubA_dsp1,nWSR);
+    //        dsp1.getPrimalSolution(qOpt);
+        }
+
+        else if(walking_tick_ >= t_start_real_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+    //    if(walking_tick_ >= t_start_ + t_double1_ && walking_tick_ < t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0)// SSP (half of swing, toe off and lifting up the foot)
+        {
+            QProblem lifting(13,24);
+            lifting.setOptions(options);
+
+            lifting.init(H_13,g_13,A_lifting,lb_13,ub_13,lbA_lifting,ubA_lifting,nWSR);
+            lifting.getPrimalSolution(qOpt);
+    ////        lifting.hotstart(g_13,lb,ub,lbA_lifting,ubA_lifting,nWSR);
+    ////        lifting.getPrimalSolution(qOpt);
+    //          example.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
+    //          example.getPrimalSolution(qOpt);
+        }
+        //    else{
+        //        example.init(H_13,g_13,A_13,lb_13,ub_13,lbA_13,ubA_13,nWSR);
+        //        example.getPrimalSolution(qOpt);
+        //    }
+
+
+        else if(walking_tick_ >= t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_)/2.0 && walking_tick_ < t_start_+t_total_-t_double2_-t_rest_last_)// SSP + DSP ( landing the foot ) and contact whole foot
+        {
+            QProblem landing(13,24);
+            landing.setOptions(options);
+
+            landing.init(H_13,g_13,A_landing,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
+            landing.getPrimalSolution(qOpt);
+    //        landing.hotstart(g_13,lb_13,ub_13,lbA_landing,ubA_landing,nWSR);
+    //        landing.getPrimalSolution(qOpt);
+    ////
+    //        QProblem landing(13,25);
+    //        landing.setOptions(options);
+
+    //        landing.init(H_13,g_13,A_lifting,lb_13,ub_13,lbA_lifting,ubA_lifting,nWSR);
+    //        landing.getPrimalSolution(qOpt);
+        }
+        else{
+            QProblem dsp2(13,25);
+            dsp2.setOptions(options);
+
+            dsp2.init(H_13,g_13,A_dsp2,lb_13,ub_13,lbA_dsp2,ubA_dsp2,nWSR);
+            dsp2.getPrimalSolution(qOpt);
+    //        dsp2.hotstart(g,lb,ub,lbA_dsp2,ubA_dsp2,nWSR);
+    //        dsp2.getPrimalSolution(qOpt);
+        }
     }
+
 
     //// constraints for pelvis + heel-toe walking  combined  end ///////*/
 
     double x_knee_dot;
     Eigen::Vector7d q_swing;
 
-
-
-
     file[18]<<walking_tick_;
+
     for(int i=0;i<13;i++){
         pre_q_dot_(i) = qOpt[i];
         file[18]<<"\t"<<qOpt[i];
     }
+
     file[18]<<endl;
+
+    Eigen::Vector3d l_euler_dot, r_euler_dot;
+    l_euler_dot = lp_.segment<3>(3);
+    r_euler_dot = rp_.segment<3>(3);
+
+    CheckEulerVelocity(l_euler_dot,r_euler_dot,pre_q_dot_);
 
     if(foot_step_(current_step_num_,6)==1){
        q_swing = pre_q_dot_.segment<7>(0);
@@ -2328,14 +2516,21 @@ void WalkingController::qpIK_heeltoe_pelvis_13(){
 //    lb_13[0] = pre_pel_yaw_(1);
 //    ub_13[0] = pre_pel_yaw_(1);
 
-    Eigen::Matrix<double, 24, 13> A_input_dsp1, A_input_landing;
-    A_input_dsp1.setZero(); A_input_landing.setZero();
+//    Eigen::Matrix<double, 25, 13> A_input_dsp1;
+//    Eigen::Matrix<double, 24, 13>  A_input_landing;
+//    A_input_dsp1.setZero(); A_input_landing.setZero();
 
-    Eigen::Matrix<double, 25, 13> A_input_lifting;
-    A_input_lifting.setZero();
+//    Eigen::Matrix<double, 25, 13> A_input_lifting;
+//    A_input_lifting.setZero();
 
-    Eigen::Matrix<double, 24, 13> A_input_dsp2;
-    A_input_dsp2.setZero();
+//    Eigen::Matrix<double, 24, 13> A_input_dsp2;
+//    A_input_dsp2.setZero();
+
+    Eigen::MatrixXd A_input_dsp1, A_input_landing,A_input_lifting, A_input_dsp2;
+
+
+    A_input_dsp1.resize(25,13); A_input_landing.resize(24,13); A_input_lifting.resize(25,13); A_input_dsp2.resize(24,13);
+    A_input_dsp1.setZero(); A_input_landing.setZero();A_input_lifting.setZero();A_input_dsp2.setZero();
 
     Eigen::VectorXd lbA_input_dsp1,ubA_input_dsp1, lbA_input_lifting, ubA_input_lifting, lbA_input_landing, ubA_input_landing, lbA_input_dsp2, ubA_input_dsp2;
     lbA_input_dsp1.resize(24); ubA_input_dsp1.resize(24);
@@ -4053,8 +4248,10 @@ void WalkingController::calculateFootMargin2(Eigen::MatrixXd& margin_x, Eigen::M
 
                 }
                 for(unsigned int j=(t_rest_init_+t_double1_);j<(t_total_-t_double2_-t_rest_last_);j++){
-                    margin_x(index+j,0) = -0.10;
-                    margin_x(index+j,1) = 0.10;
+//                    margin_x(index+j,0) = -0.10;
+//                    margin_x(index+j,1) = 0.10;
+                    margin_x(index+j,0) = -0.05;
+                    margin_x(index+j,1) = 0.05;
 
                     margin_y(index+j,0) = -0.075;
                     margin_y(index+j,1) = 0.075;
@@ -4072,7 +4269,8 @@ void WalkingController::calculateFootMargin2(Eigen::MatrixXd& margin_x, Eigen::M
 
                 }
                 for(unsigned int j=(t_total_-t_double2_-t_rest_last_);j<t_total_;j++){
-                    margin_x(index+j,0) = -0.15;//0.0;
+//                    margin_x(index+j,0) = -0.15;//0.0;
+                    margin_x(index+j,0) = 0.0;//0.0;
                     margin_x(index+j,1) = (foot_step_support_frame_offset_(i+1,0) - foot_step_support_frame_offset_(i,0))/2.0;//0.15;//(foot_step_support_frame_(i-1,0) + foot_step_support_frame_(i,0))/2.0;
 //                    margin_x(index+j,0) = -0.15;
 //                    margin_x(index+j,1) = 0.15;
@@ -4253,6 +4451,283 @@ void WalkingController::onestepFoot(unsigned int current_step_number, Eigen::Vec
         }
     }
 
+}
+void WalkingController::ZMP_constraint_boundary(Eigen::MatrixXd& zmp_x_boundary, Eigen::MatrixXd& zmp_y_boundary){
+    unsigned int norm_size =0;
+    if(current_step_num_ >= total_step_num_-3)
+        norm_size = (t_last_ - t_start_ +1) *(total_step_num_ - current_step_num_) + 20*hz_;
+    else
+        norm_size = (t_last_ - t_start_ +1)*3;
+    if(current_step_num_ == 0)
+        norm_size += t_temp_ +1;
+
+    zmp_x_boundary.resize(norm_size,2); zmp_y_boundary.resize(norm_size,2);
+
+    Eigen::MatrixXd temp_zmp_x_boundary, temp_zmp_y_boundary;
+
+
+    unsigned int index = 0;
+
+    if(current_step_num_ == 0){
+        for(int i=0; i<= t_temp_; i++)
+        {
+            zmp_x_boundary(i,0) = -0.05;
+            zmp_x_boundary(i,1) = 0.075;
+
+            zmp_y_boundary(i,0) = com_support_init_(1) + com_offset_(1)-0.05;
+            zmp_y_boundary(i,1) = com_support_init_(1) + com_offset_(1)+0.05;
+
+            index ++;
+        }
+    }
+
+    if(current_step_num_ >= total_step_num_ -3)
+    {
+//        if(walking_tick_ == t_start_)
+//            cout<<"check 1 , walking tick : "<<walking_tick_<<endl;
+
+        for(unsigned int i = current_step_num_; i<total_step_num_; i++)
+        {
+            onestepZMPboundary(i,temp_zmp_x_boundary,temp_zmp_y_boundary);
+
+            for(unsigned int j=0; j<t_total_; j++)
+            {
+                zmp_x_boundary(index + j,0) = temp_zmp_x_boundary(j,0);
+                zmp_x_boundary(index + j,1) = temp_zmp_x_boundary(j,1);
+
+                zmp_y_boundary(index + j,0) = temp_zmp_y_boundary(j,0);
+                zmp_y_boundary(index + j,1) = temp_zmp_y_boundary(j,1);
+            }
+            index += t_total_;
+        }
+
+//        if(walking_tick_ == t_start_)
+//            cout<<"check 2 , walking tick : "<<walking_tick_<<endl;
+        for(unsigned int j=0;j<20*hz_; j++)
+        {
+            zmp_x_boundary(index +j,0) = zmp_x_boundary(index+j-1,0);
+            zmp_x_boundary(index +j,1) = zmp_x_boundary(index+j-1,1);
+
+            zmp_y_boundary(index + j,0) = temp_zmp_y_boundary(j,0);
+            zmp_y_boundary(index + j,1) = temp_zmp_y_boundary(j,1);
+        }
+        index += 20*hz_;
+
+//        if(walking_tick_ == t_start_)
+//            cout<<"check 3 , walking tick : "<<walking_tick_<<endl;
+    }
+    else
+    {
+        for(unsigned int i=current_step_num_; i<current_step_num_ + 3; i++)
+        {
+//            if(walking_tick_ == t_start_)
+//                cout<<"check 4 , walking tick : "<<walking_tick_<<endl;
+            onestepZMPboundary(i,temp_zmp_x_boundary,temp_zmp_y_boundary);
+            for(unsigned int j=0;j<t_total_;j++)
+            {
+                zmp_x_boundary(index + j,0) = temp_zmp_x_boundary(j,0);
+                zmp_x_boundary(index + j,1) = temp_zmp_x_boundary(j,1);
+
+                zmp_y_boundary(index + j,0) = temp_zmp_y_boundary(j,0);
+                zmp_y_boundary(index + j,1) = temp_zmp_y_boundary(j,1);
+            }
+
+//            if(walking_tick_ == t_start_)
+//                cout<<"check 5 , walking tick : "<<walking_tick_<<endl;
+            index += t_total_;
+        }
+    }
+    if(walking_tick_ == 0 || walking_tick_==t_start_){
+  //      cout<<"in walking controoler : "<<foot_step_support_frame_offset_(current_step_num_-1,1)<<endl;
+        file[35]<<walking_tick_;
+  //      file[22]<<walking_tick_;
+        for(int i=0;i<norm_size;i++){
+            file[35]<<"\t"<<zmp_x_boundary(i,0);
+  //          file[22]<<"\t"<<ref_zmp_(i,0);
+        }
+  //      file[22]<<endl;
+        file[35]<<endl;
+        file[35]<<walking_tick_;
+  //      file[22]<<walking_tick_;
+        for(int i=0;i<norm_size;i++){
+            file[35]<<"\t"<<zmp_x_boundary(i,1);
+  //          file[22]<<"\t"<<ref_zmp_(i,0);
+        }
+  //      file[22]<<endl;
+        file[35]<<endl;
+    }
+}
+void WalkingController::onestepZMPboundary(unsigned int current_step_number, Eigen::MatrixXd& x_boundary, Eigen::MatrixXd& y_boundary){
+    x_boundary.resize(t_total_,2); y_boundary.resize(t_total_,2);
+    x_boundary.setZero();   y_boundary.setZero();
+
+    double x_plus, x_minus, y_plus, y_minus;
+    x_plus = 0.075;
+    x_minus = -0.05;
+
+    double y_outside = 0.0375;
+    double y_inside = 0.0225;
+
+
+    if(current_step_number == 0)
+    {
+        for(int i=0;i<t_total_;i++)
+        {
+            if( i<t_rest_init_+t_double1_)
+            {
+                x_boundary(i,0) = supportfoot_support_init_offset_(0) + x_minus;
+                x_boundary(i,1) = supportfoot_support_init_offset_(0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1){
+                    y_boundary(i,0) = com_support_init_(1) + com_offset_(1)-0.05 ;
+                    y_boundary(i,1) = supportfoot_support_init_offset_(1)+ y_outside;
+
+                }
+                else {
+                    y_boundary(i,0) = supportfoot_support_init_offset_(1) - y_outside;
+                    y_boundary(i,1) = com_support_init_(1) + com_offset_(1);
+                }
+            }
+            else if( i >= t_rest_init_+t_double1_ && i< t_total_ - t_rest_last_ - t_double2_)
+            {
+                x_boundary(i,0) = supportfoot_support_init_offset_(0) + x_minus;
+                x_boundary(i,1) = supportfoot_support_init_offset_(0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = supportfoot_support_init_offset_(1) - y_inside;
+                    y_boundary(i,1) = supportfoot_support_init_offset_(1) + y_outside;
+                }
+                else {
+                    y_boundary(i,0) = supportfoot_support_init_offset_(1) - y_outside;
+                    y_boundary(i,1) = supportfoot_support_init_offset_(1) + y_inside;
+                }
+            }
+            else
+            {
+                x_boundary(i,0) = supportfoot_support_init_offset_(0);
+                x_boundary(i,1) = (foot_step_support_frame_(current_step_number,0) + supportfoot_support_init_offset_(0))/2.0 + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+//                    y_boundary(i,0) = (supportfoot_support_init_offset_(1) + foot_step_support_frame_(current_step_number,1))/2;
+                    y_boundary(i,0) = foot_step_support_frame_(current_step_number,1);
+                    y_boundary(i,1) = supportfoot_support_init_offset_(1);
+                }
+                else {
+                    y_boundary(i,0) = supportfoot_support_init_offset_(1);
+//                    y_boundary(i,1) = (supportfoot_support_init_offset_(1) + foot_step_support_frame_(current_step_number,1))/2;
+                    y_boundary(i,1) = foot_step_support_frame_(current_step_number,1);
+                }
+            }
+        }
+    }
+    else if(current_step_number == 1)
+    {
+        for(int i=0;i<t_total_;i++)
+        {
+            if( i<t_rest_init_ + t_double1_)
+            {
+                x_boundary(i,0) = (supportfoot_support_init_(0)+foot_step_support_frame_offset_(current_step_number -1,0))/2;
+                x_boundary(i,1) = foot_step_support_frame_offset_(current_step_number -1,0) + x_plus;
+
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = (foot_step_support_frame_(current_step_number-1,1)+supportfoot_support_init_(1))/2.0;
+//                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1);
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1) + y_outside;
+                }
+                else {
+//                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1);
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1)-y_outside;
+                    y_boundary(i,1) = (foot_step_support_frame_(current_step_number-1,1)+supportfoot_support_init_(1))/2.0;
+                }
+            }
+            else if( i>= t_rest_init_ + t_double1_ && i< t_total_ - t_rest_last_ - t_double2_)
+            {
+                x_boundary(i,0) = foot_step_support_frame_offset_(current_step_number -1,0) + x_minus;
+                x_boundary(i,1) = foot_step_support_frame_offset_(current_step_number -1,0) + x_plus;
+
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1) - y_inside;
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1) + y_outside;
+                }
+                else {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1) - y_outside;
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1) + y_inside;
+                }
+            }
+            else
+            {
+                x_boundary(i,0) = foot_step_support_frame_offset_(current_step_number -1,0);
+                x_boundary(i,1) = foot_step_support_frame_(current_step_number,0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = foot_step_support_frame_(current_step_number,1);
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1);
+                }
+                else {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1);
+                    y_boundary(i,1) = foot_step_support_frame_(current_step_number,1);
+                }
+            }
+        }
+    }
+    else
+    {
+        for(int i=0;i<t_total_; i++)
+        {
+            if(i < t_rest_init_ + t_double1_)
+            {
+                x_boundary(i,0) = (foot_step_support_frame_(current_step_number -2,0)+ foot_step_support_frame_(current_step_number -1,0))/2;
+                x_boundary(i,1) = foot_step_support_frame_offset_(current_step_number -1,0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = (foot_step_support_frame_(current_step_number-2,1)+foot_step_support_frame_(current_step_number-2,1))/2;
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1);
+                }
+                else {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1);
+                    y_boundary(i,1) = (foot_step_support_frame_(current_step_number-2,1)+foot_step_support_frame_(current_step_number-2,1))/2;
+                }
+            }
+            else if( i>= t_rest_init_ + t_double1_ && i< t_total_ - t_rest_last_ - t_double2_)
+            {
+                x_boundary(i,0) = foot_step_support_frame_offset_(current_step_number -1,0);// + x_minus;
+                x_boundary(i,1) = foot_step_support_frame_offset_(current_step_number -1,0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1) - y_inside;
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1) + y_outside;
+                }
+                else {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1) - y_outside;
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1) + y_inside;
+                }
+            }
+            else
+            {
+                x_boundary(i,0) = foot_step_support_frame_offset_(current_step_number -1,0);
+                x_boundary(i,1) = foot_step_support_frame_offset_(current_step_number,0) + x_plus;
+
+                if(foot_step_(current_step_num_,6) == 1)// left foot support
+                {
+                    y_boundary(i,0) = foot_step_support_frame_(current_step_number,1);
+                    y_boundary(i,1) = foot_step_support_frame_offset_(current_step_number-1,1);
+                }
+                else {
+                    y_boundary(i,0) = foot_step_support_frame_offset_(current_step_number-1,1);
+                    y_boundary(i,1) = foot_step_support_frame_(current_step_number,1);
+                }
+            }
+        }
+    }
 }
 void WalkingController::ObtainMatrix(int NL, int N, double dt, int interval){
     Eigen::Matrix3d A;
@@ -6917,7 +7392,7 @@ void WalkingController::GetConstraintMatrix(Eigen::Matrix<double, 23, 12> &A_dsp
 
 
 }
-void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 24, 13> &A_dsp1, Eigen::Matrix<double, 25, 13> &A_lifting, Eigen::Matrix<double, 24, 13> &A_landing, Eigen::Matrix<double, 24, 13> &A_dsp2,
+void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::MatrixXd &A_dsp1, Eigen::MatrixXd &A_lifting, Eigen::MatrixXd &A_landing, Eigen::MatrixXd &A_dsp2,
                                             Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd &ubA_dsp1, Eigen::VectorXd &lbA_lifting, Eigen::VectorXd &ubA_lifting, Eigen::VectorXd &lbA_landing, Eigen::VectorXd &ubA_landing, Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd &ubA_dsp2)
 {
 
@@ -7045,7 +7520,7 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
 //    if(current_step_num_ >= total_step_num_-2)
 //        height_gain = 5.0;
 
-
+/// the landing versino of heel pitch constraint is excluded
     if(foot_step_(current_step_num_,6) == 1)// left foot support
     {
         A_landing.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
@@ -7058,13 +7533,13 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
 
         lbA_landing.segment<6>(0) = lp_ + 5*lp_clik_;
 
-        lbA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 5*rheel_clik_.segment<4>(0);
+        lbA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 3*rheel_clik_.segment<4>(0);
 //        lbA_landing(8) = rheel_p_(2) + height_gain*rheel_clik_(2);
         lbA_landing(10) = rheel_p_(5) + 5*rheel_clik_(5);
 
         ubA_landing.segment<6>(0) = lp_ + 5*lp_clik_;
 
-        ubA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 5*rheel_clik_.segment<4>(0);
+        ubA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 3*rheel_clik_.segment<4>(0);
 //        ubA_landing(8) = rheel_p_(2) ;//+ height_gain*rheel_clik_(2);
         ubA_landing(10) =  rheel_p_(5) + 5*rheel_clik_(5);
 
@@ -7092,26 +7567,71 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
         ubA_landing.segment<6>(5) = rp_ + 5*rp_clik_;
     }
 
+//////////// the landing version of heel pitch constraint less than zero
+//    if(foot_step_(current_step_num_,6) == 1)// left foot support
+//    {
+//        A_landing.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+
+//        A_landing.block<6,1>(6,0) = current_right_heel_jacobian_floating_.block<6,1>(0,0);
+//        A_landing.block<6,6>(6,7) = current_right_heel_jacobian_floating_.block<6,6>(0,1);
+
+//        lbA_landing.segment<6>(0) = lp_ + 5*lp_clik_;
+
+//        lbA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 3*rheel_clik_.segment<4>(0);
+////        lbA_landing(8) = rheel_p_(2) + height_gain*rheel_clik_(2);
+//        lbA_landing(10) = -50;
+//        lbA_landing(11) = rheel_p_(5) + 3*rheel_clik_(5);
+
+//        ubA_landing.segment<6>(0) = lp_ + 5*lp_clik_;
+
+//        ubA_landing.segment<4>(6) = rheel_p_.segment<4>(0) + 3*rheel_clik_.segment<4>(0);
+////        ubA_landing(8) = rheel_p_(2) ;//+ height_gain*rheel_clik_(2);
+//        ubA_landing(10) = 0;
+//        ubA_landing(11) =  rheel_p_(5) + 3*rheel_clik_(5);
+
+////        lbA_landing.segment<4>(6) = ubA_landing.segment<4>(6);
+////        lbA_landing(10) = ubA_landing(10);
+//    }
+//    else if(foot_step_(current_step_num_,6) == 0)
+//    {
+//        A_landing.block<6,7>(0,0) = current_left_heel_jacobian_floating_;
+
+//        A_landing.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+//        A_landing.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
 
+//        lbA_landing.segment<4>(0) = lheel_p_.segment<4>(0) + 5*lheel_clik_.segment<4>(0);
+////        lbA_landing(2) = lheel_p_(2);// + height_gain*lheel_clik_(2);
+//        lbA_landing(4) = -50;
+//        lbA_landing(5) = lheel_p_(5) + 5*lheel_clik_(5);
+
+//        lbA_landing.segment<6>(6) = rp_ + 5*rp_clik_;
+
+//        ubA_landing.segment<4>(0) = lheel_p_.segment<4>(0) + 5*lheel_clik_.segment<4>(0);
+////        ubA_landing(2) = lheel_p_(2) ;//+ height_gain*lheel_clik_(2);
+//        ubA_landing(4) = 0;
+//        ubA_landing(5) = lheel_p_(5) + 5*lheel_clik_(5);
+
+//        ubA_landing.segment<6>(6) = rp_ + 5*rp_clik_;
+//    }
 
     ///////////////////////////////////////////////////
     ////   for rear foot full contact  start
     ///
 
 
-//    // constraint for full contact
-//    A_dsp2.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
-//    A_dsp2.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
-//    A_dsp2.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+    // constraint for full contact
+    A_dsp2.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+    A_dsp2.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+    A_dsp2.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
 //    if(foot_step_(current_step_num_,6) == 1)//left foot support
 //    {
-//        lbA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
-//        lbA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
+        lbA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
+        lbA_dsp2.segment<6>(6) = rp_ + 5*rp_clik_;
 
-//        ubA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
-//        ubA_dsp2.segment<6>(6) = rp_ + 3*rp_clik_;
+        ubA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
+        ubA_dsp2.segment<6>(6) = rp_ + 5*rp_clik_;
 //    }
 //    else if(foot_step_(current_step_num_,6) == 0){
 //        lbA_dsp2.segment<6>(0) = lp_ + 3*lp_clik_;
@@ -7130,42 +7650,42 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
 //    A_dsp2.block<6,1>(6,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
 //    A_dsp2.block<6,6>(6,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
-    if(foot_step_(current_step_num_,6) == 1)//left foot support
-    {
-        A_dsp2.block<4,7>(0,0) = current_left_toe_jacobian_floating_.block<4,7>(0,0);
-        A_dsp2.block<1,7>(4,0) = current_left_toe_jacobian_floating_.block<1,7>(5,0);
+//    if(foot_step_(current_step_num_,6) == 1)//left foot support
+//    {
+//        A_dsp2.block<4,7>(0,0) = current_left_toe_jacobian_floating_.block<4,7>(0,0);
+//        A_dsp2.block<1,7>(4,0) = current_left_toe_jacobian_floating_.block<1,7>(5,0);
 
-        A_dsp2.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
-        A_dsp2.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
+//        A_dsp2.block<6,1>(5,0) = current_leg_jacobian_r_floating_.block<6,1>(0,0);
+//        A_dsp2.block<6,6>(5,7) = current_leg_jacobian_r_floating_.block<6,6>(0,1);
 
-        lbA_dsp2.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
-        lbA_dsp2(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
+//        lbA_dsp2.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
+//        lbA_dsp2(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
 
-        lbA_dsp2.segment<6>(5) = rp_ + 5*rp_clik_;
+//        lbA_dsp2.segment<6>(5) = rp_ + 5*rp_clik_;
 
-        ubA_dsp2.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
-        ubA_dsp2(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
-        ubA_dsp2.segment<6>(5) = rp_ + 5*rp_clik_;
-    }
-    else if(foot_step_(current_step_num_,6) == 0){
+//        ubA_dsp2.segment<4>(0) = ltoe_p_.segment<4>(0) + 5*ltoe_clik_.segment<4>(0);
+//        ubA_dsp2(4) = ltoe_p_(5) + 5*ltoe_clik_(5);
+//        ubA_dsp2.segment<6>(5) = rp_ + 5*rp_clik_;
+//    }
+//    else if(foot_step_(current_step_num_,6) == 0){
 
-        A_dsp2.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
+//        A_dsp2.block<6,7>(0,0) = current_leg_jacobian_l_floating_;
 
-        A_dsp2.block<4,1>(6,0) = current_right_toe_jacobian_floating_.block<4,1>(0,0);
-        A_dsp2.block<1,1>(10,0) = current_right_toe_jacobian_floating_.block<1,1>(5,0);
-        A_dsp2.block<4,6>(6,7) = current_right_toe_jacobian_floating_.block<4,6>(0,1);
-        A_dsp2.block<1,6>(10,7) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
-
-
-        lbA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
-        lbA_dsp2.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
-        lbA_dsp2(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
+//        A_dsp2.block<4,1>(6,0) = current_right_toe_jacobian_floating_.block<4,1>(0,0);
+//        A_dsp2.block<1,1>(10,0) = current_right_toe_jacobian_floating_.block<1,1>(5,0);
+//        A_dsp2.block<4,6>(6,7) = current_right_toe_jacobian_floating_.block<4,6>(0,1);
+//        A_dsp2.block<1,6>(10,7) = current_right_toe_jacobian_floating_.block<1,6>(5,1);
 
 
-        ubA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
-        ubA_dsp2.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
-        ubA_dsp2(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
-    }
+//        lbA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
+//        lbA_dsp2.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
+//        lbA_dsp2(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
+
+
+//        ubA_dsp2.segment<6>(0) = lp_ + 5*lp_clik_;
+//        ubA_dsp2.segment<4>(6) = rtoe_p_.segment<4>(0) + 5*rtoe_clik_.segment<4>(0);
+//        ubA_dsp2(10) = rtoe_p_(5) + 5*rtoe_clik_(5);
+//    }
 
 
 //    // test for heel control
@@ -7188,11 +7708,26 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
 
     A_dsp1.block<13,13>(11,0) = Iden_13;
 
+//    if(foot_step_(current_step_num_,6) == 1)// left foot support
+//    {
+//        A_dsp1.block<1,1>(24,0) = current_leg_jacobian_r_floating_.block<1,1>(4,0);
+//        A_dsp1.block<1,6>(24,7) = current_leg_jacobian_r_floating_.block<1,6>(4,1);
+
+//        lbA_dsp1(24) = (-30*DEG2RAD - rfoot_trajectory_euler_float_(1))*hz_;
+//        ubA_dsp1(24) = (45*DEG2RAD - rfoot_trajectory_euler_float_(1))*hz_;
+//    }
+//    else if(foot_step_(current_step_num_,6) == 0)
+//    {
+//        A_dsp1.block<1,7>(24,0) = current_leg_jacobian_l_floating_.block<1,7>(4,0);
+
+//        lbA_dsp1(24) = (-30*DEG2RAD - lfoot_trajectory_euler_float_(1))*hz_;
+//        ubA_dsp1(24) = (45*DEG2RAD - lfoot_trajectory_euler_float_(1))*hz_;
+//    }
+
     for(int i=0;i<13;i++){
         lbA_dsp1(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
         ubA_dsp1(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
-
 
     A_lifting.block<13,13>(12,0) = Iden_13;
 
@@ -7201,6 +7736,7 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
         ubA_lifting(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
 
+    /// version of heel pitch constraint is ixcluded
     A_landing.block<13,13>(11,0) = Iden_13;
 
     for(int i=0;i<13;i++){
@@ -7208,19 +7744,27 @@ void WalkingController::GetHeeltoePelvisConstraintMatrix(Eigen::Matrix<double, 2
         ubA_landing(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
 
-//    A_dsp2.block<13,13>(12,0) = Iden_13;
+/// version of heel pitch constraint is less than zero
+//    A_landing.block<13,13>(12,0) = Iden_13;
 
 //    for(int i=0;i<13;i++){
-//        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-//        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+//        lbA_landing(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+//        ubA_landing(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
 //    }
 
-    A_dsp2.block<13,13>(11,0) = Iden_13;
+    A_dsp2.block<13,13>(12,0) = Iden_13;
 
     for(int i=0;i<13;i++){
-        lbA_dsp2(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
-        ubA_dsp2(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+        lbA_dsp2(i+12) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+        ubA_dsp2(i+12) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
     }
+
+//    A_dsp2.block<13,13>(11,0) = Iden_13;
+
+//    for(int i=0;i<13;i++){
+//        lbA_dsp2(i+11) = (q_leg_min_(i) - desired_q_not_compensated_(i))*hz_;
+//        ubA_dsp2(i+11) = (q_leg_max_(i) - desired_q_not_compensated_(i))*hz_;
+//    }
 
 
 }
@@ -7244,13 +7788,13 @@ void WalkingController::getDesiredVelocity(Eigen::Vector6d &lp, Eigen::Vector6d 
 //        lp.topRows<3>().setZero();
 //        rp.topRows<3>().setZero();
 
-        if(foot_step_(current_step_num_,6) == 1)
-            cout<<"left foot support "<<endl;
-        else {
-            cout<<"right foot support : "<<endl;
-        }
-        cout<<"walking tikck "<<walking_tick_<<endl<<" at desired velocity " <<endl<<"lfoot float current : "<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2)<<endl
-           <<"lfoot trajectory float : "<<lfoot_trajectory_float_.translation()(0)<<"\t"<<lfoot_trajectory_float_.translation()(1)<<"\t"<<lfoot_trajectory_float_.translation()(2)<<endl;
+//        if(foot_step_(current_step_num_,6) == 1)
+//            cout<<"left foot support "<<endl;
+//        else {
+//            cout<<"right foot support : "<<endl;
+//        }
+//        cout<<"walking tikck "<<walking_tick_<<endl<<" at desired velocity " <<endl<<"lfoot float current : "<<lfoot_float_current_.translation()(0)<<"\t"<<lfoot_float_current_.translation()(1)<<"\t"<<lfoot_float_current_.translation()(2)<<endl
+//           <<"lfoot trajectory float : "<<lfoot_trajectory_float_.translation()(0)<<"\t"<<lfoot_trajectory_float_.translation()(1)<<"\t"<<lfoot_trajectory_float_.translation()(2)<<endl;
     }
     else{
 //      lp.topRows<3>() = (-pre_lfoot_trajectory_float_.translation()+lfoot_trajectory_float_.translation());
@@ -8352,7 +8896,7 @@ void WalkingController::MPC_com(){
         fx_ref(i) = foot_x(walking_tick_-start_time +interval*i);
     }
 
-    zmp_x_ref = fx_ref;
+//    zmp_x_ref = fx_ref;
     Eigen::Vector3d y_0, x_0;
 
     y_0.setZero(); x_0.setZero();
@@ -8384,6 +8928,22 @@ void WalkingController::MPC_com(){
     zmp_y_err = -zmp_y_ref + future_y;
 
 
+    Eigen::MatrixXd zmp_x_bound_support, zmp_y_bound_support;
+
+    ZMP_constraint_boundary(zmp_x_bound_support,zmp_y_bound_support);
+
+    Eigen::MatrixXd zmp_x_boundary_contition, zmp_y_boundary_condition;
+    zmp_x_boundary_contition.resize(N,2); zmp_y_boundary_condition.resize(N,2);
+    zmp_x_boundary_contition.setZero(); zmp_y_boundary_condition.setZero();
+
+    for(int i=0;i<N;i++)
+    {
+        zmp_x_boundary_contition(i,0) = zmp_x_bound_support(walking_tick_ - start_time + interval*i,0);
+        zmp_x_boundary_contition(i,1) = zmp_x_bound_support(walking_tick_ - start_time + interval*i,1);
+
+        zmp_y_boundary_condition(i,0) = zmp_y_bound_support(walking_tick_ - start_time + interval*i,0);
+        zmp_y_boundary_condition(i,1) = zmp_y_bound_support(walking_tick_ - start_time + interval*i,1);
+    }
 
     Eigen::MatrixXd   gy_input, gx_input;
     gx_input(N,1); gx_input.setZero();
@@ -8483,6 +9043,36 @@ void WalkingController::MPC_com(){
         cst_y(i,1) = temp_margin_y(walking_tick_-start_time+interval*i,1);
     }
 
+    Eigen::MatrixXd ZMP_boundary_old;
+    ZMP_boundary_old.resize(N,2);
+    ZMP_boundary_old.setZero();
+
+    ZMP_boundary_old.block<20,1>(0,0) = cst_x.block<20,1>(0,0) + zmp_x_ref;
+    ZMP_boundary_old.block<20,1>(0,1) = cst_x.block<20,1>(0,1) + zmp_x_ref;
+
+    Eigen::VectorXd zmp_boundary_temp_min, zmp_boundary_temp_max, vector_ones;
+    zmp_boundary_temp_min.resize(N); zmp_boundary_temp_max.resize(N); vector_ones.resize(N); vector_ones.setIdentity();
+
+    if(foot_step_(current_step_num_,6) == 1)//left foot support
+    {
+        zmp_boundary_temp_min = zmp_y_ref - 0.075*vector_ones;
+        zmp_boundary_temp_max = zmp_y_ref + 0.075*vector_ones;
+    }
+    else{
+        zmp_boundary_temp_min = zmp_y_ref - 0.075*vector_ones;
+        zmp_boundary_temp_max = zmp_y_ref + 0.075*vector_ones;
+    }
+
+
+    file[22]<<walking_tick_
+/*2,3,4,5,*/           <<"\t"<<zmp_x_ref(0)+cst_x(0,0)<<"\t"<<zmp_x_ref(0)+ cst_x(0,1)<<"\t"<<zmp_y_ref(0)+cst_y(0,0)<<"\t"<<zmp_y_ref(0)+ cst_y(0,1)
+/*6,7,8,9*/       <<"\t"<< zmp_x_ref(0)<<"\t"<<fx_ref(0)<<"\t"<<cst_x(0,0)<<"\t"<<cst_x(0,1)
+/*10,11,12*/         <<"\t"<< zmp_y_ref(0)<<"\t"<<cst_y(0,0)<<"\t"<<cst_y(0,1)
+/*13,14*/       <<"\t"<<ZMP_boundary_old(0,0)<<"\t"<<ZMP_boundary_old(0,1)
+/*15,16*/         <<"\t"<<zmp_x_boundary_contition(0,0)<<"\t"<<zmp_x_boundary_contition(0,1)
+/*17,18*/       <<"\t"<<zmp_y_boundary_condition(0,0) <<"\t"<<zmp_y_boundary_condition(0,1)
+/*19, 20*/       <<"\t"<<zmp_boundary_temp_min(0)<<"\t"<<zmp_boundary_temp_max(0)
+          <<endl;
 
 
     real_t Qy_mpc[N*N], gy_mpc[N], Ay_mpc[N*N], lby_mpc[N], uby_mpc[N], lbAy_mpc[N], ubAy_mpc[N];
@@ -8508,8 +9098,11 @@ void WalkingController::MPC_com(){
 //        lbAy_mpc[i] = zmp_y_min_err(i);
 //        ubAy_mpc[i] = zmp_y_max_err(i);
 
-        lbAx_mpc[i] = cst_x(i,0) - zmp_x_err(i);
-        ubAx_mpc[i] = cst_x(i,1) - zmp_x_err(i);
+//        lbAx_mpc[i] = cst_x(i,0) - zmp_x_err(i);
+//        ubAx_mpc[i] = cst_x(i,1) - zmp_x_err(i);
+
+        lbAx_mpc[i] = zmp_x_bound_support(i,0) -   future_x(i);
+        ubAx_mpc[i] = zmp_x_bound_support(i,1) -   future_x(i);
 
         lbAy_mpc[i] = cst_y(i,0) - zmp_y_err(i);
         ubAy_mpc[i] = cst_y(i,1) - zmp_y_err(i);
@@ -8529,6 +9122,8 @@ void WalkingController::MPC_com(){
     Qu_input.block(0,0,N,N) = Qx_mpc_; Qu_input.block(N,N,N,N) = Qx_mpc_;
     Au_input.block(0,0,N,N) = Pzu_mpc_; Au_input.block(N,N,N,N) = Pzu_mpc_;
 
+
+
     real_t Qu_mpc[2*N*2*N], gu_mpc[2*N], Au_mpc[2*N*2*N], lbu_mpc[2*N], ubu_mpc[2*N], lbAu_mpc[2*N], ubAu_mpc[2*N];
 
     for(int i=0;i<2*N;i++){
@@ -8541,11 +9136,20 @@ void WalkingController::MPC_com(){
         gu_mpc[i] = gx_input(i);
         gu_mpc[i+N] = gy_input(i);
 
-        lbAu_mpc[i] = cst_x(i,0) - zmp_x_err(i);
+//        lbAu_mpc[i] = cst_x(i,0) - zmp_x_err(i);
         lbAu_mpc[i+N] = cst_y(i,0) - zmp_y_err(i);
 
-        ubAu_mpc[i] = cst_x(i,1) - zmp_x_err(i);
+        lbAu_mpc[i] = zmp_x_bound_support(i,0) -   future_x(i);
+//        lbAu_mpc[i+N] = zmp_y_bound_support(i,0) -   future_y(i);
+//        lbAu_mpc[i+N] = zmp_boundary_temp_min(i) - future_y(i);
+
+
+//        ubAu_mpc[i] = cst_x(i,1) - zmp_x_err(i);
         ubAu_mpc[i+N] = cst_y(i,1) - zmp_y_err(i);
+
+        ubAu_mpc[i] = zmp_x_bound_support(i,1) -   future_x(i);
+//        ubAu_mpc[i+N] = zmp_y_bound_support(i,1) -   future_y(i);
+//        ubAu_mpc[i+N] = zmp_boundary_temp_max(i) - future_y(i);
 
         lbu_mpc[i] = -10;
         lbu_mpc[i+N] = -10;
@@ -8570,6 +9174,7 @@ void WalkingController::MPC_com(){
     mpc_opt.initialStatusBounds = ST_INACTIVE;
     mpc_opt.numRefinementSteps = 1;
     mpc_opt.enableCholeskyRefactorisation = 1;
+    mpc_opt.enableEqualities = BT_TRUE;
 
     mpc_opt.printLevel = PL_NONE;
 
@@ -8641,6 +9246,8 @@ void WalkingController::MPC_com(){
       com_dot_desired_(2) = DyrosMath::cubicDot(walking_tick_, t_start_, t_start_real_, pelv_support_init_.translation()(2), pelv_suppprt_start_.translation()(2), 0, 0, hz_);
 
     }
+
+    com_desired_(2) = pelv_suppprt_start_.translation()(2);
 
 
     Eigen::VectorXd yopt, xopt;
@@ -8882,7 +9489,7 @@ void WalkingController::MPC_Matrix_Update(int sampling_n, double dt, int interva
     Eigen::MatrixXd Iden_sampling_n;
     Iden_sampling_n.resize(sampling_n,sampling_n); Iden_sampling_n.setIdentity();
 
-    alpha_mpc_ = 1.0; beta_mpc_ = 0.00001; gamma_mpc_ = 0.001;
+    alpha_mpc_ = 10.0; beta_mpc_ = 0.000001; gamma_mpc_ = 0.00001;
     Qx_mpc_.resize(sampling_n,sampling_n); Qx_mpc_.setZero();
     Qy_mpc_.resize(sampling_n,sampling_n); Qy_mpc_.setZero();
 
@@ -9592,7 +10199,7 @@ void WalkingController::CalculateFuturePelAngle(){
     double hc;
     hc = link_transform_[LF_LINK].translation()(2) - link_transform_[LF_LINK +5].translation()(2);
     max_stride = sqrt(pow(leg_max,2) - pow(hc,2));
-    cout<<"max stride : "<<max_stride<<endl;
+//    cout<<"max stride : "<<max_stride<<endl;
 
     max_stride = 0.23;
     pre_future_pel_ref_ = first_pel_yaw_ref_;
@@ -9623,7 +10230,7 @@ void WalkingController::CalculateFuturePelAngle(){
         if(sin_temp3<0)
             third_pel_yaw_ref_ = 0;
 
-        cout<<walking_tick_<<", step # "<<current_step_num_<<"pre future pel : "<<pre_future_pel_ref_<<"  first pel yaw ref : "<<first_pel_yaw_ref_<<", second pel yaw ref "<<second_pel_yaw_ref_<<",  third pel yaw ref : "<<third_pel_yaw_ref_<<endl;
+//        cout<<walking_tick_<<", step # "<<current_step_num_<<"pre future pel : "<<pre_future_pel_ref_<<"  first pel yaw ref : "<<first_pel_yaw_ref_<<", second pel yaw ref "<<second_pel_yaw_ref_<<",  third pel yaw ref : "<<third_pel_yaw_ref_<<endl;
 
     }
     else{
@@ -9632,6 +10239,48 @@ void WalkingController::CalculateFuturePelAngle(){
         third_pel_yaw_ref_ = 0;
     }
 }
+
+void WalkingController::CheckEulerVelocity(Eigen::Vector3d& l_euler_dot, Eigen::Vector3d& r_euler_dot, VectorQd& qdot){
+    Eigen::Vector3d left_current;
+    Eigen::Vector3d right_current;
+
+    Eigen::VectorXd l_qdot, r_qdot;
+    l_qdot.resize(7); r_qdot.resize(7);
+    l_qdot = qdot.segment<7>(0);
+    r_qdot(0) = qdot(0);
+    r_qdot.segment<6>(1) = qdot.segment<6>(7);
+
+//    left_current = DyrosMath::particular_rotation_matrix(lfoot_float_current_euler_)*current_leg_jacobian_l_floating_.block<3,7>(3,0)*l_qdot;
+//    right_current = DyrosMath::particular_rotation_matrix(rfoot_float_current_euler_)*current_leg_jacobian_r_floating_.block<3,7>(3,0)*r_qdot;
+
+    left_current = current_leg_jacobian_l_floating_.block<3,7>(3,0)*l_qdot;
+
+    right_current =current_leg_jacobian_r_floating_.block<3,7>(3,0)*r_qdot;
+
+    Eigen::Vector3d l_euler_dot_numerical, r_euler_dot_numerical;
+
+    if(walking_tick_ == 0){
+        pre_lfoot_float_euler_.setZero();
+        pre_rfoot_float_euler_.setZero();
+    }
+
+    l_euler_dot_numerical = (lfoot_float_current_euler_ - pre_lfoot_float_euler_)*hz_;
+    r_euler_dot_numerical = (rfoot_float_current_euler_ - pre_rfoot_float_euler_)*hz_;
+
+    pre_lfoot_float_euler_ = lfoot_float_current_euler_;
+    pre_rfoot_float_euler_ = rfoot_float_current_euler_;
+
+    file[23]<<walking_tick_
+/*2,3,4*/   <<"\t"<<l_euler_dot(0)<<"\t"<<l_euler_dot(1)<<"\t"<<l_euler_dot(2)
+/*5,6,7*/   <<"\t"<<left_current(0)<<"\t"<<left_current(1)<<"\t"<<left_current(2)
+/*8,9,10*/  <<"\t"<<r_euler_dot(0)<<"\t"<<r_euler_dot(1)<<"\t"<<r_euler_dot(2)
+/*11,12,13*/<<"\t"<<right_current(0)<<"\t"<<right_current(1)<<"\t"<<right_current(2)
+/*14,15,16*/<<"\t"<<l_euler_dot_numerical(0)<<"\t"<<l_euler_dot_numerical(1)<<"\t"<<l_euler_dot_numerical(2)
+/*17,18,19*/<<"\t"<<r_euler_dot_numerical(0)<<"\t"<<r_euler_dot_numerical(1)<<"\t"<<r_euler_dot_numerical(2)
+           <<endl;
+
+}
+
 }
 
 
