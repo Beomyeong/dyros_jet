@@ -1,4 +1,4 @@
-#ifndef WALKING_CONTROLLER_H
+    #ifndef WALKING_CONTROLLER_H
 #define WALKING_CONTROLLER_H
 
 
@@ -68,7 +68,7 @@ const std::string FILE_NAMES[FILE_CNT] =
   "/home/beom/data/walking/08_leg_q_dot_desired_current_.txt",
   "/home/beom/data/walking/09_float_foot trajectory_.txt",
   "/home/beom/data/walking/10_desired_velocity_.txt",
-  "/home/beom/data/walking/11_com_pcheck_.txt",
+  "/home/beom/data/walking/11_sticky_diagram_.txt",
   "/home/beom/data/walking/12_com_vcheck_.txt",
   "/home/beom/data/walking/13_ft_.txt",
   "/home/beom/data/walking/14_hip_knee_ankle_pos.txt",
@@ -91,14 +91,14 @@ const std::string FILE_NAMES[FILE_CNT] =
   "/home/beom/data/walking/31_comdesired.txt",
   "/home/beom/data/walking/32_footori.txt",
   "/home/beom/data/walking/33_zmp_.txt",
-  "/home/beom/data/walking/34_torque_.txt",
+  "/home/beom/data/walking/34_Energy_consumption_.txt",
   "/home/beom/data/walking/35_zmp_swing_leg_.txt",
   "/home/beom/data/walking/36_com_swing_leg_.txt",
   "/home/beom/data/walking/37_future_l_yfoot_.txt",
   "/home/beom/data/walking/38_future_r_yfoot_.txt",
   "/home/beom/data/walking/39_future_l_zfoot_.txt",
   "/home/beom/data/walking/40_future_r_zfoot_.txt",
-  "/home/beom/data/walking/41_future_comz_.txt",
+  "/home/beom/data/walking/41_capture_point_.txt",
   "/home/beom/data/walking/42_mpc_com_y.txt",
   "/home/beom/data/walking/43_future_mpc_com_y.txt"
 
@@ -231,7 +231,6 @@ public:
   void parameterSetting();
   //functions in compute
   void getRobotState();
-  void getRobotState_modified();
   void getComTrajectory();
   void getZmpTrajectory();
   void getPelvTrajectory();
@@ -241,6 +240,7 @@ public:
   void getFootTrajectory2();
   void getFootTrajectory3();
   void getFootTrajectory4();
+  void getFootTrajectory5();
   void computeIkControl(Eigen::Isometry3d float_trunk_transform, Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector12d& desired_leg_q);
   void computeJacobianControl(Eigen::Isometry3d float_lleg_transform, Eigen::Isometry3d float_rleg_transform, Eigen::Vector3d float_lleg_transform_euler, Eigen::Vector3d float_rleg_transform_euler, Eigen::VectorXd& desired_leg_q_dot);
   void compensator();
@@ -248,7 +248,6 @@ public:
   void supportToFloatPattern();
   void updateNextStepTime();
   void updateInitialState();
-  void updateInitialState_modified();
 
   //functions for getFootStep()
   void calculateFootStepTotal();
@@ -266,6 +265,7 @@ public:
   //functions in compensator()
   void hipCompensator(bool support_foot); //reference Paper: http://dyros.snu.ac.kr/wp-content/uploads/2017/01/ICHR_2016_JS.pdf
   void hipCompensation();
+  void advanced_hipCompensator(bool left_support);
 
   //PreviewController
   void modifiedPreviewControl();
@@ -437,7 +437,7 @@ public:
   void get_mpc_pel_yaw_matrix(int future_horizon, int N_smpl, double dt, int interval);
 
 
-  void MPC_com();
+  void MPC_com();  
   void MPC_Matrix_Update(int sampling_n, double dt, int interval);
   void future_trajectory_update(int N_smpl,int interval);
   void FutureSingularityCheck(int N_smpl, int interval);
@@ -447,13 +447,44 @@ public:
   void ZMP_constraint_boundary(Eigen::MatrixXd& zmp_x_boundary, Eigen::MatrixXd& zmp_y_boundary);
   void onestepZMPboundary(unsigned int current_step_number, Eigen::MatrixXd& x_boundary, Eigen::MatrixXd& y_boundary);
 
+
+  void MPC_com_2021();
+  void MPC_Matrix_Update_2021(int sampling_n, double dt, int interval);
+  void footReferenceGenerator_2021(Eigen::VectorXd& foot_x, Eigen::VectorXd& foot_y);
+  void calculateFootMargin2_2021(Eigen::MatrixXd& margin_x, Eigen::MatrixXd& margin_y);
+  void ZMP_constraint_boundary_2021(Eigen::MatrixXd& zmp_x_boundary, Eigen::MatrixXd& zmp_y_boundary);
+  void SupportfootComUpdate_2021(Eigen::Vector3d x_p1,Eigen::Vector3d y_p1, Eigen::Vector3d& New_x_p1, Eigen::Vector3d& New_y_p1);
+  void getDesiredVelocity_2021(Eigen::Vector6d &lp, Eigen::Vector6d &rp, Eigen::Vector6d &lp_toe, Eigen::Vector6d &rp_toe, Eigen::Vector6d &lp_heel, Eigen::Vector6d &rp_heel,
+                               Eigen::Vector6d &lp_clik, Eigen::Vector6d &rp_clik, Eigen::Vector6d &lp_toe_clik, Eigen::Vector6d &rp_toe_clik, Eigen::Vector6d &lp_heel_clik, Eigen::Vector6d &rp_heel_clik);
+
+  void MPC_com_backup();
+  void MPC_Matrix_Update_backup(int sampling_n, double dt, int interval);
+  void footReferenceGenerator_backup(Eigen::VectorXd& foot_x, Eigen::VectorXd& foot_y);
+  void ZMP_constraint_boundary_backup(Eigen::MatrixXd& zmp_x_boundary, Eigen::MatrixXd& zmp_y_boundary);
+  void calculateFootMargin2_backup(Eigen::MatrixXd& margin_x, Eigen::MatrixXd& margin_y);
+  void SupportfootComUpdate_backup(Eigen::Vector3d x_p1,Eigen::Vector3d y_p1, Eigen::Vector3d& New_x_p1, Eigen::Vector3d& New_y_p1);
+  void onestepZMPboundary_backup(unsigned int current_step_number, Eigen::MatrixXd& x_boundary, Eigen::MatrixXd& y_boundary);
+
+
   void qpIK_pelvis_heel_toe();
   void qpIK_heeltoe_pelvis_13();
+  void qpIK_pelvis_heel_toe_arc();
   void GetHeeltoePelvisConstraintMatrix(Eigen::MatrixXd &A_dsp1, Eigen::MatrixXd &A_lifting, Eigen::MatrixXd &A_landing, Eigen::MatrixXd &A_dsp2,
                            Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd  &ubA_dsp1,Eigen::VectorXd &lbA_lifting, Eigen::VectorXd  &ubA_lifting,Eigen::VectorXd &lbA_landing, Eigen::VectorXd  &ubA_landing,Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd  &ubA_dsp2);
   void CheckEulerVelocity(Eigen::Vector3d& l_euler_dot, Eigen::Vector3d& r_euler_dot, VectorQd& qdot);
 
   void GenerateProfile(double current_time, double p0, double pf, double t0, double t1, double t2, double t3, double& position_profile, double& velocity_profile);
+
+  void CP_compen_MJ_FT();
+
+  void CombinedQPController();
+  void GetCombinedQPConstraintMatrix(Eigen::MatrixXd &A_dsp1, Eigen::MatrixXd &A_lifting, Eigen::MatrixXd &A_landing, Eigen::MatrixXd &A_dsp2,
+                                     Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd &ubA_dsp1, Eigen::VectorXd &lbA_lifting, Eigen::VectorXd &ubA_lifting, Eigen::VectorXd &lbA_landing, Eigen::VectorXd &ubA_landing, Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd &ubA_dsp2);
+  void qpIK_pelvic_heel_toe_arm_swing();
+  void GetQPConstraintMatrix_heeltoe_arm(Eigen::MatrixXd &A_dsp1, Eigen::MatrixXd &A_lifting, Eigen::MatrixXd &A_landing, Eigen::MatrixXd &A_dsp2,
+                                         Eigen::VectorXd &lbA_dsp1, Eigen::VectorXd &ubA_dsp1, Eigen::VectorXd &lbA_lifting, Eigen::VectorXd &ubA_lifting, Eigen::VectorXd &lbA_landing, Eigen::VectorXd &ubA_landing, Eigen::VectorXd &lbA_dsp2, Eigen::VectorXd &ubA_dsp2);
+
+  void CP_feedback();
 
 private:
 
@@ -488,6 +519,7 @@ private:
 
     Eigen::Vector3d f_ft_support_;
 
+  double pre_position;
 
   //parameterSetting()
   double t_last_;
@@ -562,6 +594,7 @@ private:
   const VectorQd& current_q_;
   const VectorQd& current_q_dot_;
   const VectorQd& current_torque_;
+  VectorQd pre_torque_;
 
 
 
@@ -595,6 +628,7 @@ private:
   Eigen::Vector3d lfoot_float_euler_init_;
   Eigen::Vector3d rfoot_float_euler_init_;
   VectorQd q_init_;
+  VectorQd q_init_pose_;
 
   Eigen::Vector6d supportfoot_float_init_;
   Eigen::Vector6d supportfoot_support_init_;
@@ -616,8 +650,6 @@ private:
   Eigen::Vector3d com_support_current_;
   Eigen::Vector3d com_support_dot_current_;//from support foot
   Eigen::Vector3d com_support_body_;
-  Eigen::Vector3d com_support_measured_;
-  Eigen::Vector3d com_float_measured_;
 
   Eigen::Vector3d com_support_pre_;
   Eigen::Vector3d com_support_pre_pre_;
@@ -651,9 +683,6 @@ private:
   Eigen::Vector3d rfoot_float_current_euler_;
   Eigen::Vector3d pre_lfoot_float_euler_;
   Eigen::Vector3d pre_rfoot_float_euler_;
-
-  Eigen::Vector3d rheel_float_check_;
-  Eigen::Vector3d lheel_float_check_;
 
   Eigen::Vector3d pelv_support_current_euler_;
   Eigen::Vector3d pelv_float_current_euler_;
@@ -710,6 +739,8 @@ private:
   Eigen::Vector3d com_desired_;
   Eigen::Vector3d com_dot_desired_;
   Eigen::Vector2d zmp_desired_;
+  Eigen::Vector2d zmp_calculated_;
+  Eigen::Vector2d zmp_current_calculated_;
 
   Eigen::Isometry3d rfoot_trajectory_support_;  //local frame
   Eigen::Isometry3d lfoot_trajectory_support_;
@@ -1307,6 +1338,7 @@ private:
     Eigen::Isometry3d lheel_trajectory_support_;
     Eigen::Isometry3d rheel_trajectory_support_;
 
+
     Eigen::Vector3d ltoe_trajectory_support_euler_;
     Eigen::Vector3d rtoe_trajectory_support_euler_;
     Eigen::Vector3d lheel_trajectory_support_euler_;
@@ -1331,8 +1363,12 @@ private:
 
     Eigen::Vector3d rfoot_support_current_euler_;
     Eigen::Vector3d lfoot_support_current_euler_;
-    Eigen::Isometry3d rfoot_support_heel_;
-    Eigen::Isometry3d lfoot_support_heel_;
+
+    Eigen::Isometry3d rheel_support_current_;
+    Eigen::Isometry3d lheel_support_current_;
+
+    Eigen::Isometry3d rtoe_support_current_;
+    Eigen::Isometry3d ltoe_support_current_;
 
     Eigen::Vector12d pre_q_sol_;
     Eigen::Vector3d lfoot_lifting_float_euler_init_;
@@ -1364,10 +1400,36 @@ private:
 
     Eigen::Isometry3d ltoe_DSP1_support_init_;
     Eigen::Isometry3d rtoe_DSP1_support_init_;
+
     Eigen::Isometry3d lheel_lifting_support_init_;
     Eigen::Isometry3d rheel_lifting_support_init_;
     Eigen::Isometry3d ltoe_lifting_support_init_;
     Eigen::Isometry3d rtoe_lifting_support_init_;
+
+    Eigen::Isometry3d lfoot_landing_float_init_;
+    Eigen::Isometry3d rfoot_landing_float_init_;
+
+    Eigen::Vector3d lfoot_toeoff_float_euler_init_;
+    Eigen::Vector3d lfoot_toeoff_support_euler_init_;
+    Eigen::Isometry3d lfoot_toeoff_float_init_;
+    Eigen::Isometry3d lfoot_toeoff_support_init_;
+    Eigen::Isometry3d ltoe_toeoff_float_init_;
+    Eigen::Isometry3d ltoe_toeoff_support_init_;
+    Eigen::Isometry3d lheel_toeoff_float_init_;
+    Eigen::Isometry3d lheel_toeoff_support_init_;
+
+    Eigen::Vector3d rfoot_toeoff_float_euler_init_;
+    Eigen::Vector3d rfoot_toeoff_support_euler_init_;
+    Eigen::Isometry3d rfoot_toeoff_float_init_;
+    Eigen::Isometry3d rfoot_toeoff_support_init_;
+    Eigen::Isometry3d rtoe_toeoff_float_init_;
+    Eigen::Isometry3d rtoe_toeoff_support_init_;
+    Eigen::Isometry3d rheel_toeoff_float_init_;
+    Eigen::Isometry3d rheel_toeoff_support_init_;
+
+
+
+
 
     double pushing_force_;
     double pre_pushing_force_;
@@ -1453,9 +1515,13 @@ private:
     Eigen::MatrixXd     Qx_mpc_;
     Eigen::MatrixXd     Qy_mpc_;
 
-    double              alpha_mpc_;
-    double              beta_mpc_;
-    double              gamma_mpc_;
+    double              alpha_x_mpc_;
+    double              beta_x_mpc_;
+    double              gamma_x_mpc_;
+
+    double              alpha_y_mpc_;
+    double              beta_y_mpc_;
+
 
     Eigen::Vector3d     pre_mpc_x_;
     Eigen::Vector3d     pre_mpc_y_;
@@ -1488,7 +1554,142 @@ private:
     double              pre_toe_theta_;
     double              pre_heel_theta_;
 
-    double              E_con_total_;
+
+    double              e_total_temp_;
+    double              e_total_temp_pre_;
+    double              E_current_positive_total_pre_;
+    double              E_current_positive_total_filter_;
+    double              E_current_positive_total_;
+    double              E_current_all_total_;
+    double              desired_E_con_positive_total_;
+    double              desired_E_con_all_total_;
+    double              filtered_E_con_positive_total_;
+    double              filtered_E_con_all_total_;
+    double              filtered_desired_E_con_positive_total_;
+    double              filtered_desired_E_con_all_total_;
+
+    double ZMP_Y_REF;
+    double ZMP_X_REF;
+    double F_F_input;
+    double F_F_input_dot;
+    double F_T_L_x_input;
+    double F_T_L_y_input;
+    double F_T_R_x_input;
+    double F_T_R_y_input;
+
+    double F_T_L_x_input_dot;
+    double F_T_L_y_input_dot;
+    double F_T_R_x_input_dot;
+    double F_T_R_y_input_dot;
+
+
+    Eigen::Vector6d l_ft_LPF_;
+    Eigen::Vector6d r_ft_LPF_;
+
+    double robot_mass_ft_;
+
+    double alpha_mpc_backup_;
+    double beta_mpc_backup_;
+    double gamma_mpc_backup_;
+
+    int t_toeoff_;
+    int t_swing_mid_;
+    int t_swing_;
+    int t_heel_strike_;
+
+    Eigen::Vector3d ankle_to_toe_;
+    Eigen::Vector3d ankle_to_heel_;
+    Eigen::MatrixXd CMM_;
+
+    double pitch_angle_input_;
+    double roll_angle_input_;
+
+    Eigen::Vector3d pre_com_support_meausred_;
+    Eigen::Vector3d pre_com_support_measured_imu_;
+
+    Eigen::Vector2d cp_desired_;
+    Eigen::Vector2d cp_measured_;
+    Eigen::Vector2d pre_cp_measured_;
+    Eigen::Vector2d cp_measured_filtered_;
+
+    Eigen::Vector2d cp_measured_floating_;
+    Eigen::Vector2d pre_cp_measured_floating_;
+    Eigen::Vector2d cp_measured_floating_to_supportfoot_;
+
+
+    Eigen::Vector2d cp_measured_imu_;
+    Eigen::Vector2d pre_cp_measured_imu_;
+    Eigen::Vector2d cp_measured_filtered_imu_;
+
+
+    Eigen::Vector2d del_torque_;
+
+    Eigen::Vector2d del_L_ankle_theta_;
+    Eigen::Vector2d del_R_ankle_theta_;
+
+    Eigen::Vector2d pre_com_error_;
+    Eigen::Vector2d pre_com_error_imu_;
+
+    Eigen::Vector2d cp_error_imu_filtered_;
+    Eigen::Vector2d cp_error_imu_pre_;
+
+    double pre_roll_err_;
+    double pre_pitch_err_;
+
+    Eigen::Vector2d del_L_ankle_theta_landing_;
+    Eigen::Vector2d del_R_ankle_theta_landing_;
+    Eigen::Vector2d del_L_ankle_theta_pushoff_;
+    Eigen::Vector2d del_R_ankle_theta_pushoff_;
+
+    Eigen::Vector3d com_desired_float_;
+    Eigen::Vector3d pre_com_desired_float_;
+
+    Eigen::Isometry3d pelv_support_measured_global_;
+
+    Eigen::Matrix3d R_IMU_;
+
+    //// measured values. ////
+
+    Eigen::Isometry3d lfoot_support_measured_;
+    Eigen::Isometry3d rfoot_support_measured_;
+    Eigen::Isometry3d pelv_support_measured_;
+    Eigen::Vector3d   lfoot_support_euler_measured_;
+    Eigen::Vector3d   rfoot_support_euler_measured_;
+    Eigen::Vector3d   pelv_support_euler_measured_;
+    Eigen::Vector3d   com_support_measured_;
+
+
+    Eigen::Isometry3d lfoot_float_measured_;
+    Eigen::Isometry3d rfoot_float_measured_;
+    Eigen::Isometry3d pelv_float_measured_;
+    Eigen::Vector3d   lfoot_float_euler_measured_;
+    Eigen::Vector3d   rfoot_float_euler_measured_;
+    Eigen::Vector3d   pelv_float_euler_measured_;
+    Eigen::Vector3d   com_float_measured_;
+    Eigen::Vector3d   pre_com_float_measured_;
+    Eigen::Isometry3d supportfoot_float_measured_;
+
+    Eigen::Isometry3d lheel_float_measured_;
+    Eigen::Isometry3d rheel_float_measured_;
+    Eigen::Isometry3d lheel_support_measured_;
+    Eigen::Isometry3d rheel_support_measured_;
+    Eigen::Vector2d del_zmp_cp_;
+
+    Eigen::Vector2d com_desired_dot_float_numerical_;
+    Eigen::Vector2d com_measured_dot_float_numerical_;
+
+    Eigen::Isometry3d  lheel_DSP2_support_init_;
+    Eigen::Isometry3d  rheel_DSP2_support_init_;
+    Eigen::Vector3d    lheel_DSP2_support_euler_;
+    Eigen::Vector3d    rheel_DSP2_support_euler_;
+
+    Eigen::Isometry3d  ltoe_trajectory_float_test_;
+    Eigen::Isometry3d  rtoe_trajectory_float_test_;
+
+    Eigen::Isometry3d lheel_swing_mid_support_init_;
+    Eigen::Isometry3d rheel_swing_mid_support_init_;
+    Eigen::Vector3d   lheel_swing_mid_support_euler_init_;
+    Eigen::Vector3d   rheel_swing_mid_support_euler_init_;
 
 };
 

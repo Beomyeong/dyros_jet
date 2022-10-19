@@ -438,6 +438,8 @@ private:
     double pre_theta_;
     double theta_total_;
 
+    Eigen::Isometry3d pre_pelv_trajectory_support_;
+
 
 };// clss joywalkingcontroller
 

@@ -152,6 +152,7 @@ void DyrosJetModel::updateKinematics(const Eigen::VectorXd& q, const Eigen::Vect
     link_mass_[i] = model_.mBodies[link_id_[i]].mMass;
     link_inertia_[i] = model_.mBodies[link_id_[i]].mInertia;
 
+    
     link_mass_vector_(i,0) = link_mass_[i];
 
     if(0< i && i<13)
@@ -499,7 +500,7 @@ void DyrosJetModel::getInertiaMatrix34DoF(Eigen::Matrix<double, 34, 34> *inertia
   // Non-realtime
   Eigen::MatrixXd full_inertia(MODEL_WITH_VIRTUAL_DOF, MODEL_WITH_VIRTUAL_DOF);
   full_inertia.setZero();
-  RigidBodyDynamics::CompositeRigidBodyAlgorithm(model_, q_virtual_, full_inertia, false);
+  RigidBodyDynamics::CompositeRigidBodyAlgorithm(model_, q_virtual_, full_inertia, true);
 
   inertia->block<34, 34>(0, 0) = full_inertia.block<34, 34>(0, 0);
 }

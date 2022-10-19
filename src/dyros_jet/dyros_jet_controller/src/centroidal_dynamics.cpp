@@ -1277,6 +1277,7 @@ void WalkingController::Jacobian_based_IK(){
 
 }
 void WalkingController::UpdateCentroidalMomentumMatrix(){
+
     Eigen::Matrix<double, DyrosJetModel::MODEL_WITH_VIRTUAL_DOF, 1> q_temp, qdot_temp;
     q_temp.setZero();
     qdot_temp.setZero();
@@ -1288,25 +1289,54 @@ void WalkingController::UpdateCentroidalMomentumMatrix(){
     Eigen::Matrix<double, 3, 28> LMM_rbdl;
     Eigen::Matrix<double, 3, 28> AMM_rbdl;
 
-    for(int i=0;i<28;i++){
-        qdot_temp.setZero();
-        qdot_temp(6+i) = 1.0;
+    chrono::high_resolution_clock::time_point t_1 = std::chrono::high_resolution_clock::now();
+//    for(int i=0;i<28;i++){
+//        qdot_temp.setZero();
+//        qdot_temp(6+i) = 1.0;
 
-        model_.updateKinematics(q_temp,qdot_temp);
+//        model_.updateKinematics(q_temp,qdot_temp);
 
-        LMM_rbdl.col(i) = model_.getCurrentComLinearMomentum();
-        AMM_rbdl.col(i) = model_.getCurrentComAngularMomentum();
-    }
+//        LMM_rbdl.col(i) = model_.getCurrentComLinearMomentum();
+//        AMM_rbdl.col(i) = model_.getCurrentComAngularMomentum();
+//    }
 
     Augmented_Centroidal_Momentum_Matrix_.block<3,28>(0,0) = LMM_rbdl;
     Augmented_Centroidal_Momentum_Matrix_.block<3,28>(3,0) = AMM_rbdl;
+
+    chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
     qdot_temp.segment<28>(6) = current_q_dot_.segment<28>(0);
 
     model_.updateKinematics(q_temp,qdot_temp);
     current_Angular_momentum_ = model_.getCurrentComAngularMomentum();
-    com_float_measured_ = model_.getCurrentCom();
+//    com_float_measured_ = model_.getCurrentCom();
 
-    file[27]<<walking_tick_<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)<<endl;
+    chrono::high_resolution_clock::time_point t_3 = std::chrono::high_resolution_clock::now();
+    Eigen::MatrixXd mass_matrix_temp;
+    mass_matrix_temp.setZero(DyrosJetModel::MODEL_WITH_VIRTUAL_DOF,DyrosJetModel::MODEL_WITH_VIRTUAL_DOF);
+    mass_matrix_temp = model_.getFullInertia();
+
+//    Eigen::MatrixXd CMM;
+    if(walking_tick_ == 0)
+        CMM_.setZero(3,DyrosJetModel::MODEL_DOF);
+
+    double mass = mass_matrix_temp(0,0);
+    Eigen::MatrixXd M_r = mass_matrix_temp.block(3, 3, 3, 3);
+    Eigen::MatrixXd M_t = mass_matrix_temp.block(0, 0, 3, 3);
+    Eigen::MatrixXd M_tr = mass_matrix_temp.block(0, 3, 3, 3);
+    Eigen::MatrixXd M_rt = mass_matrix_temp.block(3, 0, 3, 3);
+    Eigen::MatrixXd M_rm = mass_matrix_temp.block(3, 6, 3, DyrosJetModel::MODEL_DOF);
+    Eigen::MatrixXd M_tm = mass_matrix_temp.block(0, 6, 3, DyrosJetModel::MODEL_DOF);
+    Eigen::MatrixXd J_w;
+    J_w.setZero(3,DyrosJetModel::MODEL_DOF);
+    J_w = (M_r - (M_rt*M_tr)/mass).inverse()*(M_rm - (M_rt*M_tm)/mass);
+
+    CMM_ = M_r*J_w;
+
+    chrono::duration<double> t_4 = std::chrono::high_resolution_clock::now() - t_3;
+
+
+
+    file[27]<<walking_tick_<<"\t"<<current_Angular_momentum_(0)<<"\t"<<current_Angular_momentum_(1)<<"\t"<<current_Angular_momentum_(2)<<"\t"<<t_2.count()<<"\t"<<t_4.count()<<endl;
 }
 }
