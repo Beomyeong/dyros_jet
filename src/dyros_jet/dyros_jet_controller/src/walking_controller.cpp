@@ -88,7 +88,7 @@ void WalkingController::compute()
 
 //            if(current_step_num_ == 0 || current_step_num_ >total_step_num_ -2){
 
-                getComTrajectory();
+//                getComTrajectory();
 
 
 //            }
@@ -103,7 +103,7 @@ void WalkingController::compute()
 //                    MPC_com();
 
 //                MPC_com_2021(); /// for real robot
-//                MPC_com_backup(); // for simulation
+                MPC_com_backup(); // for simulation
 
                 chrono::duration<double> t_2 = std::chrono::high_resolution_clock::now() - t_1;
 
@@ -399,7 +399,7 @@ void WalkingController::compute()
 
 //            if(walking_tick_ >= t_swing_mid_){ // only toe-off
 //            if(walking_tick_ <= t_swing_mid_){ // only heel-strike
-//////            if(walking_tick_>= (int) t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/3){
+////////            if(walking_tick_>= (int) t_start_real_+t_double1_+(t_total_-t_rest_init_-t_rest_last_-t_double1_-t_double2_-t_imp_)/3){
 //                computeIkControl(pelv_trajectory_float_, lfoot_trajectory_float_, rfoot_trajectory_float_, desired_leg_q_);
 //                for(int i=1; i<13; i++)
 //                {

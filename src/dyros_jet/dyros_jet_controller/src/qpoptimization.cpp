@@ -1544,11 +1544,11 @@ void WalkingController::qpIK_pelvis_heel_toe_arc(){
 
     double knee_gain;
 
-//    if(walking_tick_<600)
+    if(walking_tick_<600)
         knee_gain = 0;
-//    else {
-//        knee_gain = 01;
-//    }
+    else {
+        knee_gain = 01;
+    }
 
 //    H_matrix_13 = knee_gain*Jacobian_knee_t*Selec_knee_vel_t*Selec_knee_vel*Jacobian_knee + 1*Iden_13;
 //    g_vector_13 = knee_gain*Jacobian_knee_t*Selec_knee_vel_t*com_dot_desired_(0);
