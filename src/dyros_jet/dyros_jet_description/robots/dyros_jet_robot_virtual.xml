@@ -27,36 +27,35 @@
 	</default>
 
 	</default>
+    <!-- <body>
+        <geom type="box" pos="1 0 0" size="0.5 0.5 0.5"/>
+    </body> -->
 
-<!--	<default>
+	<!-- <default>
 	   <default class="object1">
 		         <geom type="box" size=".1 .1 0.01" rgba="1 .4 .4 1"  />
 	   </default>
-	</default>	-->
+	</default>	 -->
 
 
- <!--   <default>
+   <!-- <default>
         <default class="object1">
                  <geom type="box" size=".1 .1 0.007" rgba="1 .4 .4 1"  />
         </default>
-
-        <default class="object3">
-                 <geom type="box" size=".05 .07 0.007" rgba="1 .4 .4 1"  />
-        </default>
-
-        <default class="object4">
-                 <geom type="box" size=".05 .07 0.007" rgba="1 .4 .4 1"  />
-        </default>
-
         <default class="object2">
                  <geom type="box" size=".07 .07 .07" rgba="1 .4 .4 1" />
         </default>
-
+        <default class="object3">
+                 <geom type="box" size=".05 .07 0.007" rgba="1 .4 .4 1"  />
+        </default>
+        <default class="object4">
+                 <geom type="box" size=".05 .07 0.007" rgba="1 .4 .4 1"  />
+        </default>
         <default class="object5">
                  <geom type="box" size="1 1 .05" rgba=".2 .4 .6 1" />
         </default>
-    </default>
--->
+    </default> -->
+
 
         <option  timestep='0.0005'/>
 	<option  impratio ='1'/>
@@ -95,14 +94,14 @@
             rgb1="0.6 0.6 0.6" rgb2="0.6 0.6 0.6" markrgb="1 1 1"/?>
 	 <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="128" height="128" 
             rgb1="0.0 0.0 0.0" rgb2="0 0 0" markrgb="1 1 1"/>
-<!--	<material name='object1' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" /> -->
+	<!-- <material name='object1' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" /> -->
 
- <!--       <material name='object1' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" />
+       <!-- <material name='object1' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" />
         <material name='object2' texture="texgeom" texuniform="true" rgba=".4 .9 .6 1" />
         <material name='object3' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" />
         <material name='object4' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" />
-        <material name='object5' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" />
--->
+        <material name='object5' texture="texgeom" texuniform="true" rgba=".5 .1 .1 1" /> -->
+
 	<texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
             width="512" height="1024"/>
 	<?texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2="1 1 1" 
@@ -275,35 +274,48 @@
             </body>
         </body>
 
-<!--	   <body pos="0 0 0" quat="1 0 0 0">
+	   <!-- <body pos="0 0 0" quat="1 0 0 0">
            <freejoint/>
               <geom class="object1" pos="-0.2 0.0 0.1" quat="1 0 0.5 0"/>
 	   </body> -->
 
- <!--       <body pos="0 0 0" quat="1 0 0 0">
+       <!-- <body pos="0 0 0" quat="1 0 0 0">
             <freejoint/>
             <geom class="object1" pos="-0.2 0.0 -0.1" quat="1 0 0 0" mass="500"/>
         </body>
-
-        <body pos="0 0 0" quat="1 0 0 0">
-            <freejoint/>
-            <geom class="object3" pos="0.44 -0.4 0" quat="1 0 0 0" mass="0.5"/>
-        </body>
-
-        <body pos="0 0 0" quat="1 0 0 0"> 
-            <freejoint/>
-            <geom class="object4" pos="+0.8 0.45 0" quat="1 0 0 0" mass="0.5"/>
-        </body>
-
         <body>            
             <geom class="object2" pos="2.5 -0.4 1.25" quat="1 0 0 0"/> 
             <joint type="slide" pos="1 0 1" axis="0 1 0" springdamper="0.15 0.4"/>
         </body>
-
+        <body pos="0 0 0" quat="1 0 0 0">
+            <freejoint/>
+            <geom class="object3" pos="0.44 -0.4 0" quat="1 0 0 0" mass="0.5"/>
+        </body>
+        <body pos="0 0 0" quat="1 0 0 0"> 
+            <freejoint/>
+            <geom class="object4" pos="+0.8 0.45 0" quat="1 0 0 0" mass="0.5"/>
+        </body>
         <body pos="0 0 0" quat="1 0 0 0">
             <geom class="object5" pos="2 0 0" quat="1 0 -0.026 0"/>
-        </body> 
--->
+        </body>  -->
+
+        <-- stair depth 0.3m heigth 0.2 m-->
+    <geom name='box1' pos='1.1 2 0.01' size='0.9 1 0.2' type='box' condim='3' conaffinity='15'/> 
+    <geom name='box2' pos='1.1 2 0.01' size='0.6 1 0.4' type='box' condim='3' conaffinity='15'/>
+    <geom name='box3' pos='1.1 2 0.01' size='0.3 1 0.6' type='box' condim='3' conaffinity='15'/>
+    <!-- <geom name='box3' pos='3.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box4' pos='4.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box5' pos='5.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box6' pos='6.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box7' pos='7.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box8' pos='8.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box9' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
+    <!-- <geom name='box10' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/>
+    <geom name='box11' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/>
+    <geom name='box12' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/>
+    <geom name='box13' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/>
+    <geom name='box14' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/>
+    <geom name='box15' pos='9.1 2 0.01' size='1 1 1' type='box' condim='3' conaffinity='15'/> -->
 
     </worldbody>
 	<actuator>		

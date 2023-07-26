@@ -11443,6 +11443,8 @@ void WalkingController::MPC_com_backup(){
     zmp_current_calculated_(0) = com_support_current_(0) + c(2)*mpc_x_(2);
     zmp_current_calculated_(1) = com_support_current_(1) + c(2)*mpc_y_(2);
 
+    file[39]<<walking_tick_<<"\t"<<mpc_x_(0)<<"\t"<<mpc_x_(1)<<"\t"<<mpc_x_(2)<<"\t"<<mpc_y_(0)<<"\t"<<mpc_y_(1)<<"\t"<<mpc_y_(2)<<endl;
+
 }
 
 void WalkingController::MPC_Matrix_Update_backup(int sampling_n, double dt, int interval){
